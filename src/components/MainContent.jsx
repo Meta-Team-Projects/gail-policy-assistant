@@ -28,6 +28,7 @@ import {
     VolumeUp,
     Source,
     IosShare,
+    Person,
     PersonAdd,
     AttachFile
 } from '@mui/icons-material'
@@ -306,17 +307,19 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                     >
                         <Avatar
                             sx={{
-                                bgcolor: msg.type === 'user'
-                                    ? '#ffd95c'
-                                    : msg.isError ? '#f8f0d7' : '#a4bfff0a',
+                                background: msg.type === 'user'
+                                ? '#FFD95C'                                                   // user: yellow
+                                : 'conic-gradient(from 180deg at 50% 50%, #FFD95C 0deg, #FF715E 360deg)',  
                                 width: 40,
                                 height: 40,
-                                fontSize: '1rem',
                                 mt: 0.5,
                                 flexShrink: 0,
                             }}
-                        >
-                            {msg.type === 'user' ? 'U' : 'AI'}
+                            >
+                            {msg.type === 'user' 
+                                ? <Person sx={{ color: '#081A33', fontSize: 20 }} />       // user icon
+                                : <></>      // AI icon
+                            }
                         </Avatar>
                         <Box sx={{
                             flex: 1,
