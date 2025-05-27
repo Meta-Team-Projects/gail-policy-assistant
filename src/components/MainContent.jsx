@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
     Box,
     TextField,
@@ -40,6 +40,8 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState([])
     const [loading, setLoading] = useState(false)
+    const messagesEndRef = useRef(null)
+
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
 
 
@@ -173,6 +175,10 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
         { icon: <AutoFixHigh />, label: 'Simplify' },
         // { icon: <AutoGraph />, label: 'Graph' },
     ]
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages])
 
     return (
         <Box
@@ -624,6 +630,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                         </Box>
                     </Box>
                 ))}
+                <div ref={messagesEndRef} />
                 {loading && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Typography
