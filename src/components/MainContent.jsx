@@ -41,69 +41,86 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
     const [messages, setMessages] = useState([])
     const [loading, setLoading] = useState(false)
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
+
+
     const handleSend = async () => {
-        const query = message.trim()
-        setMessage('')
-        if (query) {
-            const userMessage = {
-                type: 'user',
-                content: query,
-                timestamp: new Date().toISOString(),
-            }
-            setMessages([...messages, userMessage])
-            setLoading(true)
+    const query = message.trim()
+    setMessage('')
+    if (!query) return
 
-            try {
-                const response = await axios.post(BASE_URL + '/query', {
-                    query: query,
-                })
-
-                // Check if response data is valid
-                if (!response.data || typeof response.data !== 'object') {
-                    throw new Error('Invalid response format')
-                }
-
-                const aiMessage = {
-                    type: 'ai',
-                    content: response.data,
-                    timestamp: new Date().toISOString(),
-                }
-                setMessages(prev => [...prev, aiMessage])
-            } catch (error) {
-                console.error('Error sending message:', error)
-
-                let errorMessage = "I couldn't process that request at the moment. Please try again later."
-
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    if (error.response.status === 404) {
-                        errorMessage = "I couldn't find any relevant information for your query. Please try rephrasing your question."
-                    } else if (error.response.status === 400) {
-                        errorMessage = "I couldn't understand your query. Please try rephrasing your question."
-                    } else if (error.response.status === 500) {
-                        errorMessage = "There was an error processing your request. Please try again later."
-                    }
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    errorMessage = "I'm having trouble connecting to the server. Please check your internet connection and try again."
-                }
-
-                const errorResponse = {
-                    type: 'ai',
-                    content: {
-                        error: true,
-                        message: errorMessage
-                    },
-                    timestamp: new Date().toISOString(),
-                    isError: true
-                }
-                setMessages(prev => [...prev, errorResponse])
-            } finally {
-                setLoading(false)
-            }
-        }
+    // push user’s message
+    const userMessage = {
+        type: 'user',
+        content: query,
+        timestamp: new Date().toISOString(),
     }
+    setMessages(prev => [...prev, userMessage])
+    setLoading(true)
+
+    try {
+        // 2) call API
+        const resp = await axios.post(`${BASE_URL}/query`, { query })
+
+        // 3) extract the `results` array
+        const results = resp.data?.results || []
+        const message = resp.data?.message
+
+
+        if (results.length === 0) {
+        // “no results” error 
+        setMessages(prev => [
+            ...prev,
+            {
+            type: 'ai',
+            content: { error: true, 
+                message: message || 'No results found.',},
+            timestamp: new Date().toISOString(),
+            isError: true,
+            }
+        ])
+        } else {
+        // AI message
+        const aiMessages = results.map(item => ({
+            type: 'ai',
+            content: item,
+            timestamp: new Date().toISOString(),
+        }))
+        setMessages(prev => [...prev, ...aiMessages])
+        }
+
+    } catch (error) {
+        console.error('Error sending message:', error)
+
+        // error-status logic
+        let errorMessage = "I couldn't process that request at the moment. Please try again later."
+        if (error.response) {
+        if (error.response.status === 404) {
+            errorMessage = "I couldn't find any relevant information for your query. Please try rephrasing your question."
+        } else if (error.response.status === 400) {
+            errorMessage = "I couldn't understand your query. Please try rephrasing your question."
+        } else if (error.response.status === 500) {
+            errorMessage = "There was an error processing your request. Please try again later."
+        }
+        } else if (error.request) {
+        errorMessage = "I'm having trouble connecting to the server. Please check your internet connection and try again."
+        }
+
+        const errorResponse = {
+        type: 'ai',
+        content: {
+            error: true,
+            message: errorMessage
+        },
+        timestamp: new Date().toISOString(),
+        isError: true
+        }
+        setMessages(prev => [...prev, errorResponse])
+
+    } finally {
+        setLoading(false)
+    }
+    }
+
 
     const formatResponse = (response) => {
         if (!response) return ''
@@ -113,7 +130,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             return `**ERROR:** ${response.message}`
         }
 
-        // Known fields that should be displayed first
+        // Known fields 
         const knownFields = [
             'document_name',
             'question',
@@ -126,7 +143,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             'answer'
         ]
 
-        // Create markdown for known fields
+        // markdown for known fields
         let markdown = knownFields
             .filter(field => response[field] !== undefined)
             .map(field => {
@@ -137,7 +154,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             })
             .join('')
 
-        // Add any additional fields that weren't in the known fields list
+        // additional fields 
         const additionalFields = Object.keys(response)
             .filter(field => !knownFields.includes(field) && field !== 'error')
             .map(field => `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field]}\n\n`)
