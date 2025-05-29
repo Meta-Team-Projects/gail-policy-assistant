@@ -154,7 +154,8 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             'subject',
             'has_answer',
             'similarity_score',
-            'answer'
+            'answer',
+            'document_link',
         ]
 
         // markdown for known fields
@@ -163,6 +164,9 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             .map(field => {
                 if (field === 'has_answer') {
                     return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field] ? 'Yes' : 'No'}\n\n\n`
+                }
+                if (field === 'document_link') {
+                    return `**${field.replace(/_/g,' ').toUpperCase()}:** [View Document](${response[field]})\n\n\n`
                 }
                 return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field]}\n\n\n`
             })
@@ -900,15 +904,18 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                 }}
                             />
 
-                                <Box sx={{ width: 120, ml: 1, marginTop: 1 }}>
-                                <Slider
-                                    value={cutoff}
-                                    min={0}
-                                    max={1}
-                                    step={0.01}
-                                    valueLabelDisplay="auto"
-                                    onChange={(_, v) => setCutoff(v)}
-                                />
+                                <Box sx={{ width: 180, ml: 1, mr: 1, display: "flex" }}>
+                                    <Typography variant="caption" gutterBottom  sx={{width: 180, mr: 2.5, mt:1}}>
+                                        Similarity: {cutoff.toFixed(2)}
+                                    </Typography>
+                                    <Slider
+                                        value={cutoff}
+                                        min={0}
+                                        max={1}
+                                        step={0.01}
+                                        valueLabelDisplay="auto"
+                                        onChange={(_, v) => setCutoff(v)}
+                                    />
                                 </Box>
 
                             <IconButton
