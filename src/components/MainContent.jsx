@@ -3,6 +3,7 @@ import {
     Box,
     TextField,
     IconButton,
+    Slider,
     Typography,
     Paper,
     ButtonGroup,
@@ -30,8 +31,14 @@ import {
     IosShare,
     Person,
     PersonAdd,
-    AttachFile
+    AttachFile,
 } from '@mui/icons-material'
+
+import NavigateBefore from '@mui/icons-material/NavigateBefore'
+import NavigateNext from '@mui/icons-material/NavigateNext'
+
+import Linkify from 'react-linkify'
+
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -39,6 +46,7 @@ import remarkGfm from 'remark-gfm'
 const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState([])
+    const [cutoff,  setCutoff]  = useState(0.80)
     const [loading, setLoading] = useState(false)
     const messagesEndRef = useRef(null)
 
@@ -61,7 +69,10 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
 
     try {
         // 2) call API
-        const resp = await axios.post(`${BASE_URL}/query`, { query })
+        const resp = await axios.post(`${BASE_URL}/query`, {
+        query,
+        cutoff,   
+        })
 
         // 3) extract the `results` array
         const results = resp.data?.results || []
@@ -81,13 +92,14 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             }
         ])
         } else {
-        // AI message
-        const aiMessages = results.map(item => ({
+        // Grouped AI message with pagination
+        const pagedMessage = {
             type: 'ai',
-            content: item,
+            pages: results,               // array of response objects
+            currentPage: 0,               // start at page 0
             timestamp: new Date().toISOString(),
-        }))
-        setMessages(prev => [...prev, ...aiMessages])
+        }
+        setMessages(prev => [...prev, pagedMessage])
         }
 
     } catch (error) {
@@ -177,8 +189,40 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
     ]
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        messagesEndRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        })
     }, [messages])
+
+    const goToPage = (msgIndex, delta) => {
+        setMessages(prev =>
+        prev.map((m, i) => {
+            if (i === msgIndex && m.type === 'ai' && Array.isArray(m.pages)) {
+            const next = m.currentPage + delta
+            return {
+                ...m,
+                currentPage: Math.min(Math.max(next, 0), m.pages.length - 1)
+            }
+            }
+            return m
+        })
+        )
+    }
+
+      // ────────────────────────────────────────────────────────────────────────────
+    // + simulate a backend AI reply with a clickable link on mount
+    //useEffect(() => {
+      //  setMessages(prev => [
+        //...prev,
+        //{
+          //  type: 'user',
+            //content: `Hey, check out our demo branch: https://tinyurl.com/49w8xbj6`,
+            //timestamp: new Date().toISOString(),
+        //}
+        //]);
+    //}, []);
+    // ────────────────────────────────────────────────────────────────────────────
 
     return (
         <Box
@@ -314,322 +358,386 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                     },
                 }}
             >
-                {messages.map((msg, index) => (
-                    <Box
-                        key={index}
-                        sx={{
-                            display: 'flex',
-                            gap: 2,
-                            mb: 3,
-                            justifyContent: 'flex-start',
-                            alignItems: 'flex-start',
-                            maxWidth: '1200px',
-                            mx: 'auto',
-                            width: '100%',
-                        }}
-                    >
-                        <Avatar
+                {messages.map((msg, index) => {
+                    const isPagedAI = msg.type === 'ai' && Array.isArray(msg.pages)
+                    const content = isPagedAI
+                        ? msg.pages[msg.currentPage]       // only show the current page
+                        : msg.content
+                    const isLast = index === messages.length - 1
+                    return (
+                        <Box
+                            key={index}
+                            ref={isLast ? messagesEndRef : null}
                             sx={{
-                                background: msg.type === 'user'
-                                ? '#FFD95C'                                                   // user: yellow
-                                : 'conic-gradient(from 180deg at 50% 50%, #FFD95C 0deg, #FF715E 360deg)',  
-                                width: 40,
-                                height: 40,
-                                mt: 0.5,
-                                flexShrink: 0,
+                                display: 'flex',
+                                gap: 2,
+                                mb: 3,
+                                justifyContent: 'flex-start',
+                                alignItems: 'flex-start',
+                                maxWidth: '1200px',
+                                mx: 'auto',
+                                width: '100%',
                             }}
-                            >
-                            {msg.type === 'user' 
-                                ? <Person sx={{ color: '#081A33', fontSize: 20 }} />       // user icon
-                                : <></>      // AI icon
-                            }
-                        </Avatar>
-                        <Box sx={{
-                            flex: 1,
-                            minWidth: 0,
-                        }}>
-                            {msg.type === 'ai' && (
-                                <Box
+                        >
+                            <Avatar
+                                sx={{
+                                    background: msg.type === 'user'
+                                    ? '#FFD95C'                                                   // user: yellow
+                                    : 'conic-gradient(from 180deg at 50% 50%, #FFD95C 0deg, #FF715E 360deg)',  
+                                    width: 40,
+                                    height: 40,
+                                    mt: 0.5,
+                                    flexShrink: 0,
+                                }}
+                                >
+                                {msg.type === 'user' 
+                                    ? <Person sx={{ color: '#081A33', fontSize: 20 }} />       // user icon
+                                    : <></>      // AI icon
+                                }
+                            </Avatar>
+                            <Box sx={{
+                                flex: 1,
+                                minWidth: 0,
+                            }}>
+                                {msg.type === 'ai' && (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            mt: -2,
+                                            mb: 2,
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                color: 'black',
+                                                padding: '0px',
+                                                '&:hover': {
+                                                    color: 'black',
+                                                },
+                                            }}
+                                        >
+                                            <Flag sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                color: 'black',
+                                                padding: '0px',
+                                                '&:hover': {
+                                                    color: 'black',
+                                                },
+                                            }}
+                                        >
+                                            <VolumeUp sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                    </Box>
+                                )}
+                                <Paper
+                                    elevation={0}
                                     sx={{
-                                        display: 'flex',
-                                        justifyContent: 'flex-end',
-                                        mt: -2,
-                                        mb: 2,
-                                        gap: 1,
+                                        p: 2,
+                                        bgcolor: msg.type === 'user'
+                                            ? '#FFD95C1A'
+                                            : msg.isError
+                                                ? 'rgba(252, 72, 72, 0.30)'
+                                                : 'rgba(255, 255, 255, 0.03)',
+                                        color: msg.type === 'user' || msg.isError ? '#303308' : 'text.primary',
+                                        borderRadius: '12px',
+                                        borderTopLeftRadius: '2px',
+                                        width: 'fit-content',
+                                        maxWidth: '100%',
+                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                        '&:hover': {
+                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+                                        },
                                     }}
                                 >
-                                    <IconButton
-                                        size="small"
-                                        sx={{
-                                            color: 'black',
-                                            padding: '0px',
-                                            '&:hover': {
-                                                color: 'black',
-                                            },
-                                        }}
-                                    >
-                                        <Flag sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        sx={{
-                                            color: 'black',
-                                            padding: '0px',
-                                            '&:hover': {
-                                                color: 'black',
-                                            },
-                                        }}
-                                    >
-                                        <VolumeUp sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                </Box>
-                            )}
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    p: 2,
-                                    bgcolor: msg.type === 'user'
-                                        ? '#FFD95C1A'
-                                        : msg.isError
-                                            ? 'rgba(252, 72, 72, 0.30)'
-                                            : 'rgba(255, 255, 255, 0.03)',
-                                    color: msg.type === 'user' || msg.isError ? '#303308' : 'text.primary',
-                                    borderRadius: '12px',
-                                    borderTopLeftRadius: '2px',
-                                    width: 'fit-content',
-                                    maxWidth: '100%',
-                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                    '&:hover': {
-                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
-                                    },
-                                }}
-                            >
-                                {msg.type === 'ai' ? (
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            p: ({ node, ...props }) => (
-                                                <Typography
+                                    {msg.type === 'ai' ? (
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                a: ({ node, ...props }) => (
+                                                <a
                                                     {...props}
-                                                    sx={{
-                                                        fontSize: '1rem',
-                                                        lineHeight: 1.6,
-                                                        letterSpacing: '0.01em',
-                                                        mb: 2,
-                                                        color: 'inherit',
-                                                    }}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                 />
-                                            ),
-                                            h1: ({ node, ...props }) => (
-                                                <Typography
-                                                    {...props}
-                                                    variant="h5"
-                                                    sx={{
-                                                        fontWeight: 600,
-                                                        mb: 2,
-                                                        color: 'inherit',
-                                                    }}
-                                                />
-                                            ),
-                                            h2: ({ node, ...props }) => (
-                                                <Typography
-                                                    {...props}
-                                                    variant="h6"
-                                                    sx={{
-                                                        fontWeight: 600,
-                                                        mb: 2,
-                                                        color: 'inherit',
-                                                    }}
-                                                />
-                                            ),
-                                            h3: ({ node, ...props }) => (
-                                                <Typography
-                                                    {...props}
-                                                    variant="subtitle1"
-                                                    sx={{
-                                                        fontWeight: 600,
-                                                        mb: 2,
-                                                        color: 'inherit',
-                                                    }}
-                                                />
-                                            ),
-                                            ul: ({ node, ...props }) => (
-                                                <Box
-                                                    component="ul"
-                                                    sx={{
-                                                        pl: 3,
-                                                        mb: 2,
-                                                        '& li': {
-                                                            mb: 1,
-                                                        },
-                                                    }}
-                                                    {...props}
-                                                />
-                                            ),
-                                            ol: ({ node, ...props }) => (
-                                                <Box
-                                                    component="ol"
-                                                    sx={{
-                                                        pl: 3,
-                                                        mb: 2,
-                                                        '& li': {
-                                                            mb: 1,
-                                                        },
-                                                    }}
-                                                    {...props}
-                                                />
-                                            ),
-                                            li: ({ node, ...props }) => (
-                                                <Typography
-                                                    component="li"
-                                                    sx={{
-                                                        fontSize: '1rem',
-                                                        lineHeight: 1.6,
-                                                        color: 'inherit',
-                                                    }}
-                                                    {...props}
-                                                />
-                                            ),
-                                            table: ({ node, ...props }) => (
-                                                <Box sx={{ overflowX: 'auto', mb: 2 }}>
-                                                    <table
+                                                ),
+                                                p: ({ node, ...props }) => (
+                                                    <Typography
                                                         {...props}
-                                                        style={{
-                                                            borderCollapse: 'collapse',
-                                                            width: '100%',
-                                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                        sx={{
+                                                            fontSize: '1rem',
+                                                            lineHeight: 1.6,
+                                                            letterSpacing: '0.01em',
+                                                            mb: 2,
+                                                            color: 'inherit',
                                                         }}
                                                     />
-                                                </Box>
-                                            ),
-                                            th: ({ node, ...props }) => (
-                                                <th
-                                                    {...props}
-                                                    style={{
-                                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                        padding: '12px',
-                                                        textAlign: 'left',
-                                                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                                    }}
-                                                />
-                                            ),
-                                            td: ({ node, ...props }) => (
-                                                <td
-                                                    {...props}
-                                                    style={{
-                                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                        padding: '12px',
-                                                    }}
-                                                />
-                                            ),
-                                            code: ({ node, ...props }) => (
-                                                <Box
-                                                    component="code"
-                                                    sx={{
-                                                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                                                        p: '2px 4px',
-                                                        borderRadius: '4px',
-                                                        fontSize: '0.9em',
-                                                        fontFamily: 'monospace',
-                                                    }}
-                                                    {...props}
-                                                />
-                                            ),
-                                            pre: ({ node, ...props }) => (
-                                                <Box
-                                                    component="pre"
-                                                    sx={{
-                                                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                                                        p: 2,
-                                                        borderRadius: '8px',
-                                                        overflowX: 'auto',
-                                                        mb: 2,
-                                                    }}
-                                                    {...props}
-                                                />
-                                            ),
-                                            blockquote: ({ node, ...props }) => (
-                                                <Box
-                                                    component="blockquote"
-                                                    sx={{
-                                                        borderLeft: '4px solid rgba(255, 255, 255, 0.2)',
-                                                        pl: 2,
-                                                        py: 1,
-                                                        my: 2,
-                                                        color: 'inherit',
-                                                    }}
-                                                    {...props}
-                                                />
-                                            ),
-                                        }}
-                                    >
-                                        {formatResponse(msg.content)}
-                                    </ReactMarkdown>
-                                ) : (
-                                    <Typography
+                                                ),
+                                                h1: ({ node, ...props }) => (
+                                                    <Typography
+                                                        {...props}
+                                                        variant="h5"
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            mb: 2,
+                                                            color: 'inherit',
+                                                        }}
+                                                    />
+                                                ),
+                                                h2: ({ node, ...props }) => (
+                                                    <Typography
+                                                        {...props}
+                                                        variant="h6"
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            mb: 2,
+                                                            color: 'inherit',
+                                                        }}
+                                                    />
+                                                ),
+                                                h3: ({ node, ...props }) => (
+                                                    <Typography
+                                                        {...props}
+                                                        variant="subtitle1"
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            mb: 2,
+                                                            color: 'inherit',
+                                                        }}
+                                                    />
+                                                ),
+                                                ul: ({ node, ...props }) => (
+                                                    <Box
+                                                        component="ul"
+                                                        sx={{
+                                                            pl: 3,
+                                                            mb: 2,
+                                                            '& li': {
+                                                                mb: 1,
+                                                            },
+                                                        }}
+                                                        {...props}
+                                                    />
+                                                ),
+                                                ol: ({ node, ...props }) => (
+                                                    <Box
+                                                        component="ol"
+                                                        sx={{
+                                                            pl: 3,
+                                                            mb: 2,
+                                                            '& li': {
+                                                                mb: 1,
+                                                            },
+                                                        }}
+                                                        {...props}
+                                                    />
+                                                ),
+                                                li: ({ node, ...props }) => (
+                                                    <Typography
+                                                        component="li"
+                                                        sx={{
+                                                            fontSize: '1rem',
+                                                            lineHeight: 1.6,
+                                                            color: 'inherit',
+                                                        }}
+                                                        {...props}
+                                                    />
+                                                ),
+                                                table: ({ node, ...props }) => (
+                                                    <Box sx={{ overflowX: 'auto', mb: 2 }}>
+                                                        <table
+                                                            {...props}
+                                                            style={{
+                                                                borderCollapse: 'collapse',
+                                                                width: '100%',
+                                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                ),
+                                                th: ({ node, ...props }) => (
+                                                    <th
+                                                        {...props}
+                                                        style={{
+                                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                            padding: '12px',
+                                                            textAlign: 'left',
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                                        }}
+                                                    />
+                                                ),
+                                                td: ({ node, ...props }) => (
+                                                    <td
+                                                        {...props}
+                                                        style={{
+                                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                            padding: '12px',
+                                                        }}
+                                                    />
+                                                ),
+                                                code: ({ node, ...props }) => (
+                                                    <Box
+                                                        component="code"
+                                                        sx={{
+                                                            bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                                            p: '2px 4px',
+                                                            borderRadius: '4px',
+                                                            fontSize: '0.9em',
+                                                            fontFamily: 'monospace',
+                                                        }}
+                                                        {...props}
+                                                    />
+                                                ),
+                                                pre: ({ node, ...props }) => (
+                                                    <Box
+                                                        component="pre"
+                                                        sx={{
+                                                            bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                                            p: 2,
+                                                            borderRadius: '8px',
+                                                            overflowX: 'auto',
+                                                            mb: 2,
+                                                        }}
+                                                        {...props}
+                                                    />
+                                                ),
+                                                blockquote: ({ node, ...props }) => (
+                                                    <Box
+                                                        component="blockquote"
+                                                        sx={{
+                                                            borderLeft: '4px solid rgba(255, 255, 255, 0.2)',
+                                                            pl: 2,
+                                                            py: 1,
+                                                            my: 2,
+                                                            color: 'inherit',
+                                                        }}
+                                                        {...props}
+                                                    />
+                                                ),
+                                            
+                                            }}
+                                            children={String(formatResponse(content))}
+                                        >
+                                            {formatResponse(content)}
+                                        </ReactMarkdown>
+                                    ) : (
+                                        
+                                        <Linkify
+                                            componentDecorator={(decoratedHref, decoratedText, key) => (
+                                                <a
+                                                href={decoratedHref}
+                                                key={key}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                >
+                                                {decoratedText}
+                                                </a>
+                                            )}
+                                            >
+                                            <Typography
+                                                sx={{
+                                                fontSize: '1rem',
+                                                lineHeight: 1.6,
+                                                letterSpacing: '0.01em',
+                                                overflowWrap: 'break-word',
+                                                wordBreak: 'break-word',
+                                                color: 'inherit',
+                                                }}
+                                            >
+                                                {msg.content}
+                                            </Typography>
+                                        </Linkify>
+                                    )}
+                                </Paper>
+                                {msg.type === 'ai' && (
+                                    <Box
                                         sx={{
-                                            fontSize: '1rem',
-                                            lineHeight: 1.6,
-                                            letterSpacing: '0.01em',
-                                            overflowWrap: 'break-word',
-                                            wordBreak: 'break-word',
-                                            color: 'inherit',
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            gap: 1,
+                                            mt: 1,
                                         }}
                                     >
-                                        {msg.content}
-                                    </Typography>
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                color: 'black',
+                                                padding: '2px',
+                                                '&:hover': {
+                                                    color: 'black',
+                                                },
+                                            }}
+                                        >
+                                            <Source sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                color: 'black',
+                                                padding: '2px',
+                                                '&:hover': {
+                                                    color: 'black',
+                                                },
+                                            }}
+                                        >
+                                            <ContentCopy sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                color: 'black',
+                                                padding: '2px',
+                                                '&:hover': {
+                                                    color: 'black',
+                                                },
+                                            }}
+                                        >
+                                            <IosShare sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                    </Box>
                                 )}
-                            </Paper>
-                            {msg.type === 'ai' && (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'flex-end',
-                                        gap: 1,
-                                        mt: 1,
-                                    }}
-                                >
-                                    <IconButton
-                                        size="small"
+
+                                {/* ← pagination controls for multi-page AI replies */}
+                                {isPagedAI && (
+                                    <Box
                                         sx={{
-                                            color: 'black',
-                                            padding: '2px',
-                                            '&:hover': {
-                                                color: 'black',
-                                            },
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            mt: 1,
+                                            px: 1,
                                         }}
                                     >
-                                        <Source sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        sx={{
-                                            color: 'black',
-                                            padding: '2px',
-                                            '&:hover': {
-                                                color: 'black',
-                                            },
-                                        }}
-                                    >
-                                        <ContentCopy sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        sx={{
-                                            color: 'black',
-                                            padding: '2px',
-                                            '&:hover': {
-                                                color: 'black',
-                                            },
-                                        }}
-                                    >
-                                        <IosShare sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                </Box>
-                            )}
+                                        <Button
+                                            size="small"
+                                            disabled={msg.currentPage === 0}
+                                            onClick={() => goToPage(index, -1)}
+                                            startIcon={<NavigateBefore />}
+                                        >
+                                            Prev
+                                        </Button>
+                                        <Typography variant="caption">
+                                            Response {msg.currentPage + 1}/{msg.pages.length}
+                                        </Typography>
+                                        <Button
+                                            size="small"
+                                            disabled={msg.currentPage === msg.pages.length - 1}
+                                            onClick={() => goToPage(index, 1)}
+                                            endIcon={<NavigateNext />}
+                                        >
+                                            Next
+                                        </Button>
+                                    </Box>
+                                )}
+                            </Box>
                         </Box>
-                    </Box>
-                ))}
+                    )
+                })}
                 <div ref={messagesEndRef} />
                 {loading && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -791,6 +899,17 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                     },
                                 }}
                             />
+
+                                <Box sx={{ width: 120, ml: 1, marginTop: 1 }}>
+                                <Slider
+                                    value={cutoff}
+                                    min={0}
+                                    max={1}
+                                    step={0.01}
+                                    valueLabelDisplay="auto"
+                                    onChange={(_, v) => setCutoff(v)}
+                                />
+                                </Box>
 
                             <IconButton
                                 sx={{
