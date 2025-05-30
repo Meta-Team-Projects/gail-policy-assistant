@@ -3,7 +3,6 @@ import {
     Box,
     TextField,
     IconButton,
-    Slider,
     Typography,
     Paper,
     ButtonGroup,
@@ -69,34 +68,22 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
 
     try {
         // 2) call API
-        const resp = await axios.post(`${BASE_URL}/query`, {
-        query,
-        cutoff,   
-        })
+        const resp = await axios.post(`${BASE_URL}/query`, { query })
+        
+        const answerText = resp.data?.answer     || ''
+        const references = resp.data?.references || []
 
-        // 3) extract the `results` array
-        const results = resp.data?.results || []
-        const message = resp.data?.message
-
-
-        if (results.length === 0) {
-        // “no results” error 
+        // + push the answer as a simple string
         setMessages(prev => [
-            ...prev,
-            {
-            type: 'ai',
-            content: { error: true, 
-                message: message || 'No results found.',},
-            timestamp: new Date().toISOString(),
-            isError: true,
-            }
+        ...prev,
+        { type: 'ai', content: answerText, timestamp: new Date().toISOString() }
         ])
-        } else {
+        if (references.length > 0) {
         // Grouped AI message with pagination
-        const pagedMessage = {
+            const pagedMessage = {
             type: 'ai',
-            pages: results,               // array of response objects
-            currentPage: 0,               // start at page 0
+            pages: references,
+            currentPage: 0,
             timestamp: new Date().toISOString(),
         }
         setMessages(prev => [...prev, pagedMessage])
@@ -137,6 +124,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
 
 
     const formatResponse = (response) => {
+        if (typeof response === 'string') return response
         if (!response) return ''
 
         // Handle error responses
@@ -146,16 +134,10 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
 
         // Known fields 
         const knownFields = [
-            'document_name',
-            'question',
-            'question_part',
-            'date',
-            'ministry',
-            'subject',
-            'has_answer',
-            'similarity_score',
-            'answer',
-            'document_link',
+            'page_num',
+            'source_file',
+            'page_content',
+            'doc_link',
         ]
 
         // markdown for known fields
@@ -165,8 +147,20 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                 if (field === 'has_answer') {
                     return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field] ? 'Yes' : 'No'}\n\n\n`
                 }
-                if (field === 'document_link') {
-                    return `**${field.replace(/_/g,' ').toUpperCase()}:** [View Document](${response[field]})\n\n\n`
+                if (field === 'source_file') {
+                    return `**FILE:** ${response.source_file}\n\n\n`
+                }
+                if (field === 'page_content') {
+                    // the snippet you want to display per page
+                    return `${response.page_content}\n\n\n`
+                }
+                if (field === 'doc_link') {
+                    // strip off any query params, then append #page=
+                    const url = response.doc_link.split('?')[0] + `#page=${response.page_num}`
+                    return `**DOCUMENT:** [View Document](${url})\n\n\n`
+                }
+                if (field === 'page_num') {
+                    return `**PAGE:** ${response.page_num}\n\n\n`;
                 }
                 return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field]}\n\n\n`
             })
@@ -903,20 +897,6 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                     },
                                 }}
                             />
-
-                                <Box sx={{ width: 180, ml: 1, mr: 1, display: "flex" }}>
-                                    <Typography variant="caption" gutterBottom  sx={{width: 180, mr: 2.5, mt:1}}>
-                                        Similarity: {cutoff.toFixed(2)}
-                                    </Typography>
-                                    <Slider
-                                        value={cutoff}
-                                        min={0}
-                                        max={1}
-                                        step={0.01}
-                                        valueLabelDisplay="auto"
-                                        onChange={(_, v) => setCutoff(v)}
-                                    />
-                                </Box>
 
                             <IconButton
                                 sx={{
