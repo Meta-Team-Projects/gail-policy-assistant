@@ -28,7 +28,7 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: 'linear-gradient(180deg, #1F2A44 0%, #000B25 100%)',
+      default: '#0088d7',
       paper: 'rgba(164, 191, 255, 0.08)',
       sidebar: '#F6F6F6'
     },

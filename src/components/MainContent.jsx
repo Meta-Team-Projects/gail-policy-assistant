@@ -266,46 +266,19 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                 Session 1
                 </Typography>
 
-                {/* Center: Search Box */}
-                <TextField
-                placeholder="Search here..."
-                variant="outlined"
-                size="small"
+                <Typography
+                variant="subtitle2"
                 sx={{
-                    flex: 1,
-                    maxWidth: '400px',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    color: '#3C3C3C',
                     mx: 3,
-                    '& .MuiOutlinedInput-root': {
-                    bgcolor: '#E9EDF3',
-                    borderRadius: '12px',
-                    color: '#515151',
-                    height: '36px',
-                    paddingRight: 1,
-                    '& fieldset': {
-                        borderColor: 'transparent',
-                        color: '#515151',
-                    },
-                    '&.Mui-focused fieldset': {
-                        borderColor: '#515151', // When focused or selecred border change
-                    },
-                    },
-                    '& input::placeholder': {
-                    color: '#888',
-                    },
+                    textAlign: 'center',
+                    flex: 1
                 }}
-                InputProps={{
-                    startAdornment: (
-                    <InputAdornment position="start">
-                        <Search sx={{ fontSize: 18, color: '#888' }} />
-                    </InputAdornment>
-                    ),
-                    endAdornment: (
-                    <InputAdornment position="end">
-                        <Mic sx={{ fontSize: 18, color: '#888' }} />
-                    </InputAdornment>
-                    ),
-                }}
-                />
+                >
+                Policy Documents
+                </Typography>
 
                 {/* Right: Icons */}
                 <Box sx={{ display: 'flex', gap: 1 }}>
