@@ -73,21 +73,15 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
         const answerText = resp.data?.answer     || ''
         const references = resp.data?.references || []
 
-        // + push the answer as a simple string
-        setMessages(prev => [
-        ...prev,
-        { type: 'ai', content: answerText, timestamp: new Date().toISOString() }
-        ])
-        if (references.length > 0) {
-        // Grouped AI message with pagination
-            const pagedMessage = {
+        const aiMessage = {
             type: 'ai',
-            pages: references,
+            answer: answerText,
+            pages: references,       // array of reference‐objects
             currentPage: 0,
             timestamp: new Date().toISOString(),
         }
-        setMessages(prev => [...prev, pagedMessage])
-        }
+        setMessages(prev => [...prev, aiMessage])
+
 
     } catch (error) {
         console.error('Error sending message:', error)
@@ -331,9 +325,12 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
             >
                 {messages.map((msg, index) => {
                     const isPagedAI = msg.type === 'ai' && Array.isArray(msg.pages)
-                    const content = isPagedAI
-                        ? msg.pages[msg.currentPage]       // only show the current page
-                        : msg.content
+                    // extract the static answer text
+                    const answerText = msg.answer ?? msg.content
+                    // extract the current reference (only if pages exists)
+                    const referencePage = isPagedAI
+                    ? msg.pages[msg.currentPage]
+                    : null
                     const isLast = index === messages.length - 1
                     return (
                         <Box
@@ -414,8 +411,8 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                             ? '#FFD95C1A'
                                             : msg.isError
                                                 ? 'rgba(252, 72, 72, 0.30)'
-                                                : 'rgba(255, 255, 255, 0.03)',
-                                        color: msg.type === 'user' || msg.isError ? '#303308' : 'text.primary',
+                                                : '#0088d7',
+                                        color: msg.type === 'user' || msg.isError ? '#303308' : '#ffffff',
                                         borderRadius: '12px',
                                         borderTopLeftRadius: '2px',
                                         width: 'fit-content',
@@ -592,9 +589,11 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                                 ),
                                             
                                             }}
-                                            children={String(formatResponse(content))}
                                         >
-                                            {formatResponse(content)}
+                                            {`**ANSWER:** ${answerText}
+
+**SOURCE:** ${referencePage ? formatResponse(referencePage) : ''}
+`}
                                         </ReactMarkdown>
                                     ) : (
                                         
