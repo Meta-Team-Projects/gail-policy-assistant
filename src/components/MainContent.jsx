@@ -292,6 +292,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                     border: '1px solid #081A33',
                     borderRadius: '8px',
                     p: 0.5,
+                    display: 'none'
                     }}
                 >
                     <img src="./incognito-1.svg" alt="Incognito" style={{ width: 24, height: 24 }} />
@@ -890,7 +891,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                         {/* Bottom Row: 2 Left buttons + 1 Right button */}
                         <Box
                             sx={{
-                                display: 'flex',
+                                display: 'none',//switch to flex
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                             }}

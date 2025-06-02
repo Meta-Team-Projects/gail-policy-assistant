@@ -30,12 +30,12 @@ const drawerWidth = 240
 const menuItems = [
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
     { text: 'Data Ingestion', icon: <DataUsage />, type: MenuType.DOCUMENT_INGESTION },
-    { text: 'AI Configuration', icon: <Settings />, type: MenuType.AI_CONFIGURATION },
+    //{ text: 'AI Configuration', icon: <Settings />, type: MenuType.AI_CONFIGURATION },
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS },
     { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES },
     { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES },
     { text: 'Recent Sessions', icon: <History />, type: MenuType.RECENT_SESSIONS },
-    { text: 'Session Log', icon: <History />, type: MenuType.SESSION_LOG },
+    //{ text: 'Session Log', icon: <History />, type: MenuType.SESSION_LOG },
 ]
 
 const bottomMenuItems = [
