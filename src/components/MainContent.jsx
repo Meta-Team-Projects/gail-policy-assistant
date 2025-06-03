@@ -685,21 +685,23 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                         }}
                                     >
                                         <Button
-                                            size="small"
+                                            size="large"
                                             disabled={msg.currentPage === 0}
                                             onClick={() => goToPage(index, -1)}
                                             startIcon={<NavigateBefore />}
+                                            color='#0088d7'
                                         >
                                             Prev
                                         </Button>
-                                        <Typography variant="caption">
+                                        <Typography variant="caption" color='#0088d7' size="large">
                                             Response {msg.currentPage + 1}/{msg.pages.length}
                                         </Typography>
                                         <Button
-                                            size="small"
+                                            size="large"
                                             disabled={msg.currentPage === msg.pages.length - 1}
                                             onClick={() => goToPage(index, 1)}
                                             endIcon={<NavigateNext />}
+                                            color='#0088d7'
                                         >
                                             Next
                                         </Button>
