@@ -102,13 +102,12 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
 
         const errorResponse = {
         type: 'ai',
-        content: {
-            error: true,
-            message: errorMessage
-        },
+        answer: `**ERROR:** ${errorMessage}`,
+        pages: [],                // no pages in an error
+        currentPage: 0,
         timestamp: new Date().toISOString(),
-        isError: true
-        }
+        isError: true,
+        };
         setMessages(prev => [...prev, errorResponse])
 
     } finally {
@@ -325,7 +324,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                 }}
             >
                 {messages.map((msg, index) => {
-                    const isPagedAI = msg.type === 'ai' && Array.isArray(msg.pages)
+                    const isPagedAI = msg.type === 'ai' && Array.isArray(msg.pages) && !msg.isError
                     // extract the static answer text
                     const answerText = msg.answer ?? msg.content
                     // extract the current reference (only if pages exists)
@@ -425,6 +424,11 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                                     }}
                                 >
                                     {msg.type === 'ai' ? (
+                                        msg.isError ? (
+                                                <Typography sx={{ fontSize: '1rem', lineHeight: 1.6 }}>
+                                                <strong>ERROR:</strong> {answerText.replace(/^\*\*ERROR:\*\*\s*/, '')}
+                                                </Typography>
+                                        ) : (
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={{
@@ -596,7 +600,8 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
 **SOURCE:** ${referencePage ? formatResponse(referencePage) : ''}
 `}
                                         </ReactMarkdown>
-                                    ) : (
+                                        )  
+                                         ) : (
                                         
                                         <Linkify
                                             componentDecorator={(decoratedHref, decoratedText, key) => (
