@@ -145,7 +145,8 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                 }
                 if (field === 'page_content') {
                     // the snippet you want to display per page
-                    return `${response.page_content}\n\n\n`
+                    //return `${response.page_content}\n\n\n`
+                    return '';//skip rendering page_content
                 }
                 if (field === 'doc_link') {
                     // strip off any query params, then append #page=
