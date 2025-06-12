@@ -468,6 +468,25 @@ const MainContent = ({
 
 
             {/* Chat Messages */}
+            {messages.length === 0
+                ? (
+                <Box
+                    sx={{
+                    color: 'grey',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    justifyItems: 'center',
+                    height: '100%',
+                    textAlign: 'center',
+                    ml: 2, 
+                    mr: 2,
+                    }}
+                >
+                    Select a document category to begin exploring policies. You can ask questions, retrieve specific clauses, or get summaries instantly.
+                </Box>
+                )
+                : (
             <Box
                 sx={{
                     flexGrow: 1,
@@ -508,7 +527,7 @@ const MainContent = ({
                                 mb: 3,
                                 justifyContent: 'flex-start',
                                 alignItems: 'flex-start',
-                                maxWidth: '1200px',
+                                maxWidth: '1400px',
                                 mx: 'auto',
                                 width: '100%',
                             }}
@@ -736,7 +755,7 @@ const MainContent = ({
 `}
                                         </ReactMarkdown>
                                         )  
-                                         ) : (
+                                    ) : (
                                         
                                         <Linkify
                                             componentDecorator={(decoratedHref, decoratedText, key) => (
@@ -764,7 +783,7 @@ const MainContent = ({
                                             </Typography>
                                         </Linkify>
                                     )}
-                                    {msg.type === 'ai' && (
+                                    {msg.type === 'ai' && !msg.isError && (
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     {/* Left: Flag & Volume */}
                                     <Box sx={{ display: 'flex', gap: 1 }}>
@@ -931,6 +950,7 @@ const MainContent = ({
                     </Box>
                 )}
             </Box>
+        )}
 
             {/* Bottom Bar */}
             <Paper
