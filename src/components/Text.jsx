@@ -1,0 +1,288 @@
+import React, { useState, useRef, useEffect } from 'react'
+import { Box, Typography, Button, IconButton, TextField } from '@mui/material'
+import FormatBoldIcon from '@mui/icons-material/FormatBold'
+import FormatItalicIcon from '@mui/icons-material/FormatItalic'
+import EditIcon from '@mui/icons-material/Edit'
+import CancelIcon from '@mui/icons-material/Cancel'
+import AspectRatioIcon from '@mui/icons-material/AspectRatio'
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen'
+import Draggable from 'react-draggable'
+
+const Text = ({
+  onSave, onClose, initialTitle = '',
+  initialContent = '', defaultEditing = false}) => {
+  const [title, setTitle] = useState(initialTitle)
+  const [text, setText] = useState(initialContent)
+  const [fontSize, setFontSize] = useState(16)
+  const [isMaximized, setIsMaximized] = useState(false)
+  const [isEditing, setIsEditing] = useState(defaultEditing)
+
+  const nodeRef = useRef(null)
+  const editorRef = useRef(null)
+
+  useEffect(() => {
+    if (isEditing && editorRef.current) {
+      editorRef.current.innerHTML = text;
+      editorRef.current.focus();
+      // const el = editorRef.current
+      // el.focus()
+      const range = document.createRange()
+      range.selectNodeContents(editorRef.current)
+      range.collapse(false)
+      const sel = window.getSelection()
+      sel.removeAllRanges()
+      sel.addRange(range)
+    }
+  }, [isEditing])
+
+  const handleBold = () => {
+    document.execCommand('bold', false, null)
+  }
+
+  const handleItalic = () => {
+    document.execCommand('italic', false, null)
+  }
+
+  const handleFontSizeChange = (px) => {
+    const sizeMap = { 10: 1, 13: 2, 16: 3, 18: 4, 24: 5, 32: 6, 48: 7 }
+    const closest = Object.keys(sizeMap).reduce((a, b) =>
+      Math.abs(b - px) < Math.abs(a - px) ? b : a
+    )
+    document.execCommand('fontSize', false, sizeMap[closest])
+    setFontSize(px)
+  }
+
+  const handleSave = () => {
+    if (editorRef.current) {
+      const content = editorRef.current.innerHTML;
+      setText(content);
+      if (onSave) {
+        onSave({
+          title: title || 'Untitled Note',
+          content: content
+        });
+      }
+    }
+    if (onClose) onClose(); //to close notepad after saving
+  }
+
+  return (
+    <Draggable nodeRef={nodeRef} handle=".drag-handle" defaultPosition={{ x: 100, y: 100 }}>
+      <Box
+        ref={nodeRef}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: isMaximized ? '70vw' : '90%',
+          maxWidth: isMaximized ? 'none' : 700,
+          height: isMaximized ? '80vh' : '50vh',
+          position: 'fixed',
+          left: isMaximized ? '10vw' : '100px',
+          top: isMaximized ? '20vh' : '100px',
+          bgcolor: 'rgba(200, 223, 250, 0.6)',
+          borderRadius: 2,
+          boxShadow: 6,
+          p: 2,
+          fontFamily: 'Segoe UI, sans-serif',
+          zIndex: 2000,
+          cursor: 'default',
+          overflow: 'hidden',
+        }}
+      >
+        {!isEditing ? (
+          
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <Box
+              className="drag-handle"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                bgcolor: 'white',
+                borderRadius: 2,
+                px: 2,
+                py: 1,
+                cursor: 'move',
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {title || 'GAIL Notepad'}
+              </Typography>
+              <IconButton onClick={() => setIsEditing(true)} sx={{ ml: 'auto' }}>
+                <EditIcon sx={{ color: 'black' }} />
+              </IconButton>
+            </Box>
+
+            <Box
+              sx={{
+                bgcolor: 'white',
+                borderRadius: 2,
+                mt: 2,
+                p: 2,
+                border: '1px solid #ccc',
+                flex: 1,
+                overflowY: 'auto',
+                whiteSpace: 'pre-wrap',
+              }}
+              dangerouslySetInnerHTML={{ __html: text }}
+            />
+
+            <Button
+              onClick={() => setIsEditing(true)}
+              sx={{
+                mt: 2,
+                backgroundColor: '#006eff',
+                color: 'white',
+                borderRadius: 1,
+                px: 3,
+                py: 1,
+                textTransform: 'none',
+                '&:hover': { backgroundColor: '#0051c4' },
+              }}
+            >
+              Edit
+            </Button>
+          </Box>
+        ) : (
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0  }}>
+            <Box
+              className="drag-handle"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                bgcolor: 'white',
+                borderRadius: 2,
+                px: 2,
+                py: 1,
+                cursor: 'move',
+              }}
+            >
+              {/* Note Heading */}
+              <TextField
+                variant="standard"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                inputProps={{
+                  style: {
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold',
+                    padding: 0,
+                  },
+                }}
+                sx={{ width: 200 }}
+              />
+              <IconButton sx={{ ml: 'auto', mr: 1 }} disabled>
+                <EditIcon sx={{ color: 'gray' }} />
+              </IconButton>
+              <IconButton onClick={() => setIsMaximized(m => !m)}>
+                {isMaximized
+                  ? <CloseFullscreenIcon sx={{ color: 'black' }} />
+                  : <AspectRatioIcon sx={{ color: 'black' }} />}
+              </IconButton>
+            </Box>
+
+            <Box
+              sx={{
+                bgcolor: 'white',
+                borderRadius: 2,
+                mt: 2,
+                p: 2,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                overflow: 'hidden',
+                minHeight: 0,
+              }}
+            >
+              
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderTop: '1px solid rgba(0,0,0,0.23)',
+                  borderBottom: '1px solid rgba(0,0,0,0.23)',
+                  py: 0.5,
+                }}
+              >
+                <IconButton size="small" onClick={handleBold} sx={{ borderRight: '0.5px solid rgba(0,0,0,0.23)', borderRadius: 0 }}>
+                  <FormatBoldIcon sx={{ color: 'black' }} />
+                </IconButton>
+                <IconButton size="small" onClick={handleItalic} sx={{ borderRight: '0.5px solid rgba(0,0,0,0.23)', borderRadius: 0  }}>
+                  <FormatItalicIcon sx={{ color: 'black' }} />
+                </IconButton>
+                <TextField
+                  type="number"
+                  value={fontSize}
+                  onChange={e => handleFontSizeChange(Number(e.target.value))}
+                  inputProps={{ min: 8, max: 48 }}
+                  size="small"
+                  sx={{ width: 70, fontSize: '0.8rem', mx: 0.5 }}
+                />
+                <IconButton onClick={() => setIsEditing(false)} sx={{ ml: 'auto' }}>
+                  <CancelIcon sx={{ color: 'black' }} />
+                </IconButton>
+              </Box>
+              
+              <Box
+                contentEditable
+                suppressContentEditableWarning
+                ref={editorRef}
+                sx={{
+                  width: '100%',
+                  fontSize: `${fontSize}px`,
+                  boxSizing: 'border-box',
+                  border: '1px solid rgba(0,0,0,0.23)',
+                  borderRadius: '4px',
+                  p: 1,
+                  fontFamily: 'Segoe UI, sans-serif',
+                  outline: 'none',
+                  whiteSpace: 'pre-wrap',
+                  flex: 1,
+                  minHeight: 0,
+                  overflowY: 'auto !important',
+               // custom scrollbar
+                  '&::-webkit-scrollbar': {
+                    width: '4px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: 'transparent',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: '#0088d7',
+                    borderRadius: '3px',
+                  },
+                  /* Firefox */
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#0088d7 transparent',
+                  overflowWrap: 'break-word',
+                  bgcolor: 'white',
+                  cursor: 'text',                    
+                }}
+                dangerouslySetInnerHTML={{ __html: text }}
+              />
+
+              <Button
+                onClick={handleSave}
+                sx={{
+                  backgroundColor: 'rgba(10,95,207,0.77)',
+                  color: 'white',
+                  borderRadius: 2,
+                  width: '6rem',
+                  fontSize: '14px',
+                  mx: 'auto',
+                  mt: 1,
+                  py: 1,
+                  '&:hover': { backgroundColor: 'rgba(10,95,207,1)' },
+                }}
+              >
+                Save
+              </Button>
+            </Box>
+          </Box>
+        )}
+      </Box>
+    </Draggable>
+  )
+}
+
+export default Text

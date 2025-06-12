@@ -10,6 +10,8 @@ import {
     IconButton,
     useTheme,
     useMediaQuery,
+    Divider,
+    Tooltip
 } from '@mui/material'
 import {
     Home,
@@ -23,19 +25,25 @@ import {
     Help,
     ChevronLeft
 } from '@mui/icons-material'
+
+import DifferenceIcon from '@mui/icons-material/Difference'
+import EditNoteIcon from '@mui/icons-material/EditNote'
 import { MenuType } from '../constants/menuTypes'
+import RecentSessions from './RecentSessions'
+import FilePresentIcon from '@mui/icons-material/FilePresent'
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const drawerWidth = 240
+const collapsedWidth = 56
 
 const menuItems = [
+    { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
-    { text: 'Data Ingestion', icon: <DataUsage />, type: MenuType.DOCUMENT_INGESTION },
-    //{ text: 'AI Configuration', icon: <Settings />, type: MenuType.AI_CONFIGURATION },
+    { text: 'New Session', icon: <DifferenceIcon />, type: 'NEW_SESSION' },
+    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES },
+    { text: 'Doc Management', icon: <FilePresentIcon />, type: '', disabled: true },
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS },
     { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES },
-    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES },
-    { text: 'Recent Sessions', icon: <History />, type: MenuType.RECENT_SESSIONS },
-    //{ text: 'Session Log', icon: <History />, type: MenuType.SESSION_LOG },
 ]
 
 const bottomMenuItems = [
@@ -43,127 +51,231 @@ const bottomMenuItems = [
     { text: 'Support', icon: <Help />, type: MenuType.NONE },
 ]
 
-const Sidebar = ({ open, handleDrawerToggle, onMenuClick, activeMenu }) => {
+const Sidebar = ({
+    open,
+    handleDrawerToggle,
+    onMenuClick,
+    onNotepadToggle,
+    activeMenu,
+    showNotepad,
+    sessions,
+    activeSessionID,
+    onSessionSelect,
+    onRename,
+    onDelete,
+    onReset,
+}) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
     const handleMenuItemClick = (menuType) => {
-        if (menuType !== MenuType.NONE) {
+        if (menuType === 'TOGGLE_NOTEPAD') {
+            if (typeof onNotepadToggle === 'function') onNotepadToggle()
+            return
+        }
+        if (menuType === 'NEW_SESSION') {
+            if (typeof onMenuClick === 'function') onMenuClick('NEW_SESSION')
+            return
+        }
+        if (menuType !== MenuType.NONE && typeof onMenuClick === 'function') {
             onMenuClick(menuType)
         }
     }
 
     const renderMenuItem = (item) => (
-        <ListItemButton
-            onClick={() => handleMenuItemClick(item.type)}
-            selected={activeMenu === item.type}
-            sx={{
-                pl: 2,
-                borderLeft: activeMenu === item.type ? '6px solid #303030' : '4px solid transparent',
-                bgcolor: 'transparent',
-                '&:hover': {
-                    bgcolor: 'transparent',
-                },
-                '&.Mui-selected': {
-                    bgcolor: 'transparent',
-                },
-                '&.Mui-selected:hover': {
-                    bgcolor: 'transparent',
-                },
-            }}
-        >
-            <ListItemIcon sx={{ color: activeMenu === item.type ? '#303030' : '#081A3366' }}>
-                {item.icon}
-            </ListItemIcon>
-            <ListItemText
-                primary={item.text}
+        <Tooltip title={!open ? item.text : ''} placement="right" arrow>
+            <ListItemButton
+                onClick={item.disabled ? undefined : () => handleMenuItemClick(item.type)}
+                disabled={item.disabled}
+                selected={item.type === 'TOGGLE_NOTEPAD' ? showNotepad : activeMenu === item.type}
                 sx={{
-                    '& .MuiListItemText-primary': {
-                        color: activeMenu === item.type ? '#303030' : '#081A3366',
-                        fontWeight: activeMenu === item.type ? 600 : 300,
-                    },
+                    pl: 2,
+                    justifyContent: open ? 'initial' : 'center',
+                    borderLeft: (item.type === 'TOGGLE_NOTEPAD' ? showNotepad : activeMenu === item.type)
+                        ? '6px solid #303030'
+                        : '4px solid transparent',
+                    bgcolor: 'transparent',
+                    '&:hover': { bgcolor: 'transparent' },
+                    '&.Mui-selected': { bgcolor: 'transparent' },
+                    '&.Mui-selected:hover': { bgcolor: 'transparent' },
                 }}
-            />
-        </ListItemButton>
+            >
+                <ListItemIcon
+                    sx={{
+                        minWidth: 0,
+                        mr: open ? 2 : 'auto',
+                        justifyContent: 'center',
+                        color: 'inherit',
+                    }}
+                >
+                    {item.type === 'TOGGLE_NOTEPAD' ? (
+                        <Box
+                            sx={{
+                                bgcolor: '#FFD95C',
+                                color: '#081A33',
+                                borderRadius: '50%',
+                                p: 1,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                width: 32,
+                                height: 32,
+                            }}
+                        >
+                            <EditNoteIcon fontSize="small" />
+                        </Box>
+                    ) : (
+                        item.icon
+                    )}
+                </ListItemIcon>
+                {open && (
+                    <ListItemText
+                        primary={item.text}
+                        sx={{
+                            '& .MuiListItemText-primary': {
+                                color: item.type === 'TOGGLE_NOTEPAD'
+                                    ? '#303030'
+                                    : activeMenu === item.type
+                                        ? '#303030'
+                                        : '#081A3366',
+                                fontWeight: item.type === 'TOGGLE_NOTEPAD' || activeMenu === item.type ? 600 : 300,
+                            },
+                        }}
+                    />
+                )}
+            </ListItemButton>
+        </Tooltip>
     )
 
     const drawer = (
         <>
-            <Box sx={{ px: 2, py: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <img src="/gail_logo.png" alt="Logo" style={{ width: 40, height: 40 }} />
+            <Box sx={{ px: 2, py: 3, display: 'flex',
+                justifyContent: open ? 'flex-start' : 'center',
+                alignItems: 'center', gap: open ? 1 : 0 }}>
+                <Box component="img"
+                 src="/gail_logo.png" alt="Logo"
+                 onClick={!open ? handleDrawerToggle : undefined}
+                 sx={{ width: 40, height: 40,
+                    cursor: !open ? 'pointer' : 'default',
+                    transition: 'transform 0.2s ease-in-out',
+                    '&:hover':{
+                        transform: !open ? 'scale(1.05' : 'none',
+                    },
+                  }} />
                 {open && (
                     <>
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 600,
-                            fontSize: '16px',
-                            color: '#000000',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        GAIL (India)
-                    </Typography>
-                    <IconButton
-                        onClick={handleDrawerToggle}
-                        sx={{
-                            position: 'absolute',
-                            right: 8,
-                            color: '#000000',
-                            '&:hover': {
-                                bgcolor: 'action.hover',
-                            },
-                        }}
-                    >
-                        <ChevronLeft />
-                    </IconButton>
-                </>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 600,
+                                fontSize: '16px',
+                                color: '#000000',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            GAIL (India)
+                        </Typography>
+                        <IconButton
+                            onClick={handleDrawerToggle}
+                            sx={{
+                                position: 'absolute',
+                                right: 8,
+                                color: '#000000',
+                                '&:hover': { bgcolor: 'action.hover' },
+                            }}
+                        >
+                            <ChevronLeft />
+                        </IconButton>
+                    </>
                 )}
             </Box>
 
+            <Box sx={{ px: 2, pb: 2, mx: -2 }}>
+                {open ? (<RecentSessions
+                    embedded
+                    open={open}
+                    onToggle={handleDrawerToggle}
+                    sessions={sessions}
+                    activeSessionID={activeSessionID}
+                    onSessionSelect={onSessionSelect}
+                    onRename={onRename}
+                    onDelete={onDelete}
+                    onReset={onReset}
+                />
+                ) : (
+                    <Box sx={{display: 'flex', justifyContent: 'center', py: 1}}>
+                        < AccessTimeIcon sx={{color: '#999'}}/>
+                    </Box>
+                )}
+            </Box>
+
+            <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
             <List>
-                {/* Section 1: Home */}
                 <ListItem disablePadding>{renderMenuItem(menuItems[0])}</ListItem>
-
-                <Box sx={{ height: 32 }} />
-
-                {/* Section 2: Data Ingestion, AI Configuration, FAQs */}
+                <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
                 {menuItems.slice(1, 4).map((item) => (
                     <ListItem key={item.text} disablePadding>
                         {renderMenuItem(item)}
                     </ListItem>
                 ))}
-
-                <Box sx={{ height: 32 }} />
-
-                {/* Section 3: Saved Queries to Session Log */}
+                <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
                 {menuItems.slice(4).map((item) => (
                     <ListItem key={item.text} disablePadding>
                         {renderMenuItem(item)}
                     </ListItem>
                 ))}
+                <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
             </List>
 
             <Box sx={{ mt: 'auto' }}>
                 <List>
                     {bottomMenuItems.map((item) => (
                         <ListItem key={item.text} disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon sx={{ color: activeMenu === item.type ? '#303030' : '#081A3366' }}>
+                            <Tooltip title={!open ? item.text : ''} placement="right" arrow>
+                                <ListItemButton
+                                onClick={() => handleMenuItemClick(item.type)}
+                                selected={activeMenu === item.type}
+                                sx={{
+                                    pl: 2,
+                                    justifyContent: open ? 'initial' : 'center',
+                                    bgcolor: 'transparent',
+                                    '&:hover': {
+                                    bgcolor: 'transparent',
+                                    },
+                                    '&.Mui-selected': {
+                                    bgcolor: 'transparent',
+                                    },
+                                    '&.Mui-selected:hover': {
+                                    bgcolor: 'transparent',
+                                    },
+                                }}
+                                >
+                                <ListItemIcon
+                                    sx={{
+                                    minWidth: 0,
+                                    mr: open ? 2 : 'auto',
+                                    justifyContent: 'center',
+                                    color: activeMenu === item.type ? '#303030' : '#081A3366',
+                                    }}
+                                >
                                     {item.icon}
                                 </ListItemIcon>
-                                <ListItemText
+                                {open && (
+                                    <ListItemText
                                     primary={item.text}
                                     sx={{
                                         '& .MuiListItemText-primary': {
-                                            color: '#081A3366',
+                                        color: '#081A3366',
                                         },
                                     }}
-                                />
-                            </ListItemButton>
+                                    />
+                                )}
+                                </ListItemButton>
+                            </Tooltip>
                         </ListItem>
                     ))}
                 </List>
+
             </Box>
         </>
     )
@@ -172,8 +284,8 @@ const Sidebar = ({ open, handleDrawerToggle, onMenuClick, activeMenu }) => {
         <Box
             component="nav"
             sx={{
-                width: { sm: open ? drawerWidth : 0 },
-                flexShrink: { sm: 0 },
+                width: open ? drawerWidth : collapsedWidth,
+                flexShrink: 0,
                 transition: theme.transitions.create('width', {
                     easing: theme.transitions.easing.sharp,
                     duration: theme.transitions.duration.enteringScreen,
@@ -184,26 +296,25 @@ const Sidebar = ({ open, handleDrawerToggle, onMenuClick, activeMenu }) => {
                 variant={isMobile ? 'temporary' : 'permanent'}
                 open={isMobile ? open : true}
                 onClose={handleDrawerToggle}
-                ModalProps={{
-                    keepMounted: true,
-                }}
+                ModalProps={{ keepMounted: true }}
                 sx={{
                     '& .MuiDrawer-paper': {
-                        marginTop: '2.5vh',
-                        height: '95vh',
-                        marginLeft: '1.5vh',
+                        width: open ? drawerWidth : collapsedWidth,
+                        transition: theme.transitions.create('width', {
+                            easing: theme.transitions.easing.sharp,
+                            duration: theme.transitions.duration.enteringScreen,
+                        }),
+                        overflowX: 'hidden',
+                        whiteSpace: 'nowrap',
                         boxSizing: 'border-box',
-                        width: open ? drawerWidth : 0,
                         bgcolor: '#FFFFFF',
                         borderRight: '0.5px solid rgba(255, 255, 255, 0.15)',
                         boxShadow: '0px 4px 8px rgba(18, 18, 18, 0.25)',
                         borderRadius: '15px',
-                        transform: !open ? `translateX(-${drawerWidth}px)` : 'none',
-                        transition: theme.transitions.create('transform', {
-                            easing: theme.transitions.easing.sharp,
-                            duration: theme.transitions.duration.enteringScreen,
-                        }),
-                    },
+                        marginTop: '2.5vh',
+                        height: '95vh',
+                        marginLeft: '1.5vh',
+                    }
                 }}
             >
                 {drawer}
