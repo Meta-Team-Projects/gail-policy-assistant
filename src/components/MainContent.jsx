@@ -31,10 +31,12 @@ import {
     Person,
     PersonAdd,
     AttachFile,
+    Download,
 } from '@mui/icons-material'
 
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 import Linkify from 'react-linkify'
 
@@ -42,15 +44,41 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
+const MainContent = ({ 
+    sessions, 
+    rightSidebarOpen, 
+    leftSidebarOpen, activeRightMenu, 
+    activeSessionID, onDraftGenerated, 
+    onMenuClick, 
+    messages, setMessages, 
+    layoutMode, setLayoutMode,
+    showNotepad,  onNotepadToggle,
+    dimMainContent 
+    }) => {
+    const messageRefs = useRef({})
     const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState([])
-    const [cutoff,  setCutoff]  = useState(0.80)
+     const [cutoff,  setCutoff]  = useState(0.80)
     const [loading, setLoading] = useState(false)
     const messagesEndRef = useRef(null)
+    const [maxWidthPx, setMaxWidthPx] = useState(0)
+    const [showFilterOptions, setShowFilterOptions] = useState(false)
+    const filterButtonRef = useRef(null)
+    const [activeFilterPanel, setActiveFilterPanel] = useState(null);
+
+    const [fromDay, setFromDay] = useState(1);
+    const [fromMonth, setFromMonth] = useState(6);
+    const [fromYear, setFromYear] = useState(2024);
+    const [toDay, setToDay] = useState(2);
+    const [toMonth, setToMonth] = useState(6);
+    const [toYear, setToYear] = useState(2025);
 
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
 
+    const [showLayoutIcons, setShowLayoutIcons] = useState(false)
+    
+    const toggleLayoutIcons = () => {
+        setShowLayoutIcons(prev => !prev)
+    }
 
     const handleSend = async () => {
     const query = message.trim()
@@ -202,19 +230,111 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
         )
     }
 
-      // ────────────────────────────────────────────────────────────────────────────
-    // + simulate a backend AI reply with a clickable link on mount
-    //useEffect(() => {
-      //  setMessages(prev => [
-        //...prev,
-        //{
-          //  type: 'user',
-            //content: `Hey, check out our demo branch: https://tinyurl.com/49w8xbj6`,
-            //timestamp: new Date().toISOString(),
-        //}
-        //]);
-    //}, []);
-    // ────────────────────────────────────────────────────────────────────────────
+      const handleDownload = async (msgIndex) => {
+        const element = messageRefs.current[msgIndex]
+        if (!element) return
+
+    // 1) Convert the DOM node to canvas (white background)
+    const clone = element.cloneNode(true)
+    const wrapper = document.createElement('div')
+    wrapper.style.padding = '20px'
+    wrapper.style.backgroundColor = '#ffffff'
+    wrapper.appendChild(clone)
+
+    document.body.appendChild(wrapper)
+    const canvas = await html2canvas(wrapper, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+    })
+    document.body.removeChild(wrapper)
+
+    // 2) Generate a PDF blob
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF()
+    const imgProps = pdf.getImageProperties(imgData)
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    const pdfBlob = pdf.output('blob')
+
+    // 3) If File System Access API is available, show a native “Save As…” dialog
+    if (window.showSaveFilePicker) {
+        try {
+        // Let user pick a location + filename (MIME is application/pdf)
+        const handle = await window.showSaveFilePicker({
+            suggestedName: 'response.pdf',
+            types: [
+                {
+                description: 'PDF Document',
+                accept: { 'application/pdf': ['.pdf'] },
+                },
+            ],
+        })
+
+        // Create a writable stream, write the blob, and close
+        const writable = await handle.createWritable()
+        await writable.write(pdfBlob)
+        await writable.close()
+        } catch (fsError) {
+        // If user cancels or an error occurs, silently fall back to the <a> fallback
+        console.warn('File System Access API save canceled or failed:', fsError)
+        const blobUrl = URL.createObjectURL(pdfBlob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = 'response.pdf'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(blobUrl)
+    }
+    } else {
+      // 4) Fallback for browsers that do not support showSaveFilePicker:
+        const blobUrl = URL.createObjectURL(pdfBlob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = 'response.pdf'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(blobUrl)
+    }
+    }
+
+    const handleCopy = (answerText, referencePage) => {
+    let textToCopy = `ANSWER: ${answerText}`;
+
+    if (referencePage) {
+    const sourceMarkdown = formatResponse(referencePage);
+    textToCopy += `\n\nSOURCE:\n${sourceMarkdown.replace(/\*\*/g, '')}`;
+    }
+
+    navigator.clipboard
+    .writeText(textToCopy)
+    .then(() => {
+    })
+    .catch((err) => {
+        console.error('Failed to copy: ', err);
+    });
+    };
+
+    useEffect(() => {
+        let widest = 0
+        Object.values(messageRefs.current).forEach(el => {
+            if (!el || !el.offsetWidth) return
+            widest = Math.max(widest, el.offsetWidth)
+        })
+        if (widest > maxWidthPx) setMaxWidthPx(widest)
+    }, [messages])
+
+    const handleActionClick = (action) => {
+        const actionTexts = {
+            "Summarize": "Please summarize this text",
+            "Highlight": "Highlight the key points",
+            "Simplify": "Explain this in simple terms"
+        };
+        setMessage(actionTexts[action] || "");
+    };
 
     return (
         <Box
@@ -369,42 +489,6 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                                 flex: 1,
                                 minWidth: 0,
                             }}>
-                                {msg.type === 'ai' && (
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'flex-end',
-                                            mt: -2,
-                                            mb: 2,
-                                            gap: 1,
-                                        }}
-                                    >
-                                        <IconButton
-                                            size="small"
-                                            sx={{
-                                                color: 'black',
-                                                padding: '0px',
-                                                '&:hover': {
-                                                    color: 'black',
-                                                },
-                                            }}
-                                        >
-                                            <Flag sx={{ fontSize: 16 }} />
-                                        </IconButton>
-                                        <IconButton
-                                            size="small"
-                                            sx={{
-                                                color: 'black',
-                                                padding: '0px',
-                                                '&:hover': {
-                                                    color: 'black',
-                                                },
-                                            }}
-                                        >
-                                            <VolumeUp sx={{ fontSize: 16 }} />
-                                        </IconButton>
-                                    </Box>
-                                )}
                                 <Paper
                                     elevation={0}
                                     sx={{
@@ -636,89 +720,150 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                                             </Typography>
                                         </Linkify>
                                     )}
-                                </Paper>
-                                {msg.type === 'ai' && (
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'flex-end',
-                                            gap: 1,
-                                            mt: 1,
-                                        }}
-                                    >
-                                        <IconButton
-                                            size="small"
-                                            sx={{
-                                                color: 'black',
-                                                padding: '2px',
-                                                '&:hover': {
-                                                    color: 'black',
-                                                },
-                                            }}
-                                        >
+                                    {msg.type === 'ai' && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    {/* Left: Flag & Volume */}
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <Source sx={{ fontSize: 16 }} />
                                         </IconButton>
                                         <IconButton
                                             size="small"
-                                            sx={{
-                                                color: 'black',
-                                                padding: '2px',
-                                                '&:hover': {
-                                                    color: 'black',
-                                                },
-                                            }}
+                                            onClick={() => handleCopy(answerText, referencePage)}
+                                            sx={{ p: '2px', color: '#003366' }}
                                         >
                                             <ContentCopy sx={{ fontSize: 16 }} />
                                         </IconButton>
-                                        <IconButton
-                                            size="small"
-                                            sx={{
-                                                color: 'black',
-                                                padding: '2px',
-                                                '&:hover': {
-                                                    color: 'black',
-                                                },
-                                            }}
-                                        >
+                                        <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <IosShare sx={{ fontSize: 16 }} />
                                         </IconButton>
                                     </Box>
-                                )}
+                                    {/* Right: Source, Copy, Share, Download */}
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <IconButton
+                                            size="small"
+                                            sx={{ p: '2px', color: '#003366' }}
+                                        >
+                                            <BookmarkBorderIcon sx={{ fontSize: 16 }} />
+                                        </IconButton>                                                    
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                                    // 1) Grab the question that preceded this AI message:
+                                                const userMsg    = messages[index - 1] || {};
+                                                const title      = userMsg.content || 'Saved Query';
 
+                                                // 2) Pull in both the static answer text and the current reference page:
+                                                const answer     = answerText;   // already in scope
+                                                const sourceMd   = referencePage
+                                                ? formatResponse(referencePage)
+                                                : '';
+
+                                                // 3) Build one markdown blob containing both:
+                                                const content = [
+                                                `**ANSWER:** ${answer}`,
+                                                ``,
+                                                sourceMd
+                                                ].join('\n\n');
+
+                                                // 4) Persist to localStorage
+                                                const note = {
+                                                title,
+                                                content,
+                                                date: new Date().toLocaleDateString('en-GB')
+                                                };
+                                                const key = `savedQuery_${Date.now()}`;
+                                                localStorage.setItem(key, JSON.stringify(note));
+
+                                                // 5) Tell your SavedQueries panel to reload
+                                                window.dispatchEvent(new Event('saved-query'));
+                                            }}
+                                            sx={{ p: '2px', color: '#003366' }}
+                                        >
+                                            <Download sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                        <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
+                                            <VolumeUp sx={{ fontSize: 16 }} />
+                                        </IconButton>
+                                    </Box>
+                                </Box>)}
                                 {/* ← pagination controls for multi-page AI replies */}
                                 {isPagedAI && (
                                     <Box
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            mt: 1,
-                                            px: 1,
-                                        }}
+                                    sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    mt: 1,
+                                    px: 1,
+                                    position: 'relative',
+                                    minHeight: 40,
+                                    }}
                                     >
-                                        <Button
-                                            size="large"
-                                            disabled={msg.currentPage === 0}
-                                            onClick={() => goToPage(index, -1)}
-                                            startIcon={<NavigateBefore />}
-                                            color='#0088d7'
-                                        >
-                                            Prev
-                                        </Button>
-                                        <Typography variant="caption" color='#0088d7' size="large">
-                                            Response {msg.currentPage + 1}/{msg.pages.length}
-                                        </Typography>
-                                        <Button
-                                            size="large"
-                                            disabled={msg.currentPage === msg.pages.length - 1}
-                                            onClick={() => goToPage(index, 1)}
-                                            endIcon={<NavigateNext />}
-                                            color='#0088d7'
-                                        >
-                                            Next
-                                        </Button>
+                                    {/* Previous Button or Invisible Placeholder */}
+                                    {msg.currentPage > 0 ? (
+                                    <Button
+                                    size="large"
+                                    onClick={() => goToPage(index, -1)}
+                                    startIcon={<NavigateBefore />}
+                                    sx={{
+                                    color: '#000',
+                                    backgroundColor: '#FFD95C',
+                                    fontSize: '0.8rem',
+                                    textTransform: 'none',
+                                    px: 2,
+                                    py: 1,
+                                    '&:hover': {
+                                    backgroundColor: '#FFCB42',
+                                    },
+                                    }}
+                                    >
+                                    Previous Response
+                                    </Button>
+                                    ) : (
+                                    <Box sx={{ width: '160px', visibility: 'hidden' }} />
+                                    )}
+
+                                    {/* Response Counter - Always centered */}
+                                    <Typography
+                                    variant="caption"
+                                    sx={{
+                                    position: 'absolute',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    color: '#003366',
+                                    fontWeight: 500,
+                                    }}
+                                    >
+                                        {msg.currentPage + 1}/{msg.pages.length}
+                                    </Typography>
+
+                                    {/* Next Button or Invisible Placeholder */}
+                                    {msg.currentPage < msg.pages.length - 1 ? (
+                                    <Button
+                                    size="large"
+                                    onClick={() => goToPage(index, 1)}
+                                    endIcon={<NavigateNext />}
+                                    sx={{
+                                    color: '#000',
+                                    backgroundColor: '#FFD95C',
+                                    fontSize: '0.8rem',
+                                    textTransform: 'none',
+                                    px: 2,
+                                    py: 1,
+                                    '&:hover': {
+                                    backgroundColor: '#FFCB42',
+                                    },
+                                    }}
+                                    >
+                                    Next Response
+                                    </Button>
+                                    ) : (
+                                    <Box sx={{ width: '130px', visibility: 'hidden' }} />
+                                    )}
                                     </Box>
                                 )}
+                                </Paper>
                             </Box>
                         </Box>
                     )
@@ -787,6 +932,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                         <Button
                             key={button.label}
                             startIcon={button.icon}
+                            onClick={() => handleActionClick(button.label)}
                             sx={{
                                 '&:hover': {
                                     bgcolor: 'rgba(255, 255, 255, 0.05)',

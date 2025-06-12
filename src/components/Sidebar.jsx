@@ -39,10 +39,10 @@ const collapsedWidth = 56
 const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
-    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES },
-    { text: 'Doc Management', icon: <FilePresentIcon />, type: '', disabled: true },
-    { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS },
-    { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES },
+    { text: 'Policy Documents', icon: <FilePresentIcon />, type: '', disabled: true },
+    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: true  },
+    { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: true },
+    { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: true },
 ]
 
 const bottomMenuItems = [

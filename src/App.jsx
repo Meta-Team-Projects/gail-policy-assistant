@@ -107,6 +107,16 @@ function App() {
     });
   };
 
+  function handleDeleteNote(originalIndex) {
+
+    setSavedNotes(prev =>
+
+      prev.filter((note, i) => (note.originalIndex ?? i) !== originalIndex)
+
+    );
+
+  }
+
   const messages = sessionMessages[activeSessionID] || []
   const setMessages = (newMessages) => {
     setSessionMessages(prev => ({
@@ -231,6 +241,7 @@ function App() {
           onNotepadToggle={() => setShowNotepad((v) => !v)}
           savedNotes={savedNotes}
           setSelectedNote={setSelectedNote}
+          onDeleteNote={handleDeleteNote}
         />
         )
       case MenuType.SESSION_LOG:
