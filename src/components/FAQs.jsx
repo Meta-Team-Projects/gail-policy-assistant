@@ -148,8 +148,11 @@ const FAQs = ({ open, onToggle }) => {
                             sx={{
                                 px: 0.5,
                                 fontSize: '10px',
-                                bgcolor: '#0087d6',
-                                color: '#fff',
+                                bgcolor: '#FFD95C',
+                                color: '#081A33',
+                                '&:hover': {
+                                backgroundColor: '#FEC636',
+                                }
                             }}
                         />
                     ))}

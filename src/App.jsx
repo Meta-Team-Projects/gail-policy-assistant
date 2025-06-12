@@ -31,7 +31,7 @@ const darkTheme = createTheme({
     background: {
       default: '#F1F8FF',
       paper: 'rgba(164, 191, 255, 0.08)',
-      sidebar: '#CEE6FF'
+      sidebar: '#F5FAFF'
     },
     primary: {
       main: '#FFD95C',

@@ -222,7 +222,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                 marginTop: '2.5vh',
                 height: '95vh',
                 marginLeft: '1.5vh',
-                boxShadow: '0px 4px 8px rgba(18, 18, 18, 0.25)',
+                boxShadow: '2px 0px 8px #50505040',
                 borderRadius: '15px',
                 overflow: 'hidden', 
                 flexGrow: 1,
@@ -236,7 +236,7 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                     md: '97%', // Desktop
                 },
                 transition: 'max-width 0.3s ease',
-                bgcolor:'#F6F6F6',
+                bgcolor:'#FFFFFF',
                 //bgcolor: 'linear-gradient(180deg, #1F2A44 0%, #000B25 100%)',
                 position: 'relative',
                 filter: dimMainContent ? 'grayscale(0.5) brightness(0.5)' : 'none',
@@ -256,8 +256,8 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                 py: 1,
                 }}
             >
-                {/* Left: Title */}
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#3C3C3C' }}>
+                {/* Left: Title later */}
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#3C3C3C', ml: -2 }}>  
                 Session 1
                 </Typography>
 
@@ -409,12 +409,17 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
                                     elevation={0}
                                     sx={{
                                         p: 2,
-                                        bgcolor: msg.type === 'user'
+                                        border: msg.type === 'user' 
+                                            ? 'none'
+                                            : msg.isError
+                                                ? 'none'
+                                                : '1px solid #003699',
+                                        background: msg.type === 'user'
                                             ? '#FFD95C1A'
                                             : msg.isError
                                                 ? 'rgba(252, 72, 72, 0.30)'
-                                                : '#0088d7',
-                                        color: msg.type === 'user' || msg.isError ? '#303308' : '#ffffff',
+                                                : 'linear-gradient(to right,rgba(230, 240, 250, 1), rgba(204, 229, 255, 1))',
+                                        color: msg.type === 'user' || msg.isError ? '#303308' : '#003366',
                                         borderRadius: '12px',
                                         borderTopLeftRadius: '2px',
                                         width: 'fit-content',

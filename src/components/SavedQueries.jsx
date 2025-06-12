@@ -218,11 +218,11 @@ const SavedQueries = ({ open, onToggle }) => {
                             sx={{
                                 px: 1,
                                 fontWeight: 500,
-                                color: '#fff',
+                                color: '#081A33',
                                 borderRadius: '16px',
-                                bgcolor: '#0087d6',
+                                bgcolor: '#FFD95C',
                                 '&:hover': {
-                                backgroundColor: '#007ac2',
+                                backgroundColor: '#FEC636',
                                 }
                             }}
                         />
@@ -236,8 +236,8 @@ const SavedQueries = ({ open, onToggle }) => {
                         onClick={() => handleToggle(note.key)}
                         sx={{
                             cursor: 'pointer',
-                            bgcolor: '#fef2cb',
-                            '&:hover': { bgcolor: '#ffd350' },
+                            bgcolor: '#FFFFFFCC',
+                            '&:hover': { bgcolor: '#FFFFFFE6' },
                             borderRadius: 3,
                             mb: 1,
                             px: 2,
@@ -274,24 +274,24 @@ const SavedQueries = ({ open, onToggle }) => {
                                         e.stopPropagation();
                                         handleCopy(note.content)}}
                                     sx={{ 
-                                        height: 24, width: 24, bgcolor: '#0087d6', borderRadius: 1,
+                                        height: 24, width: 24, bgcolor: '#FFD95C', borderRadius: 1,
                                         '&:hover': {
-                                            bgcolor: '#006bb3', 
+                                            bgcolor: '#FEC636', 
                                         }, 
                                     }}>
-                                    <ContentCopy sx={{ fontSize: '0.8rem', color: '#fff' }} />
+                                    <ContentCopy sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleDownload(note)}}
-                                    sx={{ height: 24, width: 24, bgcolor: '#0087d6', borderRadius: 1,
+                                    sx={{ height: 24, width: 24, bgcolor: '#FFD95C', borderRadius: 1,
                                         '&:hover': {
-                                            bgcolor: '#006bb3', 
+                                            bgcolor: '#FEC636', 
                                         }, 
                                     }}>
-                                    <Download sx={{ fontSize: '0.8rem', color: '#fff' }} />
+                                    <Download sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
                             </Stack>
                         </Box>

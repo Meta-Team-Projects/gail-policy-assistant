@@ -7,6 +7,7 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import AspectRatioIcon from '@mui/icons-material/AspectRatio'
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen'
 import Draggable from 'react-draggable'
+import MarkdownIt from 'markdown-it'
 
 const Text = ({
   onSave, onClose, initialTitle = '',
@@ -19,13 +20,13 @@ const Text = ({
 
   const nodeRef = useRef(null)
   const editorRef = useRef(null)
+  const mdParser = useRef(new MarkdownIt())
+
 
   useEffect(() => {
     if (isEditing && editorRef.current) {
       editorRef.current.innerHTML = text;
       editorRef.current.focus();
-      // const el = editorRef.current
-      // el.focus()
       const range = document.createRange()
       range.selectNodeContents(editorRef.current)
       range.collapse(false)
@@ -34,6 +35,13 @@ const Text = ({
       sel.addRange(range)
     }
   }, [isEditing])
+
+  const handlePaste = (e) => {
+    e.preventDefault()
+    const clipboardText = e.clipboardData.getData('text/plain')
+    const html = mdParser.current.renderInline(clipboardText)
+    document.execCommand('insertHTML', false, html)
+  }
 
   const handleBold = () => {
     document.execCommand('bold', false, null)
@@ -91,7 +99,7 @@ const Text = ({
       >
         {!isEditing ? (
           
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0  }}>
             <Box
               className="drag-handle"
               sx={{
@@ -120,7 +128,7 @@ const Text = ({
                 p: 2,
                 border: '1px solid #ccc',
                 flex: 1,
-                overflowY: 'auto',
+                overflowY: 'scroll !important', 
                 whiteSpace: 'pre-wrap',
               }}
               dangerouslySetInnerHTML={{ __html: text }}
@@ -225,6 +233,7 @@ const Text = ({
               
               <Box
                 contentEditable
+                onPaste={handlePaste}
                 suppressContentEditableWarning
                 ref={editorRef}
                 sx={{

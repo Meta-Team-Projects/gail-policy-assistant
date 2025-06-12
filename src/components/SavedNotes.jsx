@@ -34,6 +34,7 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw   from 'rehype-raw'
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -42,10 +43,12 @@ const SavedNotes = ({
     open, onToggle,
     showNotepad,  onNotepadToggle,
     savedNotes = [],
-    setSelectedNote }) => {
-    const categories = ['All', 'Pinned', 'Formulated Responses']
+    setSelectedNote,
+    onDeleteNote  }) => {
+    const categories = ['All', 'Pinned']
     const [notes, setNotes] = useState(savedNotes);
     const [isWide, setIsWide] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     //useEffect(() => {setNotes(savedNotes);}, [savedNotes]);
     useEffect(() => {
@@ -59,9 +62,9 @@ const SavedNotes = ({
 
     const handleDelete = (index) => {
         const confirmDelete = window.confirm('Delete?');
-        if (confirmDelete) {
-            setNotes(prevNotes => prevNotes.filter((_, i) => i !== index));
-        }
+        if (!confirmDelete) return;
+        if (onDeleteNote) onDeleteNote(notes[index].originalIndex);
+        setNotes(prev => prev.filter((_, i) => i !== index));
     };
 
 
@@ -145,7 +148,7 @@ const SavedNotes = ({
                 width: open ? (isWide ? 900 : 500) : 0,
                 height: '93vh',
                 position: 'fixed',
-                right: '3.5vh',
+                right: '2.5vh',
                 top: '3.5vh',
                 bgcolor: 'background.sidebar',
                 display: 'flex',
@@ -229,22 +232,21 @@ const SavedNotes = ({
                 <Stack direction="row" spacing={1} sx={{ mb: -1, flexWrap: 'wrap', gap: 1 }}>
                     <Box sx={{ 
                         display: 'flex', flexWrap: 'wrap',
-                         gap: 1, flexGrow: 1 }}>
+                        gap: 1, flexGrow: 1 }}>
                         {categories.map((category) => (
                             <Chip
                                 key={category}
                                 label={category}
-                                variant="filled"
                                 size="small"
+                                variant="filled"
+                                onClick={() => setSelectedCategory(category)}
                                 sx={{
                                     px: 1,
                                     fontWeight: 500,
-                                    color: '#fff',
+                                    color: '#081A33',
                                     borderRadius: '16px',
-                                    bgcolor: '#0087d6',
-                                    '&:hover': {
-                                        backgroundColor: '#007ac2',
-                                    },
+                                    bgcolor: selectedCategory === category ? '#edcc09' : '#FFD95C',
+                                    '&:hover': { bgcolor: '#FEC636' },
                                 }}
                             />
                         ))}
@@ -259,8 +261,8 @@ const SavedNotes = ({
                             width: 24,
                             height: 24,
                             p: 1,
+                            m: 5,
                             borderRadius: '50%',
-                            boxShadow: 1,
                             '&:hover': {
                             backgroundColor: '#ffd24e',
                             },
@@ -275,14 +277,21 @@ const SavedNotes = ({
             </Box>
 
             <List sx={{ flexGrow: 1, overflow: 'auto', px: 2, py: 1 }}>
-                {notes.map((note, index) => (
+            {notes
+                    .filter(note => {
+                        if (selectedCategory === 'All') return true;
+                        if (selectedCategory === 'Pinned') return note.pinned;
+                        return true;
+                    })
+                    .map((note, index) => (
                     <ListItem
                         ref={(el) => messageRefs.current[index] = el}
                         key={index}
                         sx={{
-                            bgcolor: '#f8eecf',
+                            bgcolor: '#FFFFFF', //later
                             borderRadius: 3,
-                            mb: 1,
+                            boxShadow: '2px 8px 16px #DDEFFF', //later
+                            mb: 2,
                             px: 2,
                             pt: 1,
                             pb: 0.5,
@@ -311,25 +320,25 @@ const SavedNotes = ({
                                 }}
                                 sx={{ height: 24, 
                                     width: 24, 
-                                    bgcolor: '#0087d6', 
+                                    bgcolor: '#FFD95C', 
                                     borderRadius: 1, 
                                     '&:hover': {
-                                        bgcolor: '#006bb3', 
+                                        bgcolor: '#FEC636', 
                                     },  
                                     }}>
-                                    <EditIcon sx={{ fontSize: '0.8rem', color: '#fff' }} />
+                                    <EditIcon sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
                                 <IconButton size="small"
                                     sx={{ height: 24,
                                         width: 24, 
-                                        bgcolor: '#0087d6', 
+                                        bgcolor: '#FFD95C', 
                                         borderRadius: 1, 
                                         '&:hover': {
-                                            bgcolor: '#006bb3', 
+                                            bgcolor: '#FEC636', 
                                         }, }}>
                                     <Download 
                                     onClick={() => handleDownload(index)}
-                                    sx={{ fontSize: '0.8rem', color: '#fff' }} />
+                                    sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
                             </Stack>
                         </Box>
@@ -338,14 +347,16 @@ const SavedNotes = ({
                             display: 'flex', alignItems: 'center', 
                             mb: 0.5, mt: 1 }}>
                             <Typography variant="subtitle2" sx={{ 
-                                flexGrow: 1, fontWeight: '600', 
+                                flexGrow: 1, fontWeight: '600', color: '#081A33',
                                 fontSize: 'large', mt: 2, cursor: 'pointer' }}>
                                     {note.title}
                             </Typography>
                         </Box>
-                        <Box sx={{ml: 2, mr: 2, mb: 1, cursor: 'pointer' }}>
-                            <div dangerouslySetInnerHTML={{ __html: note.content }} />
-                            
+                        <Box sx={{ ml: 2, mr: 2, mb: 1, cursor: 'pointer' }}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} 
+                            rehypePlugins={[rehypeRaw]}>
+                                {note.content}
+                            </ReactMarkdown>
                         </Box>
                         {/* Bottom Bar: Delete Icon */}
                         <Box sx={{
@@ -354,7 +365,7 @@ const SavedNotes = ({
                         }}>
                             <IconButton size="small" 
                                 onClick={() => handleDelete(index)}
-                                sx={{ py: 0.5, px: 0 }}>
+                                sx={{ py: 0.5, px: 0.5 }}>
                                 <Delete sx={{ fontSize: '0.8rem', color: '#f08a8a' }} />
                             </IconButton>
                         </Box>
