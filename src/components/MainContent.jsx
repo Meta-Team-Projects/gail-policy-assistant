@@ -12,6 +12,12 @@ import {
     Toolbar,
     InputAdornment,
     SvgIcon,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Checkbox,
+    ListItemText,
 } from '@mui/material'
 import {
     Send,
@@ -37,6 +43,8 @@ import {
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FilePresentIcon from '@mui/icons-material/FilePresent'
 
 import Linkify from 'react-linkify'
 
@@ -81,6 +89,17 @@ const MainContent = ({
     const toggleLayoutIcons = () => {
         setShowLayoutIcons(prev => !prev)
     }
+
+    const categoryOptions = [
+        'All Documents',
+        'Human Resources',
+        'Contract & Procurement',
+        'Delegation of Powers'
+    ];
+    const [categoryFilter, setCategoryFilter] = useState('All Documents');
+    const handleCategoryChange = (e) => {
+        setCategoryFilter(e.target.value);
+    };
 
     const handleSend = async () => {
     const query = message.trim()
@@ -366,60 +385,83 @@ const MainContent = ({
         >
             {/* Top Bar */}
             <Toolbar sx={{ minHeight: '64px !important' }}>
-            <Box
-                sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-                maxWidth: '1200px',
-                mx: 'auto',
-                px: { xs: 2, sm: 2, md: 2, lg: 2 },
-                py: 1,
-                }}
-            >
-                {/* Left: Title later */}
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#3C3C3C', ml: -2 }}>  
-                Session 1
-                </Typography>
-
-                <Typography
-                variant="subtitle2"
-                sx={{
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    color: '#3C3C3C',
-                    mx: 3,
-                    textAlign: 'center',
-                    flex: 1
-                }}
-                >
-                Policy Documents
-                </Typography>
-
-                {/* Right: Icons */}
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                <IconButton
+                <Box
                     sx={{
-                    border: '1px solid #081A33',
-                    borderRadius: '8px',
-                    py: 0.5,
-                    px: 1,
-                    color: '#081A33',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    px: 3,
                     }}
                 >
-                    <PersonAdd sx={{width: '18px', height: 'auto'}}/>
-                </IconButton>
-                <IconButton
+                {/* Left title */}
+                <Box>
+                    <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 600, fontSize:16, color: '#081A33', ml: -2 }}
+                    >
+                    Policy Documents
+                    </Typography>
+                </Box>
+
+               {/* Right icons + category dropdown */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <FormControl
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                            minWidth: 280,
+                            maxWidth: 280,
+                            '& .MuiInputLabel-root': {
+                            color: '#081A33',
+                            fontWeight: 500,
+                            },
+                            '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                                borderColor: '#081A33',
+                            },
+                            '&:hover fieldset': {
+                                borderColor: '#081A33',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#081A33',
+                            },
+                            '& .MuiSelect-icon': {
+                                color: '#081A33',
+                            },
+                            },
+                            '& .MuiSelect-root': {
+                            color: '#081A33',
+                            fontWeight: 600,
+                            },
+                        }}
+                        >
+                        <InputLabel>Category</InputLabel>
+                        <Select
+                            value={categoryFilter}
+                            onChange={handleCategoryChange}
+                            label="Category"
+                            IconComponent={ExpandMoreIcon} 
+                        >
+                            {categoryOptions.map((name) => (
+                            <MenuItem key={name} value={name}>
+                                {name}
+                            </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <IconButton
                     sx={{
-                    border: '1px solid #081A33',
-                    borderRadius: '8px',
-                    p: 0.5,
-                    display: 'none'
+                        border: '1px solid #081A33',
+                        borderRadius: '8px',
+                        py: 1,
+                        px: 1,
+                        color: '#081A33',
                     }}
-                >
-                    <img src="./incognito-1.svg" alt="Incognito" style={{ width: 24, height: 24 }} />
-                </IconButton>
+                    >
+                    <PersonAdd sx={{ width: '18px', height: 'auto' }} />
+                    </IconButton>
                 </Box>
             </Box>
             </Toolbar>

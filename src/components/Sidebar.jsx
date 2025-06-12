@@ -39,8 +39,8 @@ const collapsedWidth = 56
 const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
-    { text: 'Policy Documents', icon: <FilePresentIcon />, type: MenuType.POLICY_DOC},
-    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES },
+    //{ text: 'Policy Documents', icon: <FilePresentIcon />, type: MenuType.POLICY_DOC},
+    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: true },
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: true },
     { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: true },
 ]
@@ -220,13 +220,11 @@ const Sidebar = ({
                         {renderMenuItem(item)}
                     </ListItem>
                 ))}
-                <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
                 {menuItems.slice(4).map((item) => (
                     <ListItem key={item.text} disablePadding>
                         {renderMenuItem(item)}
                     </ListItem>
                 ))}
-                <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
             </List>
 
             <Box sx={{ mt: 'auto' }}>
