@@ -57,11 +57,10 @@ const FAQs = ({ open, onToggle }) => {
         <Paper
             sx={{
                 width: open ? (isWide ? 900 : 500) : 0,
-                marginTop: '2.5vh',
-                height: '95vh',
+                height: '93vh',
                 position: 'fixed',
-                right: '1.5vh',
-                top: 0,
+                right: '3.5vh',
+                top: '3.5vh',
                 bgcolor: 'background.sidebar',
                 display: 'flex',
                 flexDirection: 'column',
@@ -197,5 +196,3 @@ const FAQs = ({ open, onToggle }) => {
 }
 
 export default FAQs
-
-

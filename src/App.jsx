@@ -29,9 +29,9 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#0088d7',
+      default: '#F1F8FF',
       paper: 'rgba(164, 191, 255, 0.08)',
-      sidebar: '#F6F6F6'
+      sidebar: '#CEE6FF'
     },
     primary: {
       main: '#FFD95C',

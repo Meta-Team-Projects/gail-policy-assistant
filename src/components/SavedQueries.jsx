@@ -125,10 +125,10 @@ const SavedQueries = ({ open, onToggle }) => {
         <Paper
             sx={{
                 width: open ? (isWide ? 900 : 500) : 0,
-                height: '95vh',
+                height: '93vh',
                 position: 'fixed',
-                right: '1.5vh',
-                top: '2.5vh',
+                right: '3.5vh',
+                top: '3.5vh',
                 bgcolor: 'background.sidebar',
                 display: 'flex',
                 flexDirection: 'column',

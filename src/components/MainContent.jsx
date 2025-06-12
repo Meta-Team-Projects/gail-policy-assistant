@@ -42,7 +42,7 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
+const MainContent = ({ rightSidebarOpen, leftSidebarOpen, dimMainContent }) => {
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState([])
     const [cutoff,  setCutoff]  = useState(0.80)
@@ -233,12 +233,13 @@ const MainContent = ({ rightSidebarOpen, leftSidebarOpen }) => {
                 maxWidth: {
                     xs: '90%',  
                     sm: '94.5%',  
-                    md: rightSidebarOpen ? 'calc(100% - 400px)' : '97%', // Desktop
+                    md: '97%', // Desktop
                 },
                 transition: 'max-width 0.3s ease',
                 bgcolor:'#F6F6F6',
                 //bgcolor: 'linear-gradient(180deg, #1F2A44 0%, #000B25 100%)',
                 position: 'relative',
+                filter: dimMainContent ? 'grayscale(0.5) brightness(0.5)' : 'none',
             }}
         >
             {/* Top Bar */}

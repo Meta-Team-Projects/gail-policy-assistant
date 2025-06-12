@@ -39,7 +39,6 @@ const collapsedWidth = 56
 const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
-    { text: 'New Session', icon: <DifferenceIcon />, type: 'NEW_SESSION' },
     { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES },
     { text: 'Doc Management', icon: <FilePresentIcon />, type: '', disabled: true },
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS },
@@ -91,12 +90,21 @@ const Sidebar = ({
                 sx={{
                     pl: 2,
                     justifyContent: open ? 'initial' : 'center',
+                    //Darker_theme
                     borderLeft: (item.type === 'TOGGLE_NOTEPAD' ? showNotepad : activeMenu === item.type)
-                        ? '6px solid #303030'
+                        ? '6px solid #fff'
                         : '4px solid transparent',
+                    //Lighter_theme
+                    /*borderLeft: (item.type === 'TOGGLE_NOTEPAD' ? showNotepad : activeMenu === item.type)
+                        ? '6px solid #081a33'
+                        : '4px solid transparent', */
+                    //Darker_theme
+                    color: '#fff',
+                    //Lighter_theme
+                    //color: activeMenu === item.type ? '#081a33': '#7090ac',
                     bgcolor: 'transparent',
                     '&:hover': { bgcolor: 'transparent' },
-                    '&.Mui-selected': { bgcolor: 'transparent' },
+                    '&.Mui-selected': { bgcolor: 'transparent'  },
                     '&.Mui-selected:hover': { bgcolor: 'transparent' },
                 }}
             >
@@ -133,11 +141,19 @@ const Sidebar = ({
                         primary={item.text}
                         sx={{
                             '& .MuiListItemText-primary': {
+                                //Darker_theme
                                 color: item.type === 'TOGGLE_NOTEPAD'
+                                    ? '#fff'
+                                    : activeMenu === item.type
+                                        ? '#fff'
+                                        : '#678092',
+                                //Lighter_theme
+                                /*color: item.type === 'TOGGLE_NOTEPAD'
                                     ? '#303030'
                                     : activeMenu === item.type
                                         ? '#303030'
-                                        : '#081A3366',
+                                        : '#7090ac',*/
+                                    
                                 fontWeight: item.type === 'TOGGLE_NOTEPAD' || activeMenu === item.type ? 600 : 300,
                             },
                         }}
@@ -153,15 +169,15 @@ const Sidebar = ({
                 justifyContent: open ? 'flex-start' : 'center',
                 alignItems: 'center', gap: open ? 1 : 0 }}>
                 <Box component="img"
-                 src="/gail_logo.png" alt="Logo"
-                 onClick={!open ? handleDrawerToggle : undefined}
-                 sx={{ width: 40, height: 40,
+                    src="/gail_logo.png" alt="Logo"
+                    onClick={!open ? handleDrawerToggle : undefined}
+                    sx={{ width: 40, height: 40,
                     cursor: !open ? 'pointer' : 'default',
                     transition: 'transform 0.2s ease-in-out',
                     '&:hover':{
                         transform: !open ? 'scale(1.05' : 'none',
                     },
-                  }} />
+                    }} />
                 {open && (
                     <>
                         <Typography
@@ -169,7 +185,10 @@ const Sidebar = ({
                             sx={{
                                 fontWeight: 600,
                                 fontSize: '16px',
-                                color: '#000000',
+                                //Darker_theme 
+                                color: '#FFFFFF',
+                                //Lighter_theme
+                                //color: '#081a33',
                                 whiteSpace: 'nowrap',
                             }}
                         >
@@ -180,8 +199,11 @@ const Sidebar = ({
                             sx={{
                                 position: 'absolute',
                                 right: 8,
-                                color: '#000000',
                                 '&:hover': { bgcolor: 'action.hover' },
+                                //Darker_theme 
+                                color: '#FFFFFF',
+                                //Lighter_theme
+                                //color: '#081a33',
                             }}
                         >
                             <ChevronLeft />
@@ -190,26 +212,6 @@ const Sidebar = ({
                 )}
             </Box>
 
-            <Box sx={{ px: 2, pb: 2, mx: -2 }}>
-                {open ? (<RecentSessions
-                    embedded
-                    open={open}
-                    onToggle={handleDrawerToggle}
-                    sessions={sessions}
-                    activeSessionID={activeSessionID}
-                    onSessionSelect={onSessionSelect}
-                    onRename={onRename}
-                    onDelete={onDelete}
-                    onReset={onReset}
-                />
-                ) : (
-                    <Box sx={{display: 'flex', justifyContent: 'center', py: 1}}>
-                        < AccessTimeIcon sx={{color: '#999'}}/>
-                    </Box>
-                )}
-            </Box>
-
-            <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
             <List>
                 <ListItem disablePadding>{renderMenuItem(menuItems[0])}</ListItem>
                 <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
@@ -255,7 +257,10 @@ const Sidebar = ({
                                     minWidth: 0,
                                     mr: open ? 2 : 'auto',
                                     justifyContent: 'center',
-                                    color: activeMenu === item.type ? '#303030' : '#081A3366',
+                                    //Darker_theme
+                                    color: activeMenu === item.type ? '#fff' : '#678092',
+                                    //Lighter_theme
+                                    //color: activeMenu === item.type ? '#081a33': '#7090ac',
                                     }}
                                 >
                                     {item.icon}
@@ -265,7 +270,10 @@ const Sidebar = ({
                                     primary={item.text}
                                     sx={{
                                         '& .MuiListItemText-primary': {
-                                        color: '#081A3366',
+                                         //Darker_theme
+                                        color: activeMenu === item.type ? '#fff' : '#678092',
+                                        //Lighter_theme
+                                        //color: activeMenu === item.type ? '#081a33': '#7090ac',
                                         },
                                     }}
                                     />
@@ -307,7 +315,11 @@ const Sidebar = ({
                         overflowX: 'hidden',
                         whiteSpace: 'nowrap',
                         boxSizing: 'border-box',
-                        bgcolor: '#FFFFFF',
+                        //Darker_theme
+                        background: 'linear-gradient(to top, #001C30 0%, #005696 100%)',
+                        //Lighter_theme
+                        //background: 'linear-gradient(to top, #5EBBFF 0%,   #E3F2FD 100%)',
+                        color: '#FFFFFF',
                         borderRight: '0.5px solid rgba(255, 255, 255, 0.15)',
                         boxShadow: '0px 4px 8px rgba(18, 18, 18, 0.25)',
                         borderRadius: '15px',
