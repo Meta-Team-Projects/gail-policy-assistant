@@ -164,7 +164,7 @@ const SavedNotes = ({
             <Box sx={{
                 p: 3,
                 position: 'relative',
-                bgcolor: 'background.paper',
+                bgcolor: 'background.sidebar',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
             }}>

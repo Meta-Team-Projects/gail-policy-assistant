@@ -22,6 +22,7 @@ import FAQs from './components/FAQs'
 import SavedNotes from './components/SavedNotes'
 import SavedQueries from './components/SavedQueries'
 import SessionLog from './components/SessionLog'
+import PolicyDoc from './components/PolicyDoc'
 import { MenuType } from './constants/menuTypes'
 import Text from './components/Text'
 
@@ -246,6 +247,8 @@ function App() {
         )
       case MenuType.SESSION_LOG:
         return <SessionLog open={rightSidebarOpen} onToggle={handleRightDrawerToggle} />
+      case MenuType.POLICY_DOC:
+        return <PolicyDoc open={rightSidebarOpen} onToggle={handleRightDrawerToggle} />
       case MenuType.FORMULATE:
         return 
       default:
