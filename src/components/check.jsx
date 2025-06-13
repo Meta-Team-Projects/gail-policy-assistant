@@ -188,7 +188,7 @@ const MainContent = ({
             .filter(field => response[field] !== undefined)
             .map(field => {
                 if (field === 'has_answer') {
-                    return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field] ? 'Yes' : 'No'}`
+                    return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field] ? 'Yes' : 'No'}\n\n\n`
                 }
                 if (field === 'source_file') {
                     return `**FILE:** ${response.source_file}\n\n\n`
@@ -587,7 +587,6 @@ const MainContent = ({
                                                 <strong>ERROR:</strong> {answerText.replace(/^\*\*ERROR:\*\*\s*/, '')}
                                                 </Typography>
                                         ) : (
-                                            <>
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={{
@@ -754,25 +753,11 @@ const MainContent = ({
                                             
                                             }}
                                         >
-                                            {/* 1) Answer */}
-     {`**ANSWER**  
-${answerText} \n\n
-**REFERENCES:**`}
+                                            {`**ANSWER:** ${answerText}
+
+**SOURCE:** ${referencePage ? formatResponse(referencePage) : ''}
+`}
                                         </ReactMarkdown>
-                                          {/* 2) All pages in one list */}
-   {Array.isArray(msg.pages) && msg.pages.map((ref, idx) => {
-     const url = ref.doc_link.split('?')[0] + `#page=${ref.page_num}`;
-     return (
-       <Box key={idx} sx={{ ml: 2, mb: 1 }}>
-         <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-            File: {ref.source_file} (Page Number: {ref.page_num})
-         </Typography>
-         <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-            Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
-         </Typography>
-       </Box>
-     );
-   })}</>
                                         )  
                                     ) : (
                                         
@@ -869,6 +854,82 @@ ${answerText} \n\n
                                         </IconButton>
                                     </Box>
                                 </Box>)}
+                                {/* ← pagination controls for multi-page AI replies */}
+                                {isPagedAI && (
+                                    <Box
+                                    sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    mt: 1,
+                                    px: 1,
+                                    position: 'relative',
+                                    minHeight: 40,
+                                    }}
+                                    >
+                                    {/* Previous Button or Invisible Placeholder */}
+                                    {msg.currentPage > 0 ? (
+                                    <Button
+                                    size="large"
+                                    onClick={() => goToPage(index, -1)}
+                                    startIcon={<NavigateBefore />}
+                                    sx={{
+                                    color: '#000',
+                                    backgroundColor: '#FFD95C',
+                                    fontSize: '0.8rem',
+                                    textTransform: 'none',
+                                    px: 2,
+                                    py: 1,
+                                    '&:hover': {
+                                    backgroundColor: '#FFCB42',
+                                    },
+                                    }}
+                                    >
+                                    Previous Response
+                                    </Button>
+                                    ) : (
+                                    <Box sx={{ width: '160px', visibility: 'hidden' }} />
+                                    )}
+
+                                    {/* Response Counter - Always centered */}
+                                    <Typography
+                                    variant="caption"
+                                    sx={{
+                                    position: 'absolute',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    color: '#003366',
+                                    fontWeight: 500,
+                                    }}
+                                    >
+                                        {msg.currentPage + 1}/{msg.pages.length}
+                                    </Typography>
+
+                                    {/* Next Button or Invisible Placeholder */}
+                                    {msg.currentPage < msg.pages.length - 1 ? (
+                                    <Button
+                                    size="large"
+                                    onClick={() => goToPage(index, 1)}
+                                    endIcon={<NavigateNext />}
+                                    sx={{
+                                    color: '#000',
+                                    backgroundColor: '#FFD95C',
+                                    fontSize: '0.8rem',
+                                    textTransform: 'none',
+                                    px: 2,
+                                    py: 1,
+                                    '&:hover': {
+                                    backgroundColor: '#FFCB42',
+                                    },
+                                    }}
+                                    >
+                                    Next Response
+                                    </Button>
+                                    ) : (
+                                    <Box sx={{ width: '130px', visibility: 'hidden' }} />
+                                    )}
+                                    </Box>
+                                )}
                                 </Paper>
                             </Box>
                         </Box>

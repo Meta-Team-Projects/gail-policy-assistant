@@ -26,7 +26,6 @@ import {
     ContentCopy,
 } from '@mui/icons-material'
 
-
 import FilterListIcon from '@mui/icons-material/FilterList';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
@@ -34,6 +33,7 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw';
 import jsPDF from 'jspdf'
 
 const SavedQueries = ({ open, onToggle }) => {
@@ -127,7 +127,7 @@ const SavedQueries = ({ open, onToggle }) => {
                 width: open ? (isWide ? 900 : 500) : 0,
                 height: '93vh',
                 position: 'fixed',
-                right: '3.5vh',
+                right: '2.5vh',
                 top: '3.5vh',
                 bgcolor: 'background.sidebar',
                 display: 'flex',
@@ -143,7 +143,7 @@ const SavedQueries = ({ open, onToggle }) => {
             <Box sx={{
                 p: 3,
                 position: 'relative',
-                bgcolor: 'background.paper',
+                bgcolor: 'background.sidebar',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
             }}>
@@ -336,7 +336,7 @@ const SavedQueries = ({ open, onToggle }) => {
                         </Box>
                         <Collapse in={expanded[note.key]} timeout="auto" unmountOnExit>
                             <Box sx={{ ml: 2, mr: 2, mb: 1 }}>
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                                     {note.content}
                                 </ReactMarkdown>
                             </Box>
