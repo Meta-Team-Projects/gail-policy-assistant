@@ -462,6 +462,7 @@ const MainContent = ({
                         py: 1,
                         px: 1,
                         color: '#081A33',
+                        display: 'none'
                     }}
                     >
                     <PersonAdd sx={{ width: '18px', height: 'auto' }} />
@@ -499,7 +500,7 @@ const MainContent = ({
                     py: 1,
                     maxWidth: '1400px',
                     ml: 2,
-                    width: '100%',
+                    width: '95%',
                     '&::-webkit-scrollbar': {
                         width: '4px',
                     },
