@@ -45,6 +45,7 @@ import NavigateNext from '@mui/icons-material/NavigateNext'
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilePresentIcon from '@mui/icons-material/FilePresent'
+import { drawerWidth, collapsedWidth } from './Sidebar'
 
 import Linkify from 'react-linkify'
 
@@ -479,7 +480,7 @@ const MainContent = ({
                     justifyItems: 'center',
                     height: '100%',
                     textAlign: 'center',
-                    ml: 2, 
+                    ml: 2,
                     mr: 2,
                     }}
                 >
@@ -494,7 +495,7 @@ const MainContent = ({
                     px: { xs: 2, sm: 2, md: 2, lg: 2 },
                     py: 1,
                     maxWidth: '1400px',
-                    mx: 'auto',
+                    ml: 2,
                     width: '100%',
                     '&::-webkit-scrollbar': {
                         width: '4px',

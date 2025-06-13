@@ -332,5 +332,6 @@ const Sidebar = ({
         </Box>
     )
 }
+export { drawerWidth, collapsedWidth }
 
 export default Sidebar
