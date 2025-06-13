@@ -416,6 +416,9 @@ const MainContent = ({
                             '& .MuiInputLabel-root': {
                             color: '#081A33',
                             fontWeight: 500,
+                            '&.Mui-focused': {
+                                    color: '#081A33',
+                                },
                             },
                             '& .MuiOutlinedInput-root': {
                             '& fieldset': {
