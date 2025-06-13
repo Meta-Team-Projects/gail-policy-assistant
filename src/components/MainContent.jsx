@@ -755,24 +755,23 @@ const MainContent = ({
                                             }}
                                         >
                                             {/* 1) Answer */}
-     {`**ANSWER**  
-${answerText} \n\n
-**REFERENCES:**`}
+     {`**Answer:**  ${answerText} \n\n
+**References:**`}
                                         </ReactMarkdown>
                                           {/* 2) All pages in one list */}
-   {Array.isArray(msg.pages) && msg.pages.map((ref, idx) => {
-     const url = ref.doc_link.split('?')[0] + `#page=${ref.page_num}`;
-     return (
-       <Box key={idx} sx={{ ml: 2, mb: 1 }}>
-         <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-            File: {ref.source_file} (Page Number: {ref.page_num})
-         </Typography>
-         <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-            Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
-         </Typography>
-       </Box>
-     );
-   })}</>
+                                        {Array.isArray(msg.pages) && msg.pages.map((ref, idx) => {
+                                            const url = ref.doc_link.split('?')[0] + `#page=${ref.page_num}`;
+                                            return (
+                                                <Box key={idx} sx={{ mb:1 }}>
+                                                <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                                    File: {ref.source_file} (Page Number: {ref.page_num})
+                                                </Typography>
+                                                <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                                    Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
+                                                </Typography>
+                                            </Box>
+                                            );
+                                        })}</>
                                         )  
                                     ) : (
                                         
