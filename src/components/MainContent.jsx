@@ -961,7 +961,7 @@ const MainContent = ({
                         sx={{
                             ml: 0.5,
                             borderLeft: '1px solid rgba(255, 255, 255, 0.08) !important',
-                            paddingLeft: '12px !important',
+                            paddingLeft: '12px !important', display: 'none'
                         }}
                     >
                         More

@@ -61,8 +61,6 @@ const SavedNotes = ({
 
 
     const handleDelete = (index) => {
-        const confirmDelete = window.confirm('Delete?');
-        if (!confirmDelete) return;
         if (onDeleteNote) onDeleteNote(notes[index].originalIndex);
         setNotes(prev => prev.filter((_, i) => i !== index));
     };
@@ -251,7 +249,7 @@ const SavedNotes = ({
                             />
                         ))}
                     </Box>
-                    <Tooltip title="Add Note" arrow>
+                    {/* <Tooltip title="Add Note" arrow>
                         <IconButton
                         size="small"
                         onClick={onNotepadToggle}
@@ -271,7 +269,7 @@ const SavedNotes = ({
                         <EditNoteIcon
                         sx={{ fontSize: 18 }} />
                         </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
                 </Stack>
 
             </Box>

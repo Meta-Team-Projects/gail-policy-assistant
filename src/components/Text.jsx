@@ -9,9 +9,13 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen'
 import Draggable from 'react-draggable'
 import MarkdownIt from 'markdown-it'
 
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+
 const Text = ({
   onSave, onClose, initialTitle = '',
-  initialContent = '', defaultEditing = false}) => {
+  initialContent = '', placeholder = '', defaultEditing = false}) => {
   const [title, setTitle] = useState(initialTitle)
   const [text, setText] = useState(initialContent)
   const [fontSize, setFontSize] = useState(16)
@@ -39,7 +43,7 @@ const Text = ({
   const handlePaste = (e) => {
     e.preventDefault()
     const clipboardText = e.clipboardData.getData('text/plain')
-    const html = mdParser.current.renderInline(clipboardText)
+    const html = mdParser.current.render(clipboardText)
     document.execCommand('insertHTML', false, html)
   }
 
@@ -115,8 +119,12 @@ const Text = ({
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                 {title || 'GAIL Notepad'}
               </Typography>
-              <IconButton onClick={() => setIsEditing(true)} sx={{ ml: 'auto' }}>
+              {/* <IconButton onClick={() => setIsEditing(true)} sx={{ ml: 'auto' }}>
                 <EditIcon sx={{ color: 'black' }} />
+              </IconButton> */}
+              <IconButton sx={{ml: 'auto'}}
+              onClick={onClose}>
+                <CancelIcon sx={{ color: 'black' }} />
               </IconButton>
             </Box>
 
@@ -131,8 +139,9 @@ const Text = ({
                 overflowY: 'scroll !important', 
                 whiteSpace: 'pre-wrap',
               }}
-              dangerouslySetInnerHTML={{ __html: text }}
-            />
+              >
+               <div dangerouslySetInnerHTML={{ __html: text }} />
+            </Box>
 
             <Button
               onClick={() => setIsEditing(true)}
@@ -178,10 +187,11 @@ const Text = ({
                 }}
                 sx={{ width: 200 }}
               />
-              <IconButton sx={{ ml: 'auto', mr: 1 }} disabled>
+              {/* <IconButton sx={{ ml: 'auto', mr: 1 }} disabled>
                 <EditIcon sx={{ color: 'gray' }} />
-              </IconButton>
-              <IconButton onClick={() => setIsMaximized(m => !m)}>
+              </IconButton> */}
+              <IconButton sx={{ml: 'auto'}}
+              onClick={() => setIsMaximized(m => !m)}>
                 {isMaximized
                   ? <CloseFullscreenIcon sx={{ color: 'black' }} />
                   : <AspectRatioIcon sx={{ color: 'black' }} />}
@@ -265,10 +275,19 @@ const Text = ({
                   scrollbarColor: '#0088d7 transparent',
                   overflowWrap: 'break-word',
                   bgcolor: 'white',
-                  cursor: 'text',                    
-                }}
-                dangerouslySetInnerHTML={{ __html: text }}
-              />
+                  cursor: 'text',
+                  '&:empty::before': {
+                    content: `"${placeholder}"`,
+                    color: '#888',
+                    pointerEvents: 'none',
+                    fontStyle: 'italic',
+                  }                   
+                }}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins=
+                  {[rehypeRaw]}>
+                    {text}
+                  </ReactMarkdown>
+                </Box>
 
               <Button
                 onClick={handleSave}
