@@ -1,4 +1,4 @@
-import { useState} from 'react'
+import { useState, useEffect} from 'react'
 import {
   Box,
   CssBaseline,
@@ -25,6 +25,7 @@ import SessionLog from './components/SessionLog'
 import PolicyDoc from './components/PolicyDoc'
 import { MenuType } from './constants/menuTypes'
 import Text from './components/Text'
+import LoadingScreen from './components/LoadingScreen'
 
 const darkTheme = createTheme({
   palette: {
@@ -271,6 +272,15 @@ function App() {
     setRightSidebarOpen(true)
   }
 
+  const [appLoading, setAppLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setAppLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (appLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ThemeProvider theme={darkTheme}>
