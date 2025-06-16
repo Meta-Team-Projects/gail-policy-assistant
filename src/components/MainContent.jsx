@@ -446,7 +446,14 @@ const MainContent = ({
                             onChange={handleCategoryChange}
                             label="Category"
                             IconComponent={ExpandMoreIcon} 
-                        >
+                            MenuProps={{
+                                PaperProps: {
+                                    sx: {
+                                        bgcolor: '#FFFFFF', // Solid white background
+                                        boxShadow: 3,       // Add a slight shadow for better visibility
+                                    }
+                                }
+                            }}                >
                             {categoryOptions.map((name) => (
                             <MenuItem key={name} value={name}>
                                 {name}
