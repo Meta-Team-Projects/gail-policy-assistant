@@ -18,6 +18,7 @@ import {
     MenuItem,
     Checkbox,
     ListItemText,
+    Tooltip
 } from '@mui/material'
 import {
     Send,
@@ -813,9 +814,12 @@ const MainContent = ({
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     {/* Left: Flag & Volume */}
                                     <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Tooltip title="Source" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <Source sx={{ fontSize: 16 }} />
                                         </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Copy" arrow>
                                         <IconButton
                                             size="small"
                                             onClick={() => handleCopy(answerText, referencePage)}
@@ -823,18 +827,24 @@ const MainContent = ({
                                         >
                                             <ContentCopy sx={{ fontSize: 16 }} />
                                         </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Share" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <IosShare sx={{ fontSize: 16 }} />
                                         </IconButton>
+                                        </Tooltip>
                                     </Box>
                                     {/* Right: Source, Copy, Share, Download */}
                                     <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Tooltip title="Bookmark" arrow>
                                         <IconButton
                                             size="small"
                                             sx={{ p: '2px', color: '#003366' }}
                                         >
                                             <BookmarkBorderIcon sx={{ fontSize: 16 }} />
-                                        </IconButton>                                                    
+                                        </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Save" arrow>                                             
                                         <IconButton
                                             size="small"
                                             onClick={() => {
@@ -871,9 +881,12 @@ const MainContent = ({
                                         >
                                             <Download sx={{ fontSize: 16 }} />
                                         </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Volume" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <VolumeUp sx={{ fontSize: 16 }} />
                                         </IconButton>
+                                        </Tooltip>
                                     </Box>
                                 </Box>)}
                                 </Paper>
@@ -961,7 +974,7 @@ const MainContent = ({
                         sx={{
                             ml: 0.5,
                             borderLeft: '1px solid rgba(255, 255, 255, 0.08) !important',
-                            paddingLeft: '12px !important',
+                            paddingLeft: '12px !important', display: 'none'
                         }}
                     >
                         More
@@ -999,6 +1012,7 @@ const MainContent = ({
                     >
                         {/* Top Row: Mic + Input + Send */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Tooltip title="Dictate" placement="top" arrow>
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
@@ -1014,6 +1028,7 @@ const MainContent = ({
                             >
                                 <Mic sx={{ fontSize: 18 }} />
                             </IconButton>
+                            </Tooltip>
 
                             <TextField
                                 fullWidth
@@ -1044,7 +1059,7 @@ const MainContent = ({
                                     },
                                 }}
                             />
-
+                            <Tooltip title="Send" placement="top" arrow>
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
@@ -1060,6 +1075,7 @@ const MainContent = ({
                             >
                                 <Send sx={{ fontSize: 18 }} />
                             </IconButton>
+                            </Tooltip>
                         </Box>
 
                         {/* Bottom Row: 2 Left buttons + 1 Right button */}

@@ -61,8 +61,6 @@ const SavedNotes = ({
 
 
     const handleDelete = (index) => {
-        const confirmDelete = window.confirm('Delete?');
-        if (!confirmDelete) return;
         if (onDeleteNote) onDeleteNote(notes[index].originalIndex);
         setNotes(prev => prev.filter((_, i) => i !== index));
     };
@@ -170,8 +168,8 @@ const SavedNotes = ({
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Note /> 
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Note sx={{color: '#081A33'}}/> 
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#081A33' }}>
                             Saved Notes
                         </Typography>
                     </Box>
@@ -184,18 +182,26 @@ const SavedNotes = ({
                                         '&:hover': { bgcolor: 'action.hover' },
                                     }}
                                 >
-                                    {isWide ? <CloseFullscreenIcon /> : <AspectRatioIcon />}
+                                    {isWide ?
+                                    <Tooltip title="Collapse" placement="left" arrow> 
+                                    <CloseFullscreenIcon sx={{color: '#081A33'}}/> 
+                                    </Tooltip>: 
+                                    <Tooltip title="Expand" placement="left" arrow>
+                                    <AspectRatioIcon sx={{color: '#081A33'}}/>
+                                    </Tooltip>}
                                 </IconButton>
                                 <IconButton
                                     onClick={onToggle}
                                     sx={{
-                                        color: 'text.primary',
+                                        color: '#081A33',
                                         '&:hover': {
                                             bgcolor: 'action.hover',
                                         },
                                     }}
                                 >
+                                    <Tooltip title="Close" placement="bottom" arrow>
                                     <ChevronRight />
+                                    </Tooltip>
                                 </IconButton>
                             </Box>
                         )}
@@ -209,7 +215,8 @@ const SavedNotes = ({
                     sx={{
                         mb: 2,
                         '& .MuiOutlinedInput-root': {
-                            bgcolor: '#c0e1f4',
+                            //bgcolor: '#c0e1f4',
+                            bgcolor: '#0088D614',
                             borderRadius: 10,
                         }
                     }}
@@ -229,7 +236,7 @@ const SavedNotes = ({
                     }}
                 />
 
-                <Stack direction="row" spacing={1} sx={{ mb: -1, flexWrap: 'wrap', gap: 1 }}>
+                <Stack direction="row" spacing={1} sx={{ mr: 2, mb: -1, flexWrap: 'wrap', gap: 1 }}>
                     <Box sx={{ 
                         display: 'flex', flexWrap: 'wrap',
                         gap: 1, flexGrow: 1 }}>
@@ -251,7 +258,7 @@ const SavedNotes = ({
                             />
                         ))}
                     </Box>
-                    <Tooltip title="Add Note" arrow>
+                    {/* <Tooltip title="Add Note" arrow>
                         <IconButton
                         size="small"
                         onClick={onNotepadToggle}
@@ -271,7 +278,7 @@ const SavedNotes = ({
                         <EditNoteIcon
                         sx={{ fontSize: 18 }} />
                         </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
                 </Stack>
 
             </Box>
@@ -305,14 +312,18 @@ const SavedNotes = ({
                         <Box sx={{ position: 'absolute', top: 8, left: 8 }}>
                             <IconButton size="small"
                             onClick={() => {handlePinToggle(index)}} >
+                                <Tooltip title="Pin" placement="right" arrow>
                                 <PushPinIcon 
                                 sx={{ fontSize: '1rem', stroke: '#000',
                                     fill: note.pinned ? '#000' : 'none',
-                                    strokeWidth: 1.5,}} />
+                                    strokeWidth: 1.5,
+                                    transition: 'all 0.2s ease'}} />
+                                </Tooltip>
                             </IconButton>
                         </Box>
                         <Box sx={{ position: 'absolute', top: 8, right: 16 }}>
                             <Stack direction="row" spacing={1}>
+                                <Tooltip title="Edit" placement="top" arrow>
                                 <IconButton size="small" 
                                 onClick={() => {
                                     setSelectedNote({ ...note, index});
@@ -328,6 +339,8 @@ const SavedNotes = ({
                                     }}>
                                     <EditIcon sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Download" placement="top" arrow>
                                 <IconButton size="small"
                                     sx={{ height: 24,
                                         width: 24, 
@@ -340,6 +353,7 @@ const SavedNotes = ({
                                     onClick={() => handleDownload(index)}
                                     sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
+                                </Tooltip>
                             </Stack>
                         </Box>
                         {/* Note title & content */}
@@ -366,7 +380,9 @@ const SavedNotes = ({
                             <IconButton size="small" 
                                 onClick={() => handleDelete(index)}
                                 sx={{ py: 0.5, px: 0.5 }}>
+                                <Tooltip title="Delete" placement="bottom" arrow>
                                 <Delete sx={{ fontSize: '0.8rem', color: '#f08a8a' }} />
+                                </Tooltip>
                             </IconButton>
                         </Box>
                     </ListItem>

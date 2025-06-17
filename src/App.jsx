@@ -289,7 +289,8 @@ function App() {
       {/*Notepad* */}
       {showNotepad && (<Text
       initialTitle={selectedNote?.title || 'Note'}
-      initialContent={selectedNote?.content || 'Type content here'}
+      initialContent={selectedNote?.content || ''}
+      placeholder="Type content here"
       defaultEditing = {false}
       onSave={handleSaveNote}
       onClose={() => {

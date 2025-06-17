@@ -13,7 +13,8 @@ import {
     Stack,
     Button,
     Divider,
-    Collapse
+    Collapse,
+    Tooltip
 } from '@mui/material'
 import {
     ChevronRight,
@@ -41,6 +42,7 @@ const SavedQueries = ({ open, onToggle }) => {
     const [notes, setNotes] = useState([]);
     const [expanded, setExpanded] = useState({});
     const [isWide, setIsWide] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     const handleToggle = (key) => {
         setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
@@ -149,8 +151,8 @@ const SavedQueries = ({ open, onToggle }) => {
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Download/> 
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Download sx={{color: '#081A33'}}/> 
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#081A33' }}>
                             Saved Queries
                         </Typography>
                     </Box>
@@ -163,18 +165,26 @@ const SavedQueries = ({ open, onToggle }) => {
                                     '&:hover': { bgcolor: 'action.hover' },
                                 }}
                             >
-                                {isWide ? <CloseFullscreenIcon /> : <AspectRatioIcon />}
+                                {isWide ?
+                                <Tooltip title="Collapse" placement="left" arrow> 
+                                <CloseFullscreenIcon sx={{color: '#081A33'}}/> 
+                                </Tooltip>: 
+                                <Tooltip title="Expand" placement="left" arrow>
+                                <AspectRatioIcon sx={{color: '#081A33'}}/>
+                                </Tooltip>}
                             </IconButton>
                             <IconButton
                                 onClick={onToggle}
                                 sx={{
-                                    color: 'text.primary',
+                                    color: '#081A33',
                                     '&:hover': {
                                         bgcolor: 'action.hover',
                                     },
                                 }}
                             >
+                                <Tooltip title="Close" placement="bottom" arrow>
                                 <ChevronRight />
+                                </Tooltip>
                             </IconButton>
                         </Box>
                     )}
@@ -190,7 +200,7 @@ const SavedQueries = ({ open, onToggle }) => {
                     sx={{
                         mb: 2,
                         '& .MuiOutlinedInput-root': {
-                            bgcolor: '#c0e1f4',
+                            bgcolor: '#0088D614',
                             borderRadius: 10,
                         }
                     }}
@@ -209,10 +219,14 @@ const SavedQueries = ({ open, onToggle }) => {
                 />
 
                 <Stack direction="row" spacing={1} sx={{ mb: -1, flexWrap: 'wrap', gap: 1 }}>
-                    {categories.map((category) => (
+                    <Box sx={{
+                        display: 'flex', flexWrap: 'wrap',
+                        gap: 1, flexGrow: 1}}>
+                        {categories.map((category) => (
                         <Chip
                             key={category}
                             label={category}
+                            onClick={() => setSelectedCategory(category)}
                             variant="filled"
                             size="small"
                             sx={{
@@ -220,13 +234,14 @@ const SavedQueries = ({ open, onToggle }) => {
                                 fontWeight: 500,
                                 color: '#081A33',
                                 borderRadius: '16px',
-                                bgcolor: '#FFD95C',
+                                bgcolor: selectedCategory === category ? '#edcc09' : '#FFD95C',
                                 '&:hover': {
                                 backgroundColor: '#FEC636',
                                 }
                             }}
                         />
                     ))}
+                    </Box>
                 </Stack>
             </Box>
 
@@ -238,6 +253,7 @@ const SavedQueries = ({ open, onToggle }) => {
                             cursor: 'pointer',
                             bgcolor: '#FFFFFFCC',
                             '&:hover': { bgcolor: '#FFFFFFE6' },
+                            boxShadow: '2px 8px 16px #DDEFFF',
                             borderRadius: 3,
                             mb: 1,
                             px: 2,
@@ -255,6 +271,7 @@ const SavedQueries = ({ open, onToggle }) => {
                                         e.stopPropagation();
                                         handlePin(note.key)}}
                             >
+                                <Tooltip title="Pin" placement='right' arrow>
                                 <PushPinIcon
                                     sx={{
                                         fontSize: '1rem',
@@ -264,10 +281,12 @@ const SavedQueries = ({ open, onToggle }) => {
                                         transition: 'all 0.2s ease',
                                     }}
                                 />
+                                </Tooltip>
                             </IconButton>
                         </Box> 
                         <Box sx={{ position: 'absolute', top: 8, right: 20 }}>
                             <Stack direction="row" spacing={1}>
+                                <Tooltip title="Copy" placement='top' arrow>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -281,6 +300,8 @@ const SavedQueries = ({ open, onToggle }) => {
                                     }}>
                                     <ContentCopy sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Download" placement='top' arrow>
                                 <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -293,6 +314,7 @@ const SavedQueries = ({ open, onToggle }) => {
                                     }}>
                                     <Download sx={{ fontSize: '0.8rem', color: '#000000' }} />
                                 </IconButton>
+                                </Tooltip>
                             </Stack>
                         </Box>
                         <Box sx={{
@@ -331,7 +353,9 @@ const SavedQueries = ({ open, onToggle }) => {
                                     handleDelete(note.key);
                                 }}
                             >
+                                <Tooltip title="Delete" placement='bottom' arrow>
                                 <Delete sx={{ fontSize: '1rem', color: '#f08a8a' }} />
+                                </Tooltip>
                             </IconButton>
                         </Box>
                         <Collapse in={expanded[note.key]} timeout="auto" unmountOnExit>
