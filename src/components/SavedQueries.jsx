@@ -201,7 +201,7 @@ const SavedQueries = ({ open, onToggle }) => {
                             </InputAdornment>
                         ),
                         endAdornment: (
-                            <InputAdornment position="end">
+                            <InputAdornment position="end" sx={{display: 'none'}}>
                                 <FilterListIcon sx={{ color: '#b1b8bb' }} />
                             </InputAdornment>
                         ),

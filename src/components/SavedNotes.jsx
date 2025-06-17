@@ -220,7 +220,7 @@ const SavedNotes = ({
                             </InputAdornment>
                         ),
                         endAdornment: (
-                            <InputAdornment position="end">
+                            <InputAdornment position="end" sx={{display: 'none'}}>
                                 <IconButton size="small">
                                     <FilterIcon sx={{ color: '#b1b8bb' }}/>
                                 </IconButton>
