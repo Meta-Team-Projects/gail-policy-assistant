@@ -375,13 +375,14 @@ const SavedNotes = ({
                         {/* Bottom Bar: Delete Icon */}
                         <Box sx={{
                             display: 'flex',
-                            justifyContent: 'flex-end'
+                            justifyContent: 'flex-end',
+                            mr: -0.5
                         }}>
                             <IconButton size="small" 
                                 onClick={() => handleDelete(index)}
-                                sx={{ py: 0.5, px: 0.5 }}>
+                                sx={{ py: 0.5 }}>
                                 <Tooltip title="Delete" placement="bottom" arrow>
-                                <Delete sx={{ fontSize: '0.8rem', color: '#f08a8a' }} />
+                                <Delete sx={{ fontSize: '1rem', color: '#f08a8a' }} />
                                 </Tooltip>
                             </IconButton>
                         </Box>

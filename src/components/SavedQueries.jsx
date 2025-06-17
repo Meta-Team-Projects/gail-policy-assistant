@@ -341,6 +341,7 @@ const SavedQueries = ({ open, onToggle }) => {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             mt: 0,
+                            mr: 0.5
                         }}>
                             <Typography variant="caption" sx={{ color: '#aaa' }}>
                                 {note.date}

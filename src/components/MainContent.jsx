@@ -882,7 +882,7 @@ const MainContent = ({
                                             <Download sx={{ fontSize: 16 }} />
                                         </IconButton>
                                         </Tooltip>
-                                        <Tooltip title="Volume" arrow>
+                                        <Tooltip title="Speaker" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <VolumeUp sx={{ fontSize: 16 }} />
                                         </IconButton>
@@ -1012,7 +1012,7 @@ const MainContent = ({
                     >
                         {/* Top Row: Mic + Input + Send */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Tooltip title="Dictate" placement="top" arrow>
+                            <Tooltip title="Mic" placement="top" arrow>
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
