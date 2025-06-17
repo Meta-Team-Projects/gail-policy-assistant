@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Box, Typography, Button, IconButton, TextField } from '@mui/material'
+import { Box, Typography, Button, IconButton, TextField, Tooltip } from '@mui/material'
 import FormatBoldIcon from '@mui/icons-material/FormatBold'
 import FormatItalicIcon from '@mui/icons-material/FormatItalic'
 import EditIcon from '@mui/icons-material/Edit'
@@ -21,11 +21,26 @@ const Text = ({
   const [fontSize, setFontSize] = useState(16)
   const [isMaximized, setIsMaximized] = useState(false)
   const [isEditing, setIsEditing] = useState(defaultEditing)
+  const [boldActive, setBoldActive] = useState(false);
+  const [italicActive, setItalicActive] = useState(false);
 
   const nodeRef = useRef(null)
   const editorRef = useRef(null)
   const mdParser = useRef(new MarkdownIt())
 
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const bold = document.queryCommandState('bold')
+      const italic = document.queryCommandState('italic')
+      setBoldActive(bold)
+      setItalicActive(italic)
+    }
+
+    document.addEventListener('selectionchange', handleSelectionChange)
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange)
+    }
+  }, [])
 
   useEffect(() => {
     if (isEditing && editorRef.current) {
@@ -47,13 +62,13 @@ const Text = ({
     document.execCommand('insertHTML', false, html)
   }
 
-  const handleBold = () => {
-    document.execCommand('bold', false, null)
-  }
+  // const handleBold = () => {
+  //   document.execCommand('bold', false, null)
+  // }
 
-  const handleItalic = () => {
-    document.execCommand('italic', false, null)
-  }
+  // const handleItalic = () => {
+  //   document.execCommand('italic', false, null)
+  // }
 
   const handleFontSizeChange = (px) => {
     const sizeMap = { 10: 1, 13: 2, 16: 3, 18: 4, 24: 5, 32: 6, 48: 7 }
@@ -193,8 +208,15 @@ const Text = ({
               <IconButton sx={{ml: 'auto'}}
               onClick={() => setIsMaximized(m => !m)}>
                 {isMaximized
-                  ? <CloseFullscreenIcon sx={{ color: 'black' }} />
-                  : <AspectRatioIcon sx={{ color: 'black' }} />}
+                  ? 
+                  <Tooltip title="Collapse" placement='left' arrow>
+                  <CloseFullscreenIcon sx={{ color: 'black' }} />
+                  </Tooltip>
+                  : 
+                  <Tooltip title="Expand" placement='left' arrow>
+                  <AspectRatioIcon sx={{ color: 'black' }} />
+                  </Tooltip>
+                }
               </IconButton>
             </Box>
 
@@ -222,19 +244,37 @@ const Text = ({
                   py: 0.5,
                 }}
               >
-                <IconButton size="small" onClick={handleBold} sx={{ borderRight: '0.5px solid rgba(0,0,0,0.23)', borderRadius: 0 }}>
+                <IconButton 
+                size="small" 
+                onClick={() => document.execCommand('bold')} 
+                sx={{ //borderRight: '0.5px solid rgba(0,0,0,0.23)', 
+                      borderRadius: 4,
+                      background: boldActive ? 'rgba(177, 197, 221, 0.6)' : 'transparent',
+                      mx: 0.5,
+                      px: 0.5
+                       }}>
                   <FormatBoldIcon sx={{ color: 'black' }} />
                 </IconButton>
-                <IconButton size="small" onClick={handleItalic} sx={{ borderRight: '0.5px solid rgba(0,0,0,0.23)', borderRadius: 0  }}>
+                <Typography sx={{pb: 0.5, fontSize: 30}}> | </Typography>
+                <IconButton 
+                size="small" 
+                onClick={() => document.execCommand('italic')} 
+                sx={{ //borderRight: '0.5px solid rgba(0,0,0,0.23)', 
+                      borderRadius: 4,
+                      background: italicActive ? 'rgba(177, 197, 221, 0.6)' : 'transparent',
+                      mx: 0.5,
+                      px: 0.5
+                       }}>
                   <FormatItalicIcon sx={{ color: 'black' }} />
                 </IconButton>
+                <Typography sx={{pb: 0.5, fontSize: 30}}> | </Typography>
                 <TextField
                   type="number"
                   value={fontSize}
                   onChange={e => handleFontSizeChange(Number(e.target.value))}
                   inputProps={{ min: 8, max: 48 }}
                   size="small"
-                  sx={{ width: 70, fontSize: '0.8rem', mx: 0.5 }}
+                  sx={{ width: 70, fontSize: '0.8rem', mx: 0.5}}
                 />
                 <IconButton onClick={() => setIsEditing(false)} sx={{ ml: 'auto' }}>
                   <CancelIcon sx={{ color: 'black' }} />

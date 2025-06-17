@@ -13,6 +13,7 @@ import {
     Divider,
     Stack,
     Collapse,
+    Tooltip
 } from '@mui/material'
 import {
     QuestionAnswer,
@@ -75,14 +76,14 @@ const FAQs = ({ open, onToggle }) => {
             <Box sx={{
                 p: 3,
                 position: 'relative',
-                bgcolor: 'background.paper',
+                bgcolor: 'background.sidebar',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <QuestionAnswer />
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <QuestionAnswer sx={{color: '#081A33'}} />
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#081A33' }}>
                             FAQs
                         </Typography>
                     </Box>
@@ -95,18 +96,26 @@ const FAQs = ({ open, onToggle }) => {
                                     '&:hover': { bgcolor: 'action.hover' },
                                 }}
                             >
-                                {isWide ? <CloseFullscreenIcon /> : <AspectRatioIcon />}
+                                {isWide ?
+                                <Tooltip title="Collapse" placement="left" arrow> 
+                                <CloseFullscreenIcon sx={{color: '#081A33'}}/> 
+                                </Tooltip>: 
+                                <Tooltip title="Expand" placement="left" arrow>
+                                <AspectRatioIcon sx={{color: '#081A33'}}/>
+                                </Tooltip>}
                             </IconButton>
                             <IconButton
                                 onClick={onToggle}
                                 sx={{
-                                    color: 'text.primary',
+                                    color: '#081A33',
                                     '&:hover': {
                                         bgcolor: 'action.hover',
                                     },
                                 }}
                             >
+                                <Tooltip title="Close" placement='bottom' arrow>
                                 <ChevronRight />
+                                </Tooltip>
                             </IconButton>
                         </Box>
                     )}
