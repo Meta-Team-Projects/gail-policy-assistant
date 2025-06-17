@@ -14,8 +14,9 @@ import {
     Stack,
     Button,
     Tooltip,
-    Divider
-} from '@mui/material'
+    Divider,
+    Dialog, DialogTitle, DialogContent, DialogActions,}
+ from '@mui/material'
 import {
     ChevronRight,
     Search as SearchIcon,
@@ -49,6 +50,8 @@ const SavedNotes = ({
     const [notes, setNotes] = useState(savedNotes);
     const [isWide, setIsWide] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [dialogNoteIndex, setDialogNoteIndex] = useState(null);
 
     //useEffect(() => {setNotes(savedNotes);}, [savedNotes]);
     useEffect(() => {
@@ -65,6 +68,13 @@ const SavedNotes = ({
         setNotes(prev => prev.filter((_, i) => i !== index));
     };
 
+    const confirmDelete = () => {
+        if (dialogNoteIndex !== null) {
+            handleDelete(dialogNoteIndex);
+            setOpenDeleteDialog(false);
+            setDialogNoteIndex(null);
+        }
+    };
 
     const messageRefs = useRef([]);
 
@@ -139,9 +149,11 @@ const SavedNotes = ({
         }
     };
 
+    const panelRef = useRef<HTMLDivElement>(null);
 
     return (
         <Paper
+            ref={panelRef}
             sx={{
                 width: open ? (isWide ? 900 : 500) : 0,
                 height: '93vh',
@@ -149,6 +161,7 @@ const SavedNotes = ({
                 right: '2.5vh',
                 top: '3.5vh',
                 bgcolor: 'background.sidebar',
+                transform: 'translateZ(0)',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'width 0.3s ease',
@@ -215,8 +228,8 @@ const SavedNotes = ({
                     sx={{
                         mb: 2,
                         '& .MuiOutlinedInput-root': {
-                            //bgcolor: '#c0e1f4',
-                            bgcolor: '#0088D614',
+                            //bgcolor: '#c0e1f4', 
+                            bgcolor: '#0088D614', //later
                             borderRadius: 10,
                         }
                     }}
@@ -270,6 +283,7 @@ const SavedNotes = ({
                             p: 1,
                             m: 5,
                             borderRadius: '50%',
+                            boxShadow: 1,
                             '&:hover': {
                             backgroundColor: '#ffd24e',
                             },
@@ -373,14 +387,101 @@ const SavedNotes = ({
                             </ReactMarkdown>
                         </Box>
                         {/* Bottom Bar: Delete Icon */}
+                        <Dialog
+                            open={openDeleteDialog}
+                            onClose={() => setOpenDeleteDialog(false)}
+                            container={() => panelRef.current}
+                            disablePortal
+                            BackdropProps={{ sx: { 
+                                backgroundColor: 'transparent',
+                                backdropFilter: 'grayscale(0.5) brightness(0.5)' ,
+                                position: 'absolute',
+                                inset: 0,
+                            } }}
+                            PaperProps={{
+                                sx: {
+                                m: 'auto',
+                                borderRadius: 2,
+                                width: '80%',
+                                maxWidth: 400,
+                                px: 2,
+                                pt: 1,
+                                pb: 2,
+                                bgcolor: '#F5F7FA',        // or whatever light grey
+                                boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                                }
+                            }}  
+                            >
+                            <DialogTitle
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 1,
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                gap: 2,
+                                pb: 1,
+                                mb: 1,
+                                color: '#687382',
+                            }}>
+                                <Delete/> Delete Note?</DialogTitle>
+                            <DialogContent
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                color: '#687382',
+                                }}>
+                                <Typography>Are you sure you want to delete this note?</Typography>
+                            </DialogContent>
+                            <DialogActions
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                }}>
+                                <Button 
+                                    sx={{
+                                    color: '#687382',
+                                    width: 200,
+                                    borderRadius: 999,
+                                    }}
+                                    onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+                                <Button
+                                variant="contained"
+                                sx={{
+                                    backgroundColor: '#0088d7',
+                                    py: 1,
+                                    width: 200,
+                                    borderRadius: 999,
+                                    color: '#fff',
+                                    '&:hover': {
+                                    backgroundColor: '#0072b1',
+                                    }
+                                }}
+                                onClick={confirmDelete}
+                                >
+                                Delete
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                         <Box sx={{
                             display: 'flex',
                             justifyContent: 'flex-end'
                         }}>
                             <IconButton size="small" 
-                                onClick={() => handleDelete(index)}
-                                sx={{ py: 0.5, px: 0.5 }}>
-                                <Tooltip title="Delete" placement="bottom" arrow>
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    setDialogNoteIndex(index);
+                                    setOpenDeleteDialog(true);
+                                }}
+                                sx={{ py: 0.5 }}>
+                               <Tooltip title="Delete" placement="bottom" arrow>
                                 <Delete sx={{ fontSize: '0.8rem', color: '#f08a8a' }} />
                                 </Tooltip>
                             </IconButton>
