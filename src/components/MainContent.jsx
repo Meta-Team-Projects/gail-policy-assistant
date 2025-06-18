@@ -92,12 +92,21 @@ const MainContent = ({
         setShowLayoutIcons(prev => !prev)
     }
 
-    const categoryOptions = [
-        'All Documents',
-        'Human Resources',
-        'Contract & Procurement',
-        'Delegation of Powers'
-    ];
+    const [categoryOptions, setCategoryOptions] = useState(['waiting backend']);
+
+    useEffect(() => {
+    axios
+        .get(`${BASE_URL}/documents`)
+        .then(({ data }) => {
+        // if data is an array of strings:
+        setCategoryOptions(data);
+        // or if it's array of objects: 
+        // setCategoryOptions(data.map(doc => doc.filename));
+        })
+        .catch(err => console.error('Failed to load categories', err));
+    }, [BASE_URL]);
+
+
     const [categoryFilter, setCategoryFilter] = useState('All Documents');
     const handleCategoryChange = (e) => {
         setCategoryFilter(e.target.value);
@@ -119,7 +128,7 @@ const MainContent = ({
 
     try {
         // 2) call API
-        const resp = await axios.post(`${BASE_URL}/query`, { query })
+        const resp = await axios.post(`${BASE_URL}/query`, { query , filename: categoryFilter, })
         
         const answerText = resp.data?.answer     || ''
         const references = resp.data?.references || []
