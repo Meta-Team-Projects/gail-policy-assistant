@@ -47,6 +47,9 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { drawerWidth, collapsedWidth } from './Sidebar'
+import StopCircleOutlined from '@mui/icons-material/StopCircleOutlined';
+
+import useSpeechToText from 'react-hook-speech-to-text'
 
 import Linkify from 'react-linkify'
 
@@ -373,6 +376,36 @@ const MainContent = ({
     key
     .replace(/_/g, ' ')
     .replace(/\b\w/g, char => char.toUpperCase());
+
+    // ─── Speech-to-Text hook──────────────────────────────
+    const {
+        error: sttError,
+        isRecording,
+        results,
+        startSpeechToText,
+        stopSpeechToText,
+    } = useSpeechToText({
+        continuous: true,
+        useLegacyResults: false,
+        timeout: 30000,
+    });
+
+    useEffect(() => {
+        if (results.length > 0) {
+        setMessage(results[results.length - 1].transcript);
+        }
+    }, [results]);
+
+    const toggleMic = async () => {
+        try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (isRecording) stopSpeechToText();
+        else startSpeechToText();
+        } catch (err) {
+        console.error('Mic permission or STT error', err);
+        }
+    };
+
 
     return (
         <Box
@@ -976,7 +1009,7 @@ const MainContent = ({
                     >
                         {/* Top Row: Mic + Input + Send */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Tooltip title="Mic" placement="top" arrow>
+                            <Tooltip title={isRecording ? "Stop Recording" : "Start Recording"} placement="top" arrow>
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
@@ -984,29 +1017,42 @@ const MainContent = ({
                                     height: '36px',
                                     borderRadius: '8px',
                                     color: '#515151',
+                                    boxShadow: '2px 2px 8px #9A9A9A40',
                                     '&:hover': {
                                         bgcolor: '#FFCB42',
                                     },
                                 }}
-                                onClick={() => {/* Handle Mic */}}
+                                onClick={toggleMic} 
                             >
-                                <Mic sx={{ fontSize: 18 }} />
+                                {isRecording
+                                ? <StopCircleOutlined  sx={{ fontSize: 18 }} />
+                                : <Mic   sx={{ fontSize: 18 }}/>}
                             </IconButton>
                             </Tooltip>
 
                             <TextField
                                 fullWidth
+                                multiline
+                                minRows={1}
+                                maxRows={3}
                                 variant="outlined"
                                 placeholder="Ask or search anything..."
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSend();
+                                    }
+                                }}
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
-                                        borderRadius: '8px',
-                                        height: '36px',
-                                        color:'#878787',
-                                        backgroundColor: '#FFD95C1A',
+                                            borderRadius: '8px',
+                                            
+                                            color:'#878787',
+                                            backgroundColor: '#FFD95C1A',
+                                            padding: 0,
+                                        
                                         '& fieldset': {
                                             borderColor: '#51515133',
                                         },
@@ -1016,6 +1062,22 @@ const MainContent = ({
                                         '&.Mui-focused fieldset': {
                                             borderColor: '#515151',
                                         },
+                                        '& textarea': {
+                                            overflowY: 'auto',
+
+                                            '&::-webkit-scrollbar': {
+                                                width: '4px',
+                                            },
+                                            '&::-webkit-scrollbar-track': {
+                                                background: 'transparent',
+                                            },
+                                            '&::-webkit-scrollbar-thumb': {
+                                                backgroundColor: '#0088d7',
+                                                borderRadius: '3px',
+                                            },
+                                            scrollbarWidth: 'thin',
+                                            scrollbarColor: '#0088d7 transparent',
+                                        }
                                     },
                                     '& .MuiOutlinedInput-input': {
                                         padding: '8px 14px',
@@ -1031,6 +1093,7 @@ const MainContent = ({
                                     height: '36px',
                                     borderRadius: '8px',
                                     color: '#515151',
+                                    boxShadow: '2px 2px 8px #9A9A9A40',
                                     '&:hover': {
                                         bgcolor: '#FFCB42',
                                     },

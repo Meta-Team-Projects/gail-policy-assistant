@@ -21,6 +21,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-draggable": "^4.4.6",
+    "react-hook-speech-to-text": "^0.8.0",
     "react-linkify": "^1.0.0-alpha",
     "react-markdown": "^10.1.0",
     "rehype-raw": "^7.0.0",
