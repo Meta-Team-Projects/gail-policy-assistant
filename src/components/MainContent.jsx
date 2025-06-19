@@ -92,16 +92,17 @@ const MainContent = ({
         setShowLayoutIcons(prev => !prev)
     }
 
-    const [categoryOptions, setCategoryOptions] = useState(['waiting backend']);
+    const [categoryOptions, setCategoryOptions] = useState(['All Documents']);
 
     useEffect(() => {
     axios
         .get(`${BASE_URL}/documents`)
         .then(({ data }) => {
-        // if data is an array of strings:
-        setCategoryOptions(data);
-        // or if it's array of objects: 
-        // setCategoryOptions(data.map(doc => doc.filename));
+         // make sure we end up with an array of strings
+        const categories = Array.isArray(data.documents)
+        ? data.documents
+        : [];
+        setCategoryOptions(categories);
         })
         .catch(err => console.error('Failed to load categories', err));
     }, [BASE_URL]);
@@ -938,57 +939,6 @@ const MainContent = ({
                     zIndex: 3,
                 }}
             >
-                {/* Action Buttons */}
-                <ButtonGroup
-                    variant="text"
-                    sx={{
-                        gap: 0.5,
-                        '& .MuiButton-root': {
-                            color: '#515151',
-                            bgcolor: '#FFD95C33',
-                            textTransform: 'none',
-                            fontSize: '0.875rem',
-                            padding: '6px 12px',
-                            borderRadius: '12px',
-                            border: 'none',
-                            minWidth: 'auto',
-                            fontWeight: 500,
-                            mb: 1,
-                            '&:hover': {
-                                bgcolor: '#ffd95c',
-                            },
-                            '& .MuiSvgIcon-root': {
-                                fontSize: '1.125rem',
-                                marginRight: '6px',
-                            },
-                        }
-                    }}
-                >
-                    {actionButtons.map((button) => (
-                        <Button
-                            key={button.label}
-                            startIcon={button.icon}
-                            onClick={() => handleActionClick(button.label)}
-                            sx={{
-                                '&:hover': {
-                                    bgcolor: 'rgba(255, 255, 255, 0.05)',
-                                }
-                            }}
-                        >
-                            {button.label}
-                        </Button>
-                    ))}
-                    <Button
-                        startIcon={<Add />}
-                        sx={{
-                            ml: 0.5,
-                            borderLeft: '1px solid rgba(255, 255, 255, 0.08) !important',
-                            paddingLeft: '12px !important', display: 'none'
-                        }}
-                    >
-                        More
-                    </Button>
-                </ButtonGroup>
                 <Box
                     sx={{
                         maxWidth: 'auto',
