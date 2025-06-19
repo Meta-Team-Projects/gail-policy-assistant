@@ -87,6 +87,20 @@ const MainContent = ({
     const [toMonth, setToMonth] = useState(6);
     const [toYear, setToYear] = useState(2025);
 
+    const CATEGORY_PLACEHOLDERS = [
+        "ompolicyrev3dated12042023",
+        "delegation_of_powers_01_04_2024",
+        "c_p_procedure_3rd_edition",
+        "all_documents",
+    ];
+
+    const CATEGORY_LABELS = {
+        ompolicyrev3dated12042023:   "O M Policy",
+        delegation_of_powers_01_04_2024: "Delegation of Powers",
+        c_p_procedure_3rd_edition:   "C&P Procedure",
+        all_documents:               "All Documents",
+    };
+
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
 
     const [showLayoutIcons, setShowLayoutIcons] = useState(false)
@@ -95,7 +109,7 @@ const MainContent = ({
         setShowLayoutIcons(prev => !prev)
     }
 
-    const [categoryOptions, setCategoryOptions] = useState(['All Documents']);
+    const [categoryOptions, setCategoryOptions] = useState(CATEGORY_PLACEHOLDERS);
 
     useEffect(() => {
     axios
@@ -501,7 +515,7 @@ const MainContent = ({
                             }}                >
                             {categoryOptions.map((name) => (
                             <MenuItem key={name} value={name}>
-                                {name}
+                                {CATEGORY_LABELS[name] || name}
                             </MenuItem>
                             ))}
                         </Select>
