@@ -822,6 +822,9 @@ const MainContent = ({
                                                 <Typography sx={{ whiteSpace: 'pre-wrap' }}>
                                                     Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
                                                 </Typography>
+                                                <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                                    Data Type: {ref.data_type}
+                                                </Typography>
                                             </Box>
                                             );
                                         })}</>
