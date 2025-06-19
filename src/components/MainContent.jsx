@@ -132,7 +132,7 @@ const MainContent = ({
 
     try {
         // 2) call API
-        const resp = await axios.post(`${BASE_URL}/query`, { query })
+        const resp = await axios.post(`${BASE_URL}/query`, { query,filename: categoryFilter, })
         
         const answerText = resp.data?.answer     || ''
         const references = resp.data?.references || []
@@ -372,10 +372,6 @@ const MainContent = ({
         setMessage(actionTexts[action] || "");
     };
 
-    const formatCategoryName = (key) =>
-    key
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, char => char.toUpperCase());
 
     // ─── Speech-to-Text hook──────────────────────────────
     const {
@@ -503,9 +499,9 @@ const MainContent = ({
                                     }
                                 }
                             }}                >
-                            {categoryOptions.map((raw) => (
-                            <MenuItem key={raw} value={raw}>
-                                {formatCategoryName(raw)}
+                            {categoryOptions.map((name) => (
+                            <MenuItem key={name} value={name}>
+                                {name}
                             </MenuItem>
                             ))}
                         </Select>
