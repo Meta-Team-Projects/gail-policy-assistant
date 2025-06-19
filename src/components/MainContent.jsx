@@ -369,6 +369,11 @@ const MainContent = ({
         setMessage(actionTexts[action] || "");
     };
 
+    const formatCategoryName = (key) =>
+    key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+
     return (
         <Box
             sx={{
@@ -465,9 +470,9 @@ const MainContent = ({
                                     }
                                 }
                             }}                >
-                            {categoryOptions.map((name) => (
-                            <MenuItem key={name} value={name}>
-                                {name}
+                            {categoryOptions.map((raw) => (
+                            <MenuItem key={raw} value={raw}>
+                                {formatCategoryName(raw)}
                             </MenuItem>
                             ))}
                         </Select>
