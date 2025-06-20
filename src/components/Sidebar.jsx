@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     Drawer,
     List,
@@ -33,8 +34,8 @@ import RecentSessions from './RecentSessions'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-const drawerWidth = 240
-const collapsedWidth = 56
+const drawerWidth = '12.5vw'
+const collapsedWidth = '2.91vw'
 
 const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
@@ -111,6 +112,7 @@ const Sidebar = ({
                 <ListItemIcon
                     sx={{
                         minWidth: 0,
+                        ml: 1,
                         mr: open ? 2 : 'auto',
                         justifyContent: 'center',
                         color: 'inherit',
@@ -126,14 +128,14 @@ const Sidebar = ({
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                width: 32,
-                                height: 32,
+                                width: '1.666vw',
+                                height: '1.666vw',
                             }}
                         >
-                            <EditNoteIcon fontSize="small" />
+                            <EditNoteIcon sx={{fontSize: '1vw'}} />
                         </Box>
                     ) : (
-                        item.icon
+                        React.cloneElement(item.icon, {sx: {fontSize: '1vw', ml: '0.045vw'}})
                     )}
                 </ListItemIcon>
                 {open && (
@@ -155,6 +157,7 @@ const Sidebar = ({
                                         : '#7090ac',*/
                                     
                                 fontWeight: item.type === 'TOGGLE_NOTEPAD' || activeMenu === item.type ? 600 : 300,
+                                fontSize: '0.833vw',
                             },
                         }}
                     />
@@ -171,7 +174,7 @@ const Sidebar = ({
                 <Box component="img"
                     src="/gail_logo.png" alt="Logo"
                     onClick={!open ? handleDrawerToggle : undefined}
-                    sx={{ width: 40, height: 40,
+                    sx={{ width: '2.083vw', height: '2.083vw',
                     cursor: !open ? 'pointer' : 'default',
                     transition: 'transform 0.2s ease-in-out',
                     '&:hover':{
@@ -184,7 +187,7 @@ const Sidebar = ({
                             variant="h6"
                             sx={{
                                 fontWeight: 600,
-                                fontSize: '16px',
+                                fontSize: '0.833vw',
                                 //Darker_theme 
                                 color: '#FFFFFF',
                                 //Lighter_theme
@@ -206,7 +209,7 @@ const Sidebar = ({
                                 //color: '#081a33',
                             }}
                         >
-                            <ChevronLeft />
+                            <ChevronLeft sx={{fontSize: '1.041vw'}}/>
                         </IconButton>
                     </>
                 )}
@@ -227,7 +230,7 @@ const Sidebar = ({
                 ))}
             </List>
 
-            <Box sx={{ mt: 'auto' }}>
+            <Box sx={{ mt: 'auto', }}>
                 <List>
                     {bottomMenuItems.map((item) => (
                         <ListItem key={item.text} disablePadding>

@@ -422,7 +422,7 @@ const MainContent = ({
             sx={{
                 marginTop: '2.5vh',
                 height: '95vh',
-                marginLeft: '1.5vh',
+                marginLeft: '1vw',
                 boxShadow: '2px 0px 8px #50505040',
                 borderRadius: '15px',
                 overflow: 'hidden', 
@@ -430,7 +430,6 @@ const MainContent = ({
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2,
-                ml: 3,
                 maxWidth: {
                     xs: '90%',  
                     sm: '94.5%',  
