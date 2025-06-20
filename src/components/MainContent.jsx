@@ -280,7 +280,7 @@ const MainContent = ({
         )
     }
 
-      const handleDownload = async (msgIndex) => {
+    const handleDownload = async (msgIndex) => {
         const element = messageRefs.current[msgIndex]
         if (!element) return
 
@@ -458,7 +458,7 @@ const MainContent = ({
                 <Box>
                     <Typography
                     variant="subtitle1"
-                    sx={{ fontWeight: 600, fontSize:16, color: '#081A33', ml: -2 }}
+                    sx={{ fontWeight: 600, fontSize:'0.833vw', color: '#081A33', ml: -2 }}
                     >
                     Policy Documents
                     </Typography>
@@ -470,8 +470,8 @@ const MainContent = ({
                         size="small"
                         variant="outlined"
                         sx={{
-                            minWidth: 280,
-                            maxWidth: 280,
+                            minWidth: '14.583vw',
+                            maxWidth: '14.583vw',
                             '& .MuiInputLabel-root': {
                             color: '#081A33',
                             fontWeight: 500,
@@ -564,7 +564,7 @@ const MainContent = ({
                     overflow: 'auto',
                     px: { xs: 2, sm: 2, md: 2, lg: 2 },
                     py: 1,
-                    maxWidth: '1400px',
+                    maxWidth: '72.92vw',
                     ml: 2,
                     width: '95%',
                     '&::-webkit-scrollbar': {
@@ -598,7 +598,7 @@ const MainContent = ({
                                 mb: 3,
                                 justifyContent: 'flex-start',
                                 alignItems: 'flex-start',
-                                maxWidth: '1400px',
+                                maxWidth: '72.92vw',
                                 mx: 'auto',
                                 width: '100%',
                             }}
@@ -608,14 +608,14 @@ const MainContent = ({
                                     background: msg.type === 'user'
                                     ? '#FFD95C'                                                   // user: yellow
                                     : 'conic-gradient(from 180deg at 50% 50%, #FFD95C 0deg, #FF715E 360deg)',  
-                                    width: 40,
-                                    height: 40,
+                                    width: '2.083vw',
+                                    height: '2.083vw',
                                     mt: 0.5,
                                     flexShrink: 0,
                                 }}
                                 >
                                 {msg.type === 'user' 
-                                    ? <Person sx={{ color: '#081A33', fontSize: 20 }} />       // user icon
+                                    ? <Person sx={{ color: '#081A33', fontSize: '1.0415' }} />       // user icon
                                     : <></>      // AI icon
                                 }
                             </Avatar>
@@ -650,7 +650,7 @@ const MainContent = ({
                                 >
                                     {msg.type === 'ai' ? (
                                         msg.isError ? (
-                                                <Typography sx={{ fontSize: '1rem', lineHeight: 1.6 }}>
+                                                <Typography sx={{ fontSize: '0.833vw', lineHeight: 1.6 }}>
                                                 <strong>ERROR:</strong> {answerText.replace(/^\*\*ERROR:\*\*\s*/, '')}
                                                 </Typography>
                                         ) : (
@@ -669,7 +669,7 @@ const MainContent = ({
                                                     <Typography
                                                         {...props}
                                                         sx={{
-                                                            fontSize: '1rem',
+                                                            fontSize: '0.833vw',
                                                             lineHeight: 1.6,
                                                             letterSpacing: '0.01em',
                                                             mb: 2,
@@ -740,7 +740,7 @@ const MainContent = ({
                                                     <Typography
                                                         component="li"
                                                         sx={{
-                                                            fontSize: '1rem',
+                                                            fontSize: '0.833vw',
                                                             lineHeight: 1.6,
                                                             color: 'inherit',
                                                         }}
@@ -830,13 +830,13 @@ const MainContent = ({
                                             const url = ref.doc_link.split('?')[0] + `#page=${ref.page_num}`;
                                             return (
                                                 <Box key={idx} sx={{ mb:1 }}>
-                                                <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                                <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                     File: {ref.source_file} (Page Number: {ref.page_num})
                                                 </Typography>
-                                                <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                                <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                     Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
                                                 </Typography>
-                                                <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                                                <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                     Data Type: {ref.data_type}
                                                 </Typography>
                                             </Box>
@@ -859,7 +859,7 @@ const MainContent = ({
                                             >
                                             <Typography
                                                 sx={{
-                                                fontSize: '1rem',
+                                                fontSize: '0.833vw',
                                                 lineHeight: 1.6,
                                                 letterSpacing: '0.01em',
                                                 overflowWrap: 'break-word',
@@ -877,7 +877,7 @@ const MainContent = ({
                                     <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Tooltip title="Source" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
-                                            <Source sx={{ fontSize: 16 }} />
+                                            <Source sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Copy" arrow>
@@ -886,12 +886,12 @@ const MainContent = ({
                                             onClick={() => handleCopy(answerText, referencePage)}
                                             sx={{ p: '2px', color: '#003366' }}
                                         >
-                                            <ContentCopy sx={{ fontSize: 16 }} />
+                                            <ContentCopy sx={{ fontSize: '0.833vw'}} />
                                         </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Share" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
-                                            <IosShare sx={{ fontSize: 16 }} />
+                                            <IosShare sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
                                         </Tooltip>
                                     </Box>
@@ -902,7 +902,7 @@ const MainContent = ({
                                             size="small"
                                             sx={{ p: '2px', color: '#003366' }}
                                         >
-                                            <BookmarkBorderIcon sx={{ fontSize: 16 }} />
+                                            <BookmarkBorderIcon sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Save" arrow>                                             
@@ -940,12 +940,12 @@ const MainContent = ({
                                             }}
                                             sx={{ p: '2px', color: '#003366' }}
                                         >
-                                            <Download sx={{ fontSize: 16 }} />
+                                            <Download sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Speaker" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
-                                            <VolumeUp sx={{ fontSize: 16 }} />
+                                            <VolumeUp sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
                                         </Tooltip>
                                     </Box>
