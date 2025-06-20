@@ -125,7 +125,7 @@ const MainContent = ({
     }, [BASE_URL]);
 
 
-    const [categoryFilter, setCategoryFilter] = useState('All Documents');
+    const [categoryFilter, setCategoryFilter] = useState('all_documents');
     const handleCategoryChange = (e) => {
         setCategoryFilter(e.target.value);
     };
