@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Paper,
@@ -14,7 +14,8 @@ import {
     Button,
     Divider,
     Collapse,
-    Tooltip
+    Tooltip,
+    Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material'
 import {
     ChevronRight,
@@ -44,6 +45,9 @@ const SavedQueries = ({ open, onToggle }) => {
     const [isWide, setIsWide] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
 
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [dialogNoteKey, setDialogNoteKey] = useState(null);
+
     const handleToggle = (key) => {
         setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
     };
@@ -64,11 +68,22 @@ const SavedQueries = ({ open, onToggle }) => {
         return () => window.removeEventListener('saved-query', loadNotes);
     }, []);
 
-
+    // open the confirmation dialog
     const handleDelete = (key) => {
-        localStorage.removeItem(key);
-        window.dispatchEvent(new Event('saved-query'));
+        setDialogNoteKey(key);
+        setOpenDeleteDialog(true);
     };
+
+    // actually delete after confirmation
+    const confirmDelete = () => {
+        if (dialogNoteKey) {
+            localStorage.removeItem(dialogNoteKey);
+            window.dispatchEvent(new Event('saved-query'));
+        }
+        setOpenDeleteDialog(false);
+        setDialogNoteKey(null);
+    };
+
     const handleCopy = (answerText, referencePage) => {
     let textToCopy = `ANSWER: ${answerText}`;
 
@@ -123,8 +138,11 @@ const SavedQueries = ({ open, onToggle }) => {
         window.dispatchEvent(new Event('saved-query'));
     };
 
+    const panelRef = useRef<HTMLDivElement>(null);
+
     return (
         <Paper
+            ref={panelRef}
             sx={{
                 width: open ? (isWide ? 900 : 500) : 0,
                 height: '93vh',
@@ -246,7 +264,23 @@ const SavedQueries = ({ open, onToggle }) => {
             </Box>
 
             <List sx={{ flexGrow: 1, overflow: 'auto', px: 2, py: 1 }}>
-                {notes.map((note) => (
+                {notes
+                .filter(note => {
+                    if (selectedCategory === 'All') return true;
+                    if (selectedCategory === 'Pinned') return note.pinned;
+                    return true;
+                })
+                .sort((a,b) => {
+                    if (selectedCategory === 'Date') {
+                        const parseDate = (d) => {
+                            const [day, month, year] = d.split('/').map(Number);
+                            return new Date(year, month-1, day);
+                        };
+                        return parseDate(b.date) - parseDate(a.date);
+                    }
+                    return 0;
+                })
+                .map((note) => (
                     <ListItem key={note.key}
                         onClick={() => handleToggle(note.key)}
                         sx={{
@@ -336,6 +370,90 @@ const SavedQueries = ({ open, onToggle }) => {
                             </IconButton>
                         </Box>
                         {/* Bottom Bar: Date + Delete */}
+                        {/* --- Delete Confirmation Dialog --- */}
+                        <Dialog
+                            open={openDeleteDialog}
+                            onClose={() => setOpenDeleteDialog(false)}
+                            container={() => panelRef.current}
+                            disablePortal
+                            BackdropProps={{ sx: { 
+                                backgroundColor: 'transparent',
+                                backdropFilter: 'grayscale(0.5) brightness(0.5)' ,
+                                position: 'absolute',
+                                inset: 0,
+                            } }}
+                            PaperProps={{
+                                sx: {
+                                m: 'auto',
+                                borderRadius: 2,
+                                width: '80%',
+                                maxWidth: 400,
+                                px: 2,
+                                pt: 1,
+                                pb: 2,
+                                bgcolor: '#F5F7FA',        // or whatever light grey
+                                boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                                }
+                            }}  
+                            >
+                            <DialogTitle
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 1,
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                gap: 2,
+                                pb: 1,
+                                mb: 1,
+                                color: '#687382',
+                            }}>
+                                <Delete/> Delete Query?</DialogTitle>
+                            <DialogContent
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                color: '#687382',
+                                }}>
+                                <Typography>Are you sure you want to delete this query?</Typography>
+                            </DialogContent>
+                            <DialogActions
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                }}>
+                                <Button 
+                                    sx={{
+                                    color: '#687382',
+                                    width: 200,
+                                    borderRadius: 999,
+                                    }}
+                                    onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+                                <Button
+                                variant="contained"
+                                sx={{
+                                    backgroundColor: '#0088d7',
+                                    py: 1,
+                                    width: 200,
+                                    borderRadius: 999,
+                                    color: '#fff',
+                                    '&:hover': {
+                                    backgroundColor: '#0072b1',
+                                    }
+                                }}
+                                onClick={confirmDelete}
+                                >
+                                Delete
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                         <Box sx={{
                             display: 'flex',
                             justifyContent: 'space-between',

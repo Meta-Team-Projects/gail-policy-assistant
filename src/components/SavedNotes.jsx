@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, useLayoutEffect} from 'react';
 
 import {
     Box,
@@ -14,7 +14,8 @@ import {
     Stack,
     Button,
     Tooltip,
-    Divider
+    Divider,
+    Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material'
 import {
     ChevronRight,
@@ -31,6 +32,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -50,6 +54,76 @@ const SavedNotes = ({
     const [isWide, setIsWide] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
 
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+    const [dialogNoteIndex, setDialogNoteIndex] = useState(null);
+
+
+
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    const [noteToDeleteIndex, setNoteToDeleteIndex] = useState(null);
+
+
+
+    const [expandedNotes, setExpandedNotes] = useState({});
+
+    const toggleExpand = (index) => {
+
+        setExpandedNotes(prev => ({
+
+        ...prev,
+
+        [index]: !prev[index],
+
+        }));
+
+    };
+
+    const [hasOverflow, setHasOverflow] = useState({});
+
+    const contentRefs = useRef([]);
+
+
+
+    useLayoutEffect(() => {
+
+        const overflows = {};
+
+        contentRefs.current.forEach((el, i) => {
+
+            if (el) overflows[i] = el.scrollHeight > el.clientHeight;
+
+        });
+
+        setHasOverflow(overflows);
+
+    }, [notes]);
+
+
+
+    useEffect(() => {
+
+        const onResize = () => {
+
+            const overflows = {};
+
+            contentRefs.current.forEach((el, i) => {
+
+            if (el) overflows[i] = el.scrollHeight > el.clientHeight;
+
+            });
+
+            setHasOverflow(overflows);
+
+        };
+
+        window.addEventListener('resize', onResize);
+
+        return () => window.removeEventListener('resize', onResize);
+
+    }, []);
+
     //useEffect(() => {setNotes(savedNotes);}, [savedNotes]);
     useEffect(() => {
         const withIndex = savedNotes.map((note, i) => ({
@@ -65,6 +139,19 @@ const SavedNotes = ({
         setNotes(prev => prev.filter((_, i) => i !== index));
     };
 
+    const confirmDelete = () => {
+
+        if (dialogNoteIndex !== null) {
+
+            handleDelete(dialogNoteIndex);
+
+            setOpenDeleteDialog(false);
+
+            setDialogNoteIndex(null);
+
+        }
+
+    };
 
     const messageRefs = useRef([]);
 
@@ -139,9 +226,11 @@ const SavedNotes = ({
         }
     };
 
+    const panelRef = useRef<HTMLDivElement>(null);
 
     return (
         <Paper
+            ref={panelRef}
             sx={{
                 width: open ? (isWide ? 900 : 500) : 0,
                 height: '93vh',
@@ -366,21 +455,153 @@ const SavedNotes = ({
                                     {note.title}
                             </Typography>
                         </Box>
-                        <Box sx={{ ml: 2, mr: 2, mb: 1, cursor: 'pointer' }}>
-                            <ReactMarkdown remarkPlugins={[remarkGfm]} 
-                            rehypePlugins={[rehypeRaw]}>
+
+                        <Box
+                            ref={el => contentRefs.current[index] = el}
+                            sx={{
+                                ml: 2,
+                                mr: 2,
+                                mb: 1,
+                                whiteSpace: 'pre-wrap',
+                                overflowWrap: 'break-word',
+                                wordBreak: 'break-word',
+                                ...(expandedNotes[index]
+                                ? {}
+                                : {
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 4,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    }),
+                            }}
+                        >
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                                 {note.content}
                             </ReactMarkdown>
                         </Box>
                         {/* Bottom Bar: Delete Icon */}
-                        <Box sx={{
+                        <Dialog
+                            open={openDeleteDialog}
+                            onClose={() => setOpenDeleteDialog(false)}
+                            container={() => panelRef.current}
+                            disablePortal
+                            BackdropProps={{ sx: { 
+                                backgroundColor: 'transparent',
+                                backdropFilter: 'grayscale(0.5) brightness(0.5)' ,
+                                position: 'absolute',
+                                inset: 0,
+                            } }}
+                            PaperProps={{
+                                sx: {
+                                m: 'auto',
+                                borderRadius: 2,
+                                width: '80%',
+                                maxWidth: 400,
+                                px: 2,
+                                pt: 1,
+                                pb: 2,
+                                bgcolor: '#F5F7FA',        // or whatever light grey
+                                boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                                }
+                            }}  
+                            >
+                            <DialogTitle
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 1,
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                gap: 2,
+                                pb: 1,
+                                mb: 1,
+                                color: '#687382',
+                            }}>
+                                <Delete/> Delete Note?</DialogTitle>
+                            <DialogContent
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                color: '#687382',
+                                }}>
+                                <Typography>Are you sure you want to delete this note?</Typography>
+                            </DialogContent>
+                            <DialogActions
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                justifyContent: 'center',
+                                }}>
+                                <Button 
+                                    sx={{
+                                    color: '#687382',
+                                    width: 200,
+                                    borderRadius: 999,
+                                    }}
+                                    onClick={() => setOpenDeleteDialog(false)}>Cancel
+                                </Button>
+                                <Button
+                                variant="contained"
+                                sx={{
+                                    backgroundColor: '#0088d7',
+                                    py: 1,
+                                    width: 200,
+                                    borderRadius: 999,
+                                    color: '#fff',
+                                    '&:hover': {
+                                    backgroundColor: '#0072b1',
+                                    }
+                                }}
+                                onClick={confirmDelete}
+                                >
+                                Delete
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+
+                        {/* Bottom row: Read More/Less on left, Delete on right */}
+                        <Box
+                        sx={{
                             display: 'flex',
-                            justifyContent: 'flex-end',
-                            mr: -0.5
-                        }}>
-                            <IconButton size="small" 
-                                onClick={() => handleDelete(index)}
-                                sx={{ py: 0.5 }}>
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            mt: 1,
+                            mx: 0,
+                        }}
+                        >
+                            {hasOverflow[index] && !expandedNotes[index] ? (
+                            <Typography
+                                variant="body2"
+                                onClick={() => toggleExpand(index)}
+                                sx={{ cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center' }}
+                                >
+                                Read More <ExpandMoreIcon fontSize="small" />
+                                </Typography>
+                            ) : hasOverflow[index] && expandedNotes[index] ? (
+                                <Typography
+                                    variant="body2"
+                                    onClick={() => toggleExpand(index)}
+                                    sx={{ cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center' }}
+                                >
+                                Read Less <ExpandLessIcon fontSize="small" />
+                                </Typography>
+                            ) : <Box />} 
+
+                            <IconButton
+                                size="small"
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    setDialogNoteIndex(index);
+                                    setOpenDeleteDialog(true);
+                                }}
+                                sx={{ py: 0.5 }}
+                            >
                                 <Tooltip title="Delete" placement="bottom" arrow>
                                 <Delete sx={{ fontSize: '1rem', color: '#f08a8a' }} />
                                 </Tooltip>
