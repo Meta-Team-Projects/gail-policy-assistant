@@ -112,7 +112,7 @@ const Sidebar = ({
                 <ListItemIcon
                     sx={{
                         minWidth: 0,
-                        ml: 1,
+                        //ml: 1,
                         mr: open ? 2 : 'auto',
                         justifyContent: 'center',
                         color: 'inherit',
