@@ -238,7 +238,7 @@ const SavedQueries = ({ open, onToggle }) => {
                     }}
                 />
 
-                <Stack direction="row" spacing={1} sx={{ mb: -1, flexWrap: 'wrap', gap: 1 }}>
+                <Stack direction="row" sx={{ mb: -1, flexWrap: 'wrap', gap: '0.41vw' }}>
                     <Box sx={{
                         display: 'flex', flexWrap: 'wrap',
                         gap: 1, flexGrow: 1}}>
@@ -250,8 +250,9 @@ const SavedQueries = ({ open, onToggle }) => {
                             variant="filled"
                             size="small"
                             sx={{
-                                px: 1,
+                                p: '0.4vw',
                                 fontWeight: 500,
+                                fontSize: '0.7292vw',
                                 color: '#081A33',
                                 borderRadius: '16px',
                                 bgcolor: selectedCategory === category ? '#edcc09' : '#FFD95C',
@@ -291,7 +292,7 @@ const SavedQueries = ({ open, onToggle }) => {
                             '&:hover': { bgcolor: '#FFFFFFE6' },
                             boxShadow: '2px 8px 16px #DDEFFF',
                             borderRadius: 3,
-                            mb: 1,
+                            mb: '0.4167vw',
                             px: 2,
                             pt: 1,
                             pb: 0.5,
@@ -310,7 +311,7 @@ const SavedQueries = ({ open, onToggle }) => {
                                 <Tooltip title="Pin" placement='right' arrow>
                                 <PushPinIcon
                                     sx={{
-                                        fontSize: '1rem',
+                                        fontSize: '0.8333vw',
                                         fill: note.pinned ? 'black' : 'none',
                                         stroke: 'black',
                                         strokeWidth: 1.5,
@@ -329,12 +330,12 @@ const SavedQueries = ({ open, onToggle }) => {
                                         e.stopPropagation();
                                         handleCopy(note.content)}}
                                     sx={{ 
-                                        height: 24, width: 24, bgcolor: '#FFD95C', borderRadius: 1,
+                                        height: '1.25vw', width: '1.25vw', bgcolor: '#FFD95C', borderRadius: 1,
                                         '&:hover': {
                                             bgcolor: '#FEC636', 
                                         }, 
                                     }}>
-                                    <ContentCopy sx={{ fontSize: '0.8rem', color: '#000000' }} />
+                                    <ContentCopy sx={{ fontSize: '0.6667vw', color: '#000000' }} />
                                 </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Download" placement='top' arrow>
@@ -343,12 +344,12 @@ const SavedQueries = ({ open, onToggle }) => {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleDownload(note)}}
-                                    sx={{ height: 24, width: 24, bgcolor: '#FFD95C', borderRadius: 1,
+                                    sx={{ height: '1.25vw', width: '1.25vw', bgcolor: '#FFD95C', borderRadius: 1,
                                         '&:hover': {
                                             bgcolor: '#FEC636', 
                                         }, 
                                     }}>
-                                    <Download sx={{ fontSize: '0.8rem', color: '#000000' }} />
+                                    <Download sx={{ fontSize: '0.6667vw', color: '#000000' }} />
                                 </IconButton>
                                 </Tooltip>
                             </Stack>
@@ -358,9 +359,9 @@ const SavedQueries = ({ open, onToggle }) => {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             mb: 0.5,
-                            mt: 0.5
+                            mt: '0.2083vw'
                         }}>
-                            <Typography variant="subtitle2" sx={{ flexGrow: 1, fontWeight: 600, fontSize: 'large' }}>
+                            <Typography sx={{ flexGrow: 1, fontWeight: 600, fontSize: '0.9375vw' }}>
                                 {note.title}
                             </Typography>
                             <IconButton size="small" >
@@ -368,6 +369,7 @@ const SavedQueries = ({ open, onToggle }) => {
                                     transform: expanded[note.key] ? 'rotate(90deg)' : 'rotate(0deg)',
                                     transition: 'transform 0.2s ease',
                                     color: '#000',
+                                    fontSize: '0.9375vw'
                                 }} />
                             </IconButton>
                         </Box>
@@ -463,7 +465,7 @@ const SavedQueries = ({ open, onToggle }) => {
                             mt: 0,
                             mr: 0.5
                         }}>
-                            <Typography variant="caption" sx={{ color: '#aaa' }}>
+                            <Typography variant="caption" sx={{ color: '#aaa', fontSize: '0.625vw' }}>
                                 {note.date}
                             </Typography>
                             <IconButton
@@ -475,7 +477,7 @@ const SavedQueries = ({ open, onToggle }) => {
                                 }}
                             >
                                 <Tooltip title="Delete" placement='bottom' arrow>
-                                <Delete sx={{ fontSize: '1rem', color: '#f08a8a' }} />
+                                <Delete sx={{ fontSize: '0.8333vw', color: '#f08a8a' }} />
                                 </Tooltip>
                             </IconButton>
                         </Box>

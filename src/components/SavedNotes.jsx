@@ -327,7 +327,7 @@ const SavedNotes = ({
                     }}
                 />
 
-                <Stack direction="row" spacing={1} sx={{ mr: 2, mb: -1, flexWrap: 'wrap', gap: 1 }}>
+                <Stack direction="row" sx={{ mr: 2, mb: -1, flexWrap: 'wrap', gap: '0.41vw' }}>
                     <Box sx={{ 
                         display: 'flex', flexWrap: 'wrap',
                         gap: 1, flexGrow: 1 }}>
@@ -335,12 +335,13 @@ const SavedNotes = ({
                             <Chip
                                 key={category}
                                 label={category}
-                                size="small"
                                 variant="filled"
+                                size="small"
                                 onClick={() => setSelectedCategory(category)}
                                 sx={{
-                                    px: 1,
+                                    px: '0.4vw',
                                     fontWeight: 500,
+                                    fontSize: '0.7292vw',
                                     color: '#081A33',
                                     borderRadius: '16px',
                                     bgcolor: selectedCategory === category ? '#edcc09' : '#FFD95C',
@@ -389,7 +390,7 @@ const SavedNotes = ({
                             bgcolor: '#FFFFFF', //later
                             borderRadius: 3,
                             boxShadow: '2px 8px 16px #DDEFFF', //later
-                            mb: 2,
+                            mb: '0.4167vw',
                             px: 2,
                             pt: 1,
                             pb: 0.5,
@@ -405,7 +406,7 @@ const SavedNotes = ({
                             onClick={() => {handlePinToggle(index)}} >
                                 <Tooltip title="Pin" placement="right" arrow>
                                 <PushPinIcon 
-                                sx={{ fontSize: '1rem', stroke: '#000',
+                                sx={{ fontSize: '0.8333vw', stroke: '#000',
                                     fill: note.pinned ? '#000' : 'none',
                                     strokeWidth: 1.5,
                                     transition: 'all 0.2s ease'}} />
@@ -420,21 +421,21 @@ const SavedNotes = ({
                                     setSelectedNote({ ...note, index});
                                     onNotepadToggle();
                                 }}
-                                sx={{ height: 24, 
-                                    width: 24, 
+                                sx={{ height: '1.25vw', 
+                                    width: '1.25vw', 
                                     bgcolor: '#FFD95C', 
                                     borderRadius: 1, 
                                     '&:hover': {
                                         bgcolor: '#FEC636', 
                                     },  
                                     }}>
-                                    <EditIcon sx={{ fontSize: '0.8rem', color: '#000000' }} />
+                                    <EditIcon sx={{ fontSize: '0.6667vw', color: '#000000' }} />
                                 </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Download" placement="top" arrow>
                                 <IconButton size="small"
-                                    sx={{ height: 24,
-                                        width: 24, 
+                                    sx={{ height: '1.25vw',
+                                        width: '1.25vw', 
                                         bgcolor: '#FFD95C', 
                                         borderRadius: 1, 
                                         '&:hover': {
@@ -442,7 +443,7 @@ const SavedNotes = ({
                                         }, }}>
                                     <Download 
                                     onClick={() => handleDownload(index)}
-                                    sx={{ fontSize: '0.8rem', color: '#000000' }} />
+                                    sx={{ fontSize: '0.6667vw', color: '#000000' }} />
                                 </IconButton>
                                 </Tooltip>
                             </Stack>
@@ -451,9 +452,9 @@ const SavedNotes = ({
                         <Box sx={{ 
                             display: 'flex', alignItems: 'center', 
                             mb: 0.5, mt: 1 }}>
-                            <Typography variant="subtitle2" sx={{ 
+                            <Typography sx={{ 
                                 flexGrow: 1, fontWeight: '600', color: '#081A33',
-                                fontSize: 'large', mt: 2, cursor: 'pointer' }}>
+                                fontSize: '0.9375vw', mt: 2, cursor: 'pointer' }}>
                                     {note.title}
                             </Typography>
                         </Box>
@@ -605,7 +606,7 @@ const SavedNotes = ({
                                 sx={{ py: 0.5 }}
                             >
                                 <Tooltip title="Delete" placement="bottom" arrow>
-                                <Delete sx={{ fontSize: '1rem', color: '#f08a8a' }} />
+                                <Delete sx={{ fontSize: '0.8333vw', color: '#f08a8a' }} />
                                 </Tooltip>
                             </IconButton>
                         </Box>

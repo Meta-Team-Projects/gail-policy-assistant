@@ -150,29 +150,35 @@ const FAQs = ({ open, onToggle }) => {
                     }}
                 />
 
-                <Stack direction="row" spacing={0.5} sx={{ mb: -2 }}>
-                    {categories.map((category) => (
-                        <Chip
+                <Stack direction="row" sx={{ mb: -2, gap: '0.41vw' }}>
+                    <Box sx={{
+                        display: 'flex', flexWrap: 'wrap',
+                        gap: 1, flexGrow: 1}}>
+                        {categories.map((category) => (
+                            <Chip
                             key={category}
                             label={category}
                             variant = "filled"
-                            sx={{
-                                px: 0.5,
-                                fontSize: '10px',
-                                bgcolor: '#FFD95C',
-                                color: '#081A33',
-                                '&:hover': {
-                                backgroundColor: '#FEC636',
-                                }
-                            }}
-                        />
-                    ))}
+                            size="small"
+                                sx={{
+                                    p: '0.4vw',
+                                    fontWeight: 500,
+                                    fontSize: '0.7292vw',
+                                    bgcolor: '#FFD95C',
+                                    color: '#081A33',
+                                    '&:hover': {
+                                        backgroundColor: '#FEC636',
+                                    }
+                                }}
+                                />
+                            ))}
+                        </Box>
                 </Stack>
             </Box>
 
             <List sx={{ flexGrow: 1, overflow: 'auto', px: 2, py: 1 }}>
                 {faqs.map((faq, index) => (
-                    <Box key={index} sx={{ mb: 1, borderRadius: 3, overflow: 'hidden' }}>
+                    <Box key={index} sx={{ mb: '0.416vw', borderRadius: 3, overflow: 'hidden' }}>
                         <ListItemButton
                             onClick={() => handleToggle(index)}
                             sx={{
@@ -184,7 +190,7 @@ const FAQs = ({ open, onToggle }) => {
                                 primary={faq.question}
                                 primaryTypographyProps={{
                                     variant: 'body2',
-                                    sx: { color: 'text.primary', fontWeight: 600 },
+                                    sx: { color: 'text.primary', fontWeight: 600, fontSize: '0.73vw' },
                                 }}
                             />
                             <KeyboardArrowRight
@@ -197,7 +203,7 @@ const FAQs = ({ open, onToggle }) => {
                         </ListItemButton>
                         <Collapse in={faq.isExpanded} timeout="auto" unmountOnExit>
                             <Box sx={{ p: 2, bgcolor: '#ffffff' }}>
-                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.73vw' }}>
                                     {faq.answer}
                                 </Typography>
                             </Box>
