@@ -257,8 +257,8 @@ const SavedNotes = ({
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Note sx={{color: '#081A33'}}/> 
-                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#081A33' }}>
+                        <Note sx={{color: '#081A33', fontSize: '1.25vw'}}/> 
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#081A33', fontSize: '1.25vw' }}>
                             Saved Notes
                         </Typography>
                     </Box>
@@ -273,10 +273,10 @@ const SavedNotes = ({
                                 >
                                     {isWide ?
                                     <Tooltip title="Collapse" placement="left" arrow> 
-                                    <CloseFullscreenIcon sx={{color: '#081A33'}}/> 
+                                    <CloseFullscreenIcon sx={{color: '#081A33', fontSize: '1.25vw'}}/> 
                                     </Tooltip>: 
                                     <Tooltip title="Expand" placement="left" arrow>
-                                    <AspectRatioIcon sx={{color: '#081A33'}}/>
+                                    <AspectRatioIcon sx={{color: '#081A33', fontSize: '1.25vw'}}/>
                                     </Tooltip>}
                                 </IconButton>
                                 <IconButton
@@ -289,7 +289,7 @@ const SavedNotes = ({
                                     }}
                                 >
                                     <Tooltip title="Close" placement="bottom" arrow>
-                                    <ChevronRight />
+                                    <ChevronRight sx={{fontSize: '1.25vw'}} />
                                     </Tooltip>
                                 </IconButton>
                             </Box>
@@ -307,12 +307,14 @@ const SavedNotes = ({
                             //bgcolor: '#c0e1f4',
                             bgcolor: '#0088D614',
                             borderRadius: 10,
+                            height: '4.1667vh',
+                            fontSize: '0.9375vw'
                         }
                     }}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <SearchIcon sx={{ color: '#b1b8bb' }} />
+                                <SearchIcon sx={{ color: '#b1b8bb', fontSize: '1.4vw' }} />
                             </InputAdornment>
                         ),
                         endAdornment: (
