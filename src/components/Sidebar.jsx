@@ -258,6 +258,9 @@ const Sidebar = ({
                                     minWidth: 0,
                                     mr: open ? 2 : 'auto',
                                     justifyContent: 'center',
+                                    '& svg': {
+                                    fontSize: '1vw',
+                                    },
                                     //Darker_theme
                                     color: activeMenu === item.type ? '#fff' : '#678092',
                                     //Lighter_theme
@@ -269,13 +272,11 @@ const Sidebar = ({
                                 {open && (
                                     <ListItemText
                                     primary={item.text}
-                                    sx={{
-                                        '& .MuiListItemText-primary': {
-                                         //Darker_theme
+                                    primaryTypographyProps={{
+                                    sx: {
+                                        fontSize: '1vw',
                                         color: activeMenu === item.type ? '#fff' : '#678092',
-                                        //Lighter_theme
-                                        //color: activeMenu === item.type ? '#081a33': '#7090ac',
-                                        },
+                                    }
                                     }}
                                     />
                                 )}
