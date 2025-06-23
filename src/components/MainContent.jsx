@@ -549,6 +549,7 @@ const MainContent = ({
                     justifyItems: 'center',
                     height: '100%',
                     textAlign: 'center',
+                    fontSize: '0.9375vw',
                     ml: 2,
                     mr: 2,
                     }}
