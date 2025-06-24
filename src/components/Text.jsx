@@ -131,7 +131,7 @@ const Text = ({
                 cursor: 'move',
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              <Typography sx={{ fontWeight: 'bold', fontSize: '1.0417vw' }}>
                 {title || 'GAIL Notepad'}
               </Typography>
               {/* <IconButton onClick={() => setIsEditing(true)} sx={{ ml: 'auto' }}>
@@ -139,7 +139,7 @@ const Text = ({
               </IconButton> */}
               <IconButton sx={{ml: 'auto'}}
               onClick={onClose}>
-                <CancelIcon sx={{ color: 'black' }} />
+                <CancelIcon sx={{ color: 'black', fontSize: '1.145vw' }} />
               </IconButton>
             </Box>
 
@@ -164,6 +164,7 @@ const Text = ({
                 mt: 2,
                 backgroundColor: '#006eff',
                 color: 'white',
+                fontSize: '0.7292vw',
                 borderRadius: 1,
                 px: 3,
                 py: 1,
@@ -195,7 +196,7 @@ const Text = ({
                 onChange={(e) => setTitle(e.target.value)}
                 inputProps={{
                   style: {
-                    fontSize: '1.25rem',
+                    fontSize: '1.0417vw',
                     fontWeight: 'bold',
                     padding: 0,
                   },
@@ -210,11 +211,11 @@ const Text = ({
                 {isMaximized
                   ? 
                   <Tooltip title="Collapse" placement='left' arrow>
-                  <CloseFullscreenIcon sx={{ color: 'black' }} />
+                  <CloseFullscreenIcon sx={{ color: 'black', fontSize: '1.145vw' }} />
                   </Tooltip>
                   : 
                   <Tooltip title="Expand" placement='left' arrow>
-                  <AspectRatioIcon sx={{ color: 'black' }} />
+                  <AspectRatioIcon sx={{ color: 'black', fontSize: '1.145vw' }} />
                   </Tooltip>
                 }
               </IconButton>
@@ -253,9 +254,9 @@ const Text = ({
                       mx: 0.5,
                       px: 0.5
                        }}>
-                  <FormatBoldIcon sx={{ color: 'black' }} />
+                  <FormatBoldIcon sx={{ color: 'black', fontSize: '1.145vw' }} />
                 </IconButton>
-                <Typography sx={{pb: 0.5, fontSize: 30}}> | </Typography>
+                <Typography sx={{pb: '0.2083vw', fontSize: '1.4583vw'}}> | </Typography>
                 <IconButton 
                 size="small" 
                 onClick={() => document.execCommand('italic')} 
@@ -265,19 +266,23 @@ const Text = ({
                       mx: 0.5,
                       px: 0.5
                        }}>
-                  <FormatItalicIcon sx={{ color: 'black' }} />
+                  <FormatItalicIcon sx={{ color: 'black', fontSize: '1.145vw' }} />
                 </IconButton>
-                <Typography sx={{pb: 0.5, fontSize: 30}}> | </Typography>
+                <Typography sx={{pb: '0.2083vw', fontSize: '1.4583vw'}}> | </Typography>
                 <TextField
                   type="number"
                   value={fontSize}
                   onChange={e => handleFontSizeChange(Number(e.target.value))}
                   inputProps={{ min: 8, max: 48 }}
-                  size="small"
-                  sx={{ width: 70, fontSize: '0.8rem', mx: 0.5}}
+                  //size="small"
+                  sx={{width: '3.6458vw', mx: 0.5,
+                    '& .MuiInputBase-input': {
+                      fontSize: '0.8333vw'
+                    }
+                  }}
                 />
                 <IconButton onClick={() => setIsEditing(false)} sx={{ ml: 'auto' }}>
-                  <CancelIcon sx={{ color: 'black' }} />
+                  <CancelIcon sx={{ color: 'black', fontSize: '1.145vw' }} />
                 </IconButton>
               </Box>
               
@@ -288,7 +293,7 @@ const Text = ({
                 ref={editorRef}
                 sx={{
                   width: '100%',
-                  fontSize: `${fontSize}px`,
+                  fontSize: '0.8333vw',
                   boxSizing: 'border-box',
                   border: '1px solid rgba(0,0,0,0.23)',
                   borderRadius: '4px',
@@ -335,8 +340,8 @@ const Text = ({
                   backgroundColor: 'rgba(10,95,207,0.77)',
                   color: 'white',
                   borderRadius: 2,
-                  width: '6rem',
-                  fontSize: '14px',
+                  width: '5vw',
+                  fontSize: '0.7292vw',
                   mx: 'auto',
                   mt: 1,
                   py: 1,
