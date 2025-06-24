@@ -161,7 +161,8 @@ const FAQs = ({ open, onToggle }) => {
                             variant = "filled"
                             size="small"
                                 sx={{
-                                    p: '0.4vw',
+                                    px: '0.5vw',
+                                    py: '0.6vw',
                                     fontWeight: 500,
                                     fontSize: '0.7292vw',
                                     bgcolor: '#FFD95C',

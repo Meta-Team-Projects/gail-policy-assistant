@@ -53,75 +53,40 @@ const SavedNotes = ({
     const [notes, setNotes] = useState(savedNotes);
     const [isWide, setIsWide] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
-
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
     const [dialogNoteIndex, setDialogNoteIndex] = useState(null);
 
-
-
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
     const [noteToDeleteIndex, setNoteToDeleteIndex] = useState(null);
 
-
-
     const [expandedNotes, setExpandedNotes] = useState({});
-
     const toggleExpand = (index) => {
-
         setExpandedNotes(prev => ({
-
         ...prev,
-
         [index]: !prev[index],
-
         }));
-
     };
-
     const [hasOverflow, setHasOverflow] = useState({});
-
     const contentRefs = useRef([]);
 
-
-
     useLayoutEffect(() => {
-
         const overflows = {};
-
         contentRefs.current.forEach((el, i) => {
-
             if (el) overflows[i] = el.scrollHeight > el.clientHeight;
-
         });
-
         setHasOverflow(overflows);
-
     }, [notes]);
 
-
-
     useEffect(() => {
-
         const onResize = () => {
-
             const overflows = {};
-
             contentRefs.current.forEach((el, i) => {
-
             if (el) overflows[i] = el.scrollHeight > el.clientHeight;
-
             });
-
             setHasOverflow(overflows);
-
         };
-
         window.addEventListener('resize', onResize);
-
         return () => window.removeEventListener('resize', onResize);
-
     }, []);
 
     //useEffect(() => {setNotes(savedNotes);}, [savedNotes]);
@@ -140,17 +105,11 @@ const SavedNotes = ({
     };
 
     const confirmDelete = () => {
-
         if (dialogNoteIndex !== null) {
-
             handleDelete(dialogNoteIndex);
-
             setOpenDeleteDialog(false);
-
             setDialogNoteIndex(null);
-
         }
-
     };
 
     const messageRefs = useRef([]);
@@ -339,7 +298,8 @@ const SavedNotes = ({
                                 size="small"
                                 onClick={() => setSelectedCategory(category)}
                                 sx={{
-                                    px: '0.4vw',
+                                    px: '0.5vw',
+                                    py: '0.6vw',
                                     fontWeight: 500,
                                     fontSize: '0.7292vw',
                                     color: '#081A33',
