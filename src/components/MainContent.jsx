@@ -1026,8 +1026,8 @@ const MainContent = ({
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
-                                    width: '36px',
-                                    height: '36px',
+                                    width: '1.875vw',
+                                    height: '1.875vw',
                                     borderRadius: '8px',
                                     color: '#515151',
                                     boxShadow: '2px 2px 8px #9A9A9A40',
@@ -1038,8 +1038,8 @@ const MainContent = ({
                                 onClick={toggleMic} 
                             >
                                 {isRecording
-                                ? <StopCircleOutlined  sx={{ fontSize: 18 }} />
-                                : <Mic   sx={{ fontSize: 18 }}/>}
+                                ? <StopCircleOutlined  sx={{ fontSize: '0.9375vw' }} />
+                                : <Mic   sx={{ fontSize: '0.9375vw' }}/>}
                             </IconButton>
                             </Tooltip>
 
@@ -1061,7 +1061,6 @@ const MainContent = ({
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
                                             borderRadius: '8px',
-                                            
                                             color:'#878787',
                                             backgroundColor: '#FFD95C1A',
                                             padding: 0,
@@ -1078,23 +1077,23 @@ const MainContent = ({
                                         '& textarea': {
                                             overflowY: 'auto',
 
-                                            '&::-webkit-scrollbar': {
-                                                width: '4px',
-                                            },
-                                            '&::-webkit-scrollbar-track': {
-                                                background: 'transparent',
-                                            },
-                                            '&::-webkit-scrollbar-thumb': {
-                                                backgroundColor: '#0088d7',
-                                                borderRadius: '3px',
-                                            },
-                                            scrollbarWidth: 'thin',
+                                            // '&::-webkit-scrollbar': {
+                                            //     width: '4px',
+                                            // },
+                                            // '&::-webkit-scrollbar-track': {
+                                            //     background: 'transparent',
+                                            // },
+                                            // '&::-webkit-scrollbar-thumb': {
+                                            //     backgroundColor: '#0088d7',
+                                            //     borderRadius: '3px',
+                                            // },
+                                            scrollbarWidth: '0.3125vw',
                                             scrollbarColor: '#0088d7 transparent',
                                         }
                                     },
                                     '& .MuiOutlinedInput-input': {
-                                        padding: '8px 14px',
-                                        fontSize: '0.875rem',
+                                        padding: '0.4167vw 0.7292vw',
+                                        fontSize: '0.7292vw',
                                     },
                                 }}
                             />
@@ -1102,8 +1101,8 @@ const MainContent = ({
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
-                                    width: '36px',
-                                    height: '36px',
+                                    width: '1.875vw',
+                                    height: '1.875vw',
                                     borderRadius: '8px',
                                     color: '#515151',
                                     boxShadow: '2px 2px 8px #9A9A9A40',
@@ -1113,7 +1112,7 @@ const MainContent = ({
                                 }}
                                 onClick={handleSend}
                             >
-                                <Send sx={{ fontSize: 18 }} />
+                                <Send sx={{ fontSize: '0.9375vw' }} />
                             </IconButton>
                             </Tooltip>
                         </Box>
