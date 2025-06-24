@@ -411,7 +411,7 @@ const SavedNotes = ({
                         {/* Note title & content */}
                         <Box sx={{ 
                             display: 'flex', alignItems: 'center', 
-                            mb: 0.5, mt: 1 }}>
+                            mt: '0.833vw' }}>
                             <Typography sx={{ 
                                 flexGrow: 1, fontWeight: '600', color: '#081A33',
                                 fontSize: '0.9375vw', mt: 2, cursor: 'pointer' }}>
@@ -425,6 +425,7 @@ const SavedNotes = ({
                                 ml: 2,
                                 mr: 2,
                                 mb: 1,
+                                fontSize: '0.833vw',
                                 whiteSpace: 'pre-wrap',
                                 overflowWrap: 'break-word',
                                 wordBreak: 'break-word',

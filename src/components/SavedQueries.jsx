@@ -360,7 +360,7 @@ const SavedQueries = ({ open, onToggle }) => {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             mb: 0.5,
-                            mt: '0.2083vw'
+                            mt: '0.833vw'
                         }}>
                             <Typography sx={{ flexGrow: 1, fontWeight: 600, fontSize: '0.9375vw' }}>
                                 {note.title}
