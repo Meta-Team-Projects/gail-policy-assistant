@@ -484,7 +484,171 @@ const SavedQueries = ({ open, onToggle }) => {
                         </Box>
                         <Collapse in={expanded[note.key]} timeout="auto" unmountOnExit>
                             <Box sx={{ ml: 2, mr: 2, mb: 1 }}>
-                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}
+                                components={{
+                                        a: ({ node, ...props }) => (
+                                        <a
+                                            {...props}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        />
+                                        ),
+                                        p: ({ node, ...props }) => (
+                                            <Typography
+                                                {...props}
+                                                sx={{
+                                                    fontSize: '0.833vw',
+                                                    lineHeight: 1.6,
+                                                    letterSpacing: '0.01em',
+                                                    mb: 2,
+                                                    color: 'inherit',
+                                                }}
+                                            />
+                                        ),
+                                        h1: ({ node, ...props }) => (
+                                            <Typography
+                                                {...props}
+                                                variant="h5"
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    mb: 2,
+                                                    color: 'inherit',
+                                                }}
+                                            />
+                                        ),
+                                        h2: ({ node, ...props }) => (
+                                            <Typography
+                                                {...props}
+                                                variant="h6"
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    mb: 2,
+                                                    color: 'inherit',
+                                                }}
+                                            />
+                                        ),
+                                        h3: ({ node, ...props }) => (
+                                            <Typography
+                                                {...props}
+                                                variant="subtitle1"
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    mb: 2,
+                                                    color: 'inherit',
+                                                }}
+                                            />
+                                        ),
+                                        ul: ({ node, ...props }) => (
+                                            <Box
+                                                component="ul"
+                                                sx={{
+                                                    pl: 3,
+                                                    mb: 2,
+                                                    '& li': {
+                                                        mb: 1,
+                                                    },
+                                                }}
+                                                {...props}
+                                            />
+                                        ),
+                                        ol: ({ node, ...props }) => (
+                                            <Box
+                                                component="ol"
+                                                sx={{
+                                                    pl: 3,
+                                                    mb: 2,
+                                                    '& li': {
+                                                        mb: 1,
+                                                    },
+                                                }}
+                                                {...props}
+                                            />
+                                        ),
+                                        li: ({ node, ...props }) => (
+                                            <Typography
+                                                component="li"
+                                                sx={{
+                                                    fontSize: '0.833vw',
+                                                    lineHeight: 1.6,
+                                                    color: 'inherit',
+                                                }}
+                                                {...props}
+                                            />
+                                        ),
+                                        table: ({ node, ...props }) => (
+                                            <Box sx={{ overflowX: 'auto', mb: 2 }}>
+                                                <table
+                                                    {...props}
+                                                    style={{
+                                                        borderCollapse: 'collapse',
+                                                        width: '100%',
+                                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    }}
+                                                />
+                                            </Box>
+                                        ),
+                                        th: ({ node, ...props }) => (
+                                            <th
+                                                {...props}
+                                                style={{
+                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    padding: '12px',
+                                                    textAlign: 'left',
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                                }}
+                                            />
+                                        ),
+                                        td: ({ node, ...props }) => (
+                                            <td
+                                                {...props}
+                                                style={{
+                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    padding: '12px',
+                                                }}
+                                            />
+                                        ),
+                                        code: ({ node, ...props }) => (
+                                            <Box
+                                                component="code"
+                                                sx={{
+                                                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                                    p: '2px 4px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '0.9em',
+                                                    fontFamily: 'monospace',
+                                                }}
+                                                {...props}
+                                            />
+                                        ),
+                                        pre: ({ node, ...props }) => (
+                                            <Box
+                                                component="pre"
+                                                sx={{
+                                                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                                    p: 2,
+                                                    borderRadius: '8px',
+                                                    overflowX: 'auto',
+                                                    mb: 2,
+                                                }}
+                                                {...props}
+                                            />
+                                        ),
+                                        blockquote: ({ node, ...props }) => (
+                                            <Box
+                                                component="blockquote"
+                                                sx={{
+                                                    borderLeft: '4px solid rgba(255, 255, 255, 0.2)',
+                                                    pl: 2,
+                                                    py: 1,
+                                                    my: 2,
+                                                    color: 'inherit',
+                                                }}
+                                                {...props}
+                                            />
+                                        ),
+                                    
+                                    }}
+                                >
                                     {note.content}
                                 </ReactMarkdown>
                             </Box>

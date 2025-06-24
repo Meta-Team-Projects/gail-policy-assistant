@@ -584,7 +584,8 @@ const SavedNotes = ({
                         mx: 'auto',
                         display: 'block',
                         color: '#fff',
-                        bgcolor: '#0087d6'
+                        bgcolor: '#0087d6',
+                        fontSize: '0.8333vw'
                     }}
                 >
                     Save and update
