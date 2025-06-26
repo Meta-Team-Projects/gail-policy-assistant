@@ -822,24 +822,24 @@ const MainContent = ({
                                             }}
                                         >
                                             {/* 1) Answer */}
-     {`**Answer:**  ${answerText} \n\n
-**References:**`}
+    {`**Answer:**  ${answerText} \n\n
+${answerText !== "No data found in the Database." ? "**References:**" : ""}`}
                                         </ReactMarkdown>
                                           {/* 2) All pages in one list */}
                                         {Array.isArray(msg.pages) && msg.pages.map((ref, idx) => {
                                             const url = ref.doc_link.split('?')[0] + `#page=${ref.page_num}`;
                                             return (
                                                 <Box key={idx} sx={{ mb:1 }}>
-                                                <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                    File: {ref.source_file} (Page Number: {ref.page_num})
-                                                </Typography>
-                                                <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                    Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
-                                                </Typography>
-                                                <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                    Data Type: {ref.data_type}
-                                                </Typography>
-                                            </Box>
+                                                    <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
+                                                        File: {ref.source_file} (Page Number: {ref.page_num})
+                                                    </Typography>
+                                                    <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
+                                                        Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
+                                                    </Typography>
+                                                    <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
+                                                        Data Type: {ref.data_type}
+                                                    </Typography>
+                                                </Box>
                                             );
                                         })}</>
                                         )  
