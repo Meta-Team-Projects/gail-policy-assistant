@@ -87,20 +87,6 @@ const MainContent = ({
     const [toMonth, setToMonth] = useState(6);
     const [toYear, setToYear] = useState(2025);
 
-    const CATEGORY_PLACEHOLDERS = [
-        "ompolicyrev3dated12042023",
-        "delegation_of_powers_01_04_2024",
-        "c_p_procedure_3rd_edition",
-        "all_documents",
-    ];
-
-    const CATEGORY_LABELS = {
-        ompolicyrev3dated12042023:   "O M Policy",
-        delegation_of_powers_01_04_2024: "Delegation of Powers",
-        c_p_procedure_3rd_edition:   "C&P Procedure",
-        all_documents:               "All Documents",
-    };
-
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
 
     const [showLayoutIcons, setShowLayoutIcons] = useState(false)
@@ -109,23 +95,19 @@ const MainContent = ({
         setShowLayoutIcons(prev => !prev)
     }
 
-    const [categoryOptions, setCategoryOptions] = useState(CATEGORY_PLACEHOLDERS);
+    const [categoryOptions, setCategoryOptions] = useState([]);
 
     useEffect(() => {
-    axios
-        .get(`${BASE_URL}/documents`)
+        axios.get(`${BASE_URL}/documents`)
         .then(({ data }) => {
-         // make sure we end up with an array of strings
-        const categories = Array.isArray(data.documents)
-        ? data.documents
-        : [];
-        setCategoryOptions(categories);
+            const categories = Array.isArray(data.documents) ? data.documents : [];
+            setCategoryOptions(categories);
         })
         .catch(err => console.error('Failed to load categories', err));
     }, [BASE_URL]);
 
 
-    const [categoryFilter, setCategoryFilter] = useState('all_documents');
+    const [categoryFilter, setCategoryFilter] = useState('');
     const handleCategoryChange = (e) => {
         setCategoryFilter(e.target.value);
     };
@@ -145,16 +127,19 @@ const MainContent = ({
     setLoading(true)
 
     try {
-        // 2) call API
-        const resp = await axios.post(`${BASE_URL}/query`, { query,filename: categoryFilter, })
+        const resp = await axios.post(`${BASE_URL}/query_chat`, {
+            session_id: activeSessionID,
+            message:    query,
+            filename:   categoryFilter,
+        });
         
         const answerText = resp.data?.answer     || ''
-        const references = resp.data?.references || []
+        const sources = resp.data?.sources || []
 
         const aiMessage = {
             type: 'ai',
             answer: answerText,
-            pages: references,       // array of reference‐objects
+            pages: sources,       // array of reference‐objects
             currentPage: 0,
             timestamp: new Date().toISOString(),
         }
@@ -205,10 +190,8 @@ const MainContent = ({
 
         // Known fields 
         const knownFields = [
-            'page_num',
-            'source_file',
-            'page_content',
-            'doc_link',
+            'page',
+            'document_link',
         ]
 
         // markdown for known fields
@@ -218,21 +201,12 @@ const MainContent = ({
                 if (field === 'has_answer') {
                     return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field] ? 'Yes' : 'No'}`
                 }
-                if (field === 'source_file') {
-                    return `**FILE:** ${response.source_file}\n\n\n`
+                if (field === 'document_link') {
+                    const url = response.document_link.split('?')[0] + `#page=${response.page}`;
+                    return `**DOCUMENT:** [View Document](${url})\n\n\n`;
                 }
-                if (field === 'page_content') {
-                    // the snippet you want to display per page
-                    //return `${response.page_content}\n\n\n`
-                    return '';//skip rendering page_content
-                }
-                if (field === 'doc_link') {
-                    // strip off any query params, then append #page=
-                    const url = response.doc_link.split('?')[0] + `#page=${response.page_num}`
-                    return `**DOCUMENT:** [View Document](${url})\n\n\n`
-                }
-                if (field === 'page_num') {
-                    return `**PAGE:** ${response.page_num}\n\n\n`;
+                if (field === 'page') {
+                    return `**PAGE:** ${response.page}\n\n\n`;
                 }
                 return `**${field.replace(/_/g, ' ').toUpperCase()}:** ${response[field]}\n\n\n`
             })
@@ -514,7 +488,7 @@ const MainContent = ({
                             }}                >
                             {categoryOptions.map((name) => (
                             <MenuItem key={name} value={name}>
-                                {CATEGORY_LABELS[name] || name}
+                                {name.replace(/_/g, ' ')}
                             </MenuItem>
                             ))}
                         </Select>
@@ -823,21 +797,18 @@ const MainContent = ({
                                         >
                                             {/* 1) Answer */}
     {`**Answer:**  ${answerText} \n\n
-${answerText !== "No data found in the Database." ? "**References:**" : ""}`}
+${answerText !== "No data found in the Database." || "Data not found for this query" ? "**References:**" : ""}`}
                                         </ReactMarkdown>
                                           {/* 2) All pages in one list */}
                                         {Array.isArray(msg.pages) && msg.pages.map((ref, idx) => {
-                                            const url = ref.doc_link.split('?')[0] + `#page=${ref.page_num}`;
+                                            const url = ref.document_link.split('?')[0] + `#page=${ref.page}`;
                                             return (
                                                 <Box key={idx} sx={{ mb:1 }}>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                        File: {ref.source_file} (Page Number: {ref.page_num})
+                                                        File: {categoryFilter} (Page: {ref.page})
                                                     </Typography>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                         Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
-                                                    </Typography>
-                                                    <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                        Data Type: {ref.data_type}
                                                     </Typography>
                                                 </Box>
                                             );
