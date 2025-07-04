@@ -797,7 +797,14 @@ const MainContent = ({
                                         >
                                             {/* 1) Answer */}
     {`**Answer:**  ${answerText} \n\n
-${answerText !== "No data found in the Database." || "Data not found for this query" ? "**References:**" : ""}`}
+${![
+     "No data found in the Database.",
+     "Data not found for this query",
+     "Hello! How can I assist you today?"
+   ].includes(answerText)
+    ? "**References:**"
+    : ""
+}`}
                                         </ReactMarkdown>
                                           {/* 2) All pages in one list */}
                                         {Array.isArray(msg.pages) && msg.pages.map((ref, idx) => {
