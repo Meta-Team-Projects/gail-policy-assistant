@@ -259,10 +259,10 @@ const Sidebar = ({
                                     mr: open ? 2 : 'auto',
                                     justifyContent: 'center',
                                     '& svg': {
-                                    fontSize: '1vw',
+                                        fontSize: '1vw',
                                     },
                                     //Darker_theme
-                                    color: activeMenu === item.type ? '#fff' : '#678092',
+                                    color: activeMenu === item.type ? '#678092' : '#678092',
                                     //Lighter_theme
                                     //color: activeMenu === item.type ? '#081a33': '#7090ac',
                                     }}
@@ -274,8 +274,8 @@ const Sidebar = ({
                                     primary={item.text}
                                     primaryTypographyProps={{
                                     sx: {
-                                        fontSize: '1vw',
-                                        color: activeMenu === item.type ? '#fff' : '#678092',
+                                        fontSize: '0.8333vw',
+                                        color: activeMenu === item.type ? '#678092' : '#678092',
                                     }
                                     }}
                                     />
