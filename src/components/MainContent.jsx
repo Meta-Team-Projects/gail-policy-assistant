@@ -48,6 +48,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { drawerWidth, collapsedWidth } from './Sidebar'
 import StopCircleOutlined from '@mui/icons-material/StopCircleOutlined';
+import { v4 as uuidv4 } from 'uuid'
+
 
 import useSpeechToText from 'react-hook-speech-to-text'
 
@@ -86,6 +88,7 @@ const MainContent = ({
     const [toDay, setToDay] = useState(2);
     const [toMonth, setToMonth] = useState(6);
     const [toYear, setToYear] = useState(2025);
+    const [sessionID] = useState(() => uuidv4());
 
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
 
@@ -128,7 +131,7 @@ const MainContent = ({
 
     try {
         const resp = await axios.post(`${BASE_URL}/query_chat`, {
-            session_id: activeSessionID,
+            session_id: sessionID,
             message:    query,
             filename:   categoryFilter,
         });
@@ -489,7 +492,7 @@ const MainContent = ({
                             }}                >
                             {categoryOptions.map((name) => (
                             <MenuItem key={name} value={name}>
-                                {name.replace(/_/g, ' ')}
+                                {name}
                             </MenuItem>
                             ))}
                         </Select>
