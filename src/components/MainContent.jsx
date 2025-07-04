@@ -141,6 +141,7 @@ const MainContent = ({
             answer: answerText,
             pages: sources,       // array of reference‐objects
             currentPage: 0,
+            category: categoryFilter,
             timestamp: new Date().toISOString(),
         }
         setMessages(prev => [...prev, aiMessage])
@@ -812,7 +813,7 @@ ${![
                                             return (
                                                 <Box key={idx} sx={{ mb:1 }}>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                        File: {categoryFilter} (Page: {ref.page})
+                                                        File: {msg.category} (Page: {ref.page})
                                                     </Typography>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                         Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
