@@ -105,6 +105,9 @@ const MainContent = ({
         .then(({ data }) => {
             const categories = Array.isArray(data.documents) ? data.documents : [];
             setCategoryOptions(categories);
+            if (!categoryFilter && categories.includes("All Documents")) {
+                setCategoryFilter("All Documents");
+            }
         })
         .catch(err => console.error('Failed to load categories', err));
     }, [BASE_URL]);
@@ -816,7 +819,7 @@ ${![
                                             return (
                                                 <Box key={idx} sx={{ mb:1 }}>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                        File: {msg.category} (Page: {ref.page})
+                                                        File: {ref.source_file} (Page: {ref.page})
                                                     </Typography>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                         Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
