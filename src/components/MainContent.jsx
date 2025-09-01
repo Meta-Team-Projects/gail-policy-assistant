@@ -87,6 +87,11 @@ const MainContent = ({
     const [toMonth, setToMonth] = useState(6);
     const [toYear, setToYear] = useState(2025);
 
+    const actionButtons = [
+        { icon: <Summarize />, label: 'Summarize' },
+        { icon: <FormatColorText />, label: 'Highlight' },
+    ]
+
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
 
     const [showLayoutIcons, setShowLayoutIcons] = useState(false)
@@ -225,13 +230,6 @@ const MainContent = ({
 
         return markdown
     }
-
-    const actionButtons = [
-        { icon: <Summarize />, label: 'Summarize' },
-        // { icon: <FormatColorText />, label: 'Highlight' },
-        { icon: <AutoFixHigh />, label: 'Simplify' },
-        // { icon: <AutoGraph />, label: 'Graph' },
-    ]
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({
@@ -969,6 +967,58 @@ ${![
                     zIndex: 3,
                 }}
             >
+                {/* Action Buttons */}
+                <ButtonGroup
+                    variant="text"
+                    sx={{
+                        gap: 0.5,
+                        '& .MuiButton-root': {
+                            color: '#515151',
+                            bgcolor: '#FFD95C33',
+                            textTransform: 'none',
+                            fontSize: '0.7292vw',
+                            padding: '0.3125vw 0.625vw',
+                            borderRadius: '12px',
+                            border: 'none',
+                            minWidth: 'auto',
+                            fontWeight: 500,
+                            mt: 1,
+                            mb: 1,
+                            '&:hover': {
+                                bgcolor: '#ffd95c',
+                            },
+                            '& .MuiSvgIcon-root': {
+                                fontSize: '0.9375vw',
+                                marginRight: '6px',
+                            },
+                        }
+                    }}
+                >
+                    {actionButtons.map((button) => (
+                        <Button
+                            key={button.label}
+                            startIcon={button.icon}
+                            onClick={() => handleActionClick(button.label)}
+                            sx={{
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                                }
+                            }}
+                        >
+                            {button.label}
+                        </Button>
+                    ))}
+                    <Button
+                        startIcon={<Add />}
+                        sx={{
+                            ml: 0.5,
+                            borderLeft: '1px solid rgba(255, 255, 255, 0.08) !important',
+                            paddingLeft: '12px !important', display: 'none'   //later
+                        }}
+                    >
+                        More
+                    </Button>
+                </ButtonGroup>
                 <Box
                     sx={{
                         maxWidth: 'auto',
@@ -982,7 +1032,6 @@ ${![
                     borderRadius: '15px',
                     }}
                 >
-                    
                     <Box
                         sx={{
                             display: 'flex',
