@@ -91,8 +91,8 @@ const MainContent = ({
     const [sessionID] = useState(() => uuidv4());
 
     const actionButtons = [
-        { icon: <Summarize />, label: 'Summarize' },
-        { icon: <FormatColorText />, label: 'Highlight' },
+        // { icon: <Summarize />, label: 'Summarize' },
+        // { icon: <FormatColorText />, label: 'Highlight' },
     ]
 
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
