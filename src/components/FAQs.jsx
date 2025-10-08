@@ -179,7 +179,7 @@ const FAQs = ({ open, onToggle }) => {
                     <Box sx={{
                         display: 'flex', flexWrap: 'wrap',
                         gap: 1, flexGrow: 1}}>
-                        {categories.map((category) => (
+                        {/* {categories.map((category) => (
                             <Chip
                             key={category}
                             label={category}
@@ -197,7 +197,7 @@ const FAQs = ({ open, onToggle }) => {
                                     }
                                 }}
                                 />
-                            ))}
+                            ))} */}
                         </Box>
                 </Stack>
             </Box>
