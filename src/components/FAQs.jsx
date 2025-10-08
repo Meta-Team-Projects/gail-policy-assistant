@@ -26,20 +26,45 @@ import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 
 const FAQs = ({ open, onToggle }) => {
-    const categories = ['All', 'HR', 'Finance', 'Procurement']
+    const categories = ['All', 'DoP', 'OMP', 'C&P']
     const initialFaqs = [
         {
-            question: "What is GAIL's role in India's energy sector?",
+            question: "Who can approve capital expenditure of ₹15 crores?",
             answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
             isExpanded: false,
         },
         {
-            question: "What initiatives has GAIL undertaken for expanding the natural gas pipeline network?",
+            question: "What if it is for a pipeline project?",
             answer: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
             isExpanded: false,
         },
         {
-            question: "How does GAIL support government initiatives like 'Make in India' and 'Aatmanirbhar Bharat'?",
+            question: "Can a GM recommend it before it goes to the ED?",
+            answer: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+            isExpanded: false,
+        },
+        {
+            question: "Can we procure spare parts urgently under OMP policy?",
+            answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            isExpanded: false,
+        },
+        {
+            question: "Who approves such emergency procurement?",
+            answer: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            isExpanded: false,
+        },
+        {
+            question: "When can we use limited tender under C&P?",
+            answer: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+            isExpanded: false,
+        },
+        {
+            question: "Can I nominate three vendors I’ve worked with before?",
+            answer: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            isExpanded: false,
+        },
+        {
+            question: "Who signs off on this justification?",
             answer: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
             isExpanded: false,
         },
