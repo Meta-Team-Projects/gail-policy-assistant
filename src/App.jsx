@@ -26,6 +26,7 @@ import PolicyDoc from './components/PolicyDoc'
 import { MenuType } from './constants/menuTypes'
 import Text from './components/Text'
 import LoadingScreen from './components/LoadingScreen'
+import Login from './components/Login'
 
 const darkTheme = createTheme({
   palette: {
@@ -272,14 +273,27 @@ function App() {
     setRightSidebarOpen(true)
   }
 
-  const [appLoading, setAppLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setAppLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [appLoading, setAppLoading] = useState(false);
+
+  const handleLogin = () => {
+    setAppLoading(true);
+    setTimeout(() => {
+      setIsAuthenticated(true);
+      setAppLoading(false);
+    }, 1500);
+  };
 
   if (appLoading) {
     return <LoadingScreen />;
+  }
+  if (!isAuthenticated) {
+    return (
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <Login onLogin={handleLogin} />
+      </ThemeProvider>
+    );
   }
 
   return (
