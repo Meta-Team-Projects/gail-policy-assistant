@@ -48,6 +48,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { drawerWidth, collapsedWidth } from './Sidebar'
 import StopCircleOutlined from '@mui/icons-material/StopCircleOutlined';
+import { v4 as uuidv4 } from 'uuid'
+
 
 import useSpeechToText from 'react-hook-speech-to-text'
 
@@ -86,10 +88,11 @@ const MainContent = ({
     const [toDay, setToDay] = useState(2);
     const [toMonth, setToMonth] = useState(6);
     const [toYear, setToYear] = useState(2025);
+    const [sessionID] = useState(() => uuidv4());
 
     const actionButtons = [
-        { icon: <Summarize />, label: 'Summarize' },
-        { icon: <FormatColorText />, label: 'Highlight' },
+        // { icon: <Summarize />, label: 'Summarize' },
+        // { icon: <FormatColorText />, label: 'Highlight' },
     ]
 
     const BASE_URL = import.meta.env.VITE_CHAT_API_URL;
@@ -107,6 +110,9 @@ const MainContent = ({
         .then(({ data }) => {
             const categories = Array.isArray(data.documents) ? data.documents : [];
             setCategoryOptions(categories);
+            if (!categoryFilter && categories.includes("All Documents")) {
+                setCategoryFilter("All Documents");
+            }
         })
         .catch(err => console.error('Failed to load categories', err));
     }, [BASE_URL]);
@@ -133,7 +139,7 @@ const MainContent = ({
 
     try {
         const resp = await axios.post(`${BASE_URL}/query_chat`, {
-            session_id: activeSessionID,
+            session_id: sessionID,
             message:    query,
             filename:   categoryFilter,
         });
@@ -487,7 +493,7 @@ const MainContent = ({
                             }}                >
                             {categoryOptions.map((name) => (
                             <MenuItem key={name} value={name}>
-                                {name.replace(/_/g, ' ')}
+                                {name}
                             </MenuItem>
                             ))}
                         </Select>
@@ -811,7 +817,7 @@ ${![
                                             return (
                                                 <Box key={idx} sx={{ mb:1 }}>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
-                                                        File: {msg.category} (Page: {ref.page})
+                                                        File: {ref.source_file} (Page: {ref.page})
                                                     </Typography>
                                                     <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: '0.625vw' }}>
                                                         Document Link: <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>

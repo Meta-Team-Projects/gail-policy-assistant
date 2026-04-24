@@ -41,9 +41,9 @@ const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
     //{ text: 'Policy Documents', icon: <FilePresentIcon />, type: MenuType.POLICY_DOC},
-    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: ''},
+    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: 'true'},
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: '' },
-    { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: '' },
+    { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: 'true' },
 ]
 
 const bottomMenuItems = [
@@ -115,7 +115,7 @@ const Sidebar = ({
                         //ml: 1,
                         mr: open ? 2 : 'auto',
                         justifyContent: 'center',
-                        color: 'inherit',
+                        color: '#fff',
                     }}
                 >
                     {item.type === 'TOGGLE_NOTEPAD' ? (
@@ -148,7 +148,7 @@ const Sidebar = ({
                                     ? '#fff'
                                     : activeMenu === item.type
                                         ? '#fff'
-                                        : '#678092',
+                                        : 'fff',
                                 //Lighter_theme
                                 /*color: item.type === 'TOGGLE_NOTEPAD'
                                     ? '#303030'
