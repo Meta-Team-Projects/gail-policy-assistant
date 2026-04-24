@@ -232,7 +232,7 @@ const Login = ({ onLogin }) => {
         <Box
           sx={{
             display: 'flex',
-            //alignItems: 'center',
+            alignItems: 'center',
             justifyContent: 'center',
             p: '4vw',
             background: { xs: 'rgba(255,255,255,0.92)', lg: 'transparent' }
@@ -241,7 +241,7 @@ const Login = ({ onLogin }) => {
           <Box
             sx={{
               width: '100%',
-              maxWidth: '26vw',
+              maxWidth: '26vw', height: 'fit-content',
               display: 'flex', 
               flexDirection: 'column',
               borderRadius: '1.6vw',
@@ -325,7 +325,7 @@ const Login = ({ onLogin }) => {
                 />
               </Box>
 
-              <Box>
+              {/* <Box>
                 <Typography sx={{ mb: '0.8vh', fontSize: '0.72vw', fontWeight: 800, color: '#27364a' }}>
                   ROLE
                 </Typography>
@@ -358,12 +358,12 @@ const Login = ({ onLogin }) => {
                   <MenuItem value="Division User">Division User</MenuItem>
                   <MenuItem value="Reviewer">Reviewer</MenuItem>
                 </TextField>
-              </Box>
+              </Box> */}
             </Box>
 
             <Typography
               sx={{
-                mt: '2.2vh',
+                mt: '2.5vh',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.6vw',
@@ -398,7 +398,7 @@ const Login = ({ onLogin }) => {
               Login
             </Button>
 
-            <Box sx={{ mt: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8333vw', color: '#93a1b2' }}>
+            <Box sx={{ mt: '3vh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8333vw', color: '#93a1b2' }}>
               <SecurityOutlined sx={{ fontSize: '0.9375vw' }} />
               <Typography sx={{ fontSize: '0.78vw' }}>Secure. Compliant. Trusted.</Typography>
               <Divider orientation="vertical" flexItem sx={{ borderColor: '#e5ecf3' }} />
