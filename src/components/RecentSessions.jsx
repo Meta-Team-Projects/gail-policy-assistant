@@ -51,6 +51,50 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
         setMenuSessionId(null);
     };
 
+    const menuPaperSx = {
+        mt: '0.6vh',
+        py: '0.45vh',
+        minWidth: '10vw',
+        borderRadius: '0.8vw',
+        border: '0.05vw solid rgba(255, 255, 255, 0.14)',
+        background: 'linear-gradient(180deg, #06203C 0%, #0A3158 100%)',
+        boxShadow: '0 1vh 2.4vh rgba(18, 18, 18, 0.28)',
+        overflow: 'hidden',
+        '& .MuiList-root': {
+            py: '0.35vh',
+        },
+    }
+
+    const menuItemSx = {
+        minHeight: '3.8vh',
+        px: '0.9vw',
+        py: '0.7vh',
+        gap: '0.65vw',
+        color: '#FFFFFF',
+        fontSize: '0.73vw',
+        fontWeight: 500,
+        lineHeight: 1.2,
+        justifyContent: 'flex-start',
+        '& .MuiSvgIcon-root': {
+            fontSize: '0.95vw',
+            color: '#FFFFFF',
+            flexShrink: 0,
+        },
+        '&:hover': {
+            bgcolor: 'rgba(255, 217, 92, 0.18)',
+        },
+        '&.Mui-focusVisible': {
+            bgcolor: 'rgba(255, 217, 92, 0.18)',
+        },
+        '&.Mui-disabled': {
+            color: 'rgba(255, 255, 255, 0.42)',
+            opacity: 1,
+            '& .MuiSvgIcon-root': {
+                color: 'rgba(255, 255, 255, 0.42)',
+            },
+        },
+    }
+
     const content = (
         <Box
         sx={{
@@ -59,6 +103,7 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
             maxHeight: embedded ? 125 : 'auto',
             overflowY: embedded ? 'auto !important' : 'hidden',
             overflowX: 'hidden',
+            pr: '0.4167vw',
             ...(embedded && {
             // Chrome, Edge, Safari
             '&::-webkit-scrollbar': {
@@ -90,13 +135,14 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
                         borderRadius: 1,
                         mb: 1,
                         px: embedded ? 1 : 2,
-                        py: embedded ? 0 : 1,
+                        py: embedded ? 0.35 : 1,
+                        minHeight: embedded ? '2rem' : '2.5rem',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         bgcolor: isActive ? '#0088d7' : 'transparent',
                         '&:hover': {
-                        bgcolor: isActive ? '#0088d7' : '#f5f5f5',
+                        bgcolor: isActive ? '#0088d7' : '#0088a3',
                         },
                         '&:active': {
                         bgcolor: '#0087d6',
@@ -105,37 +151,60 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
                 >
                 <ListItemText
                     primary={session.name}
-                        primaryTypographyProps={{
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive
-                        ? (session.name === 'Session 1' ? '#fff' : '#fff')
-                        : '#000',
+                    sx={{
+                        minWidth: 0,
+                        mr: 0.5,
+                    }}
+                    primaryTypographyProps={{
+                        noWrap: true,
+                        fontWeight: isActive ? 600 : 400,
+                        fontSize: 'clamp(0.75rem, 0.8333vw, 0.9rem)',
+                        lineHeight: 1.3,
+                        color: '#fff',
                     }}
                 />
-                <IconButton size="small" onClick={e => handleMenuClick(e, session.id)} sx={{ color: isActive ? '#fff' : '#000' }}>
-                    <MoreVert />
+                <IconButton size="small" onClick={e => handleMenuClick(e, session.id)} 
+                    sx={{
+                        color: '#fff',
+                        width: '1.7vw',
+                        height: '1.7vw',
+                        flexShrink: 0,
+                        '&:hover': {
+                            bgcolor: '#FFD95C26',
+                        },
+                    }}>
+                    <MoreVert sx={{fontSize: '0.95vw'}}/>
                 </IconButton>
                 <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl) && menuSessionId === session.id}
                     onClose={handleMenuClose}
-                    PaperProps={{ sx: { bgcolor: '#fff', borderRadius: 1, boxShadow: '0px 4px 8px rgba(18,18,18,0.25)' } }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    PaperProps={{
+                        sx: menuPaperSx
+                    }}
                     >
-                    <MenuItem onClick={() => {
-                        setDialogSessionId(session.id);
-                        setOpenResetDialog(true);
-                        handleMenuClose();
-                    }}>
-                        <History sx={{ fontSize: 20, mr: 1 }} />
+                    <MenuItem 
+                        onClick={() => {
+                            setDialogSessionId(session.id);
+                            setOpenResetDialog(true);
+                            handleMenuClose();
+                        }}
+                        sx={menuItemSx}
+                    >
+                        <History />
                         Reset
                     </MenuItem>
                     <MenuItem
+                        disabled
                         onClick={() => {
                         alert('Export clicked!');
                         handleMenuClose();
                         }}
+                        sx={menuItemSx}
                     >
-                        <IosShare sx={{ fontSize: 20, mr: 1 }} />
+                        <IosShare />
                         Export
                     </MenuItem>
                     <MenuItem onClick={() => {
@@ -143,17 +212,29 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
                         setRenameValue(session.name);
                         setOpenRenameDialog(true);
                         handleMenuClose();
-                    }}>
-                        <Edit sx={{ fontSize: 20, mr: 1 }} />
+                    }}
+                        sx={menuItemSx}>
+                        <Edit />
                         Rename
                     </MenuItem>
                     <MenuItem 
+                        sx={{
+                            ...menuItemSx,
+                            color: '#FF9C9C',
+                            '& .MuiSvgIcon-root': {
+                                ...menuItemSx['& .MuiSvgIcon-root'],
+                                color: '#FF9C9C',
+                            },
+                            '&:hover': {
+                                bgcolor: 'rgba(217, 48, 37, 0.18)',
+                            },
+                        }}
                         onClick={() => {
                             setDialogSessionId(session.id);
                             setOpenDeleteDialog(true);
                             handleMenuClose();
                         }}>
-                        <Delete sx={{ fontSize: 20, mr: 1 }} />
+                        <Delete />
                         Delete
                     </MenuItem>
                     </Menu>
@@ -171,15 +252,73 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
             onClose={() => setOpenResetDialog(false)}
             container={() => document.body}
             BackdropProps={{ sx: { backdropFilter: 'grayscale(0.5) brightness(0.5)' } }}
+            PaperProps={{
+                sx: {
+                borderRadius: 4,
+                width: 500,
+                px: 2,
+                pt: 1,
+                pb: 2,
+                bgcolor: '#F5F7FA',        
+                boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                }
+            }}  
         >
-            <DialogTitle>Reset Session</DialogTitle>
-            <DialogContent>
+            <DialogTitle
+                sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                mb: 1,
+                color: '#687382',
+                }}>
+                <History/>Reset Session?
+            </DialogTitle>
+            <DialogContent
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center',
+                color: '#687382',
+                }}>
                 <Typography>Are you sure you want to reset this session?</Typography>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={() => setOpenResetDialog(false)}>Cancel</Button>
+            <DialogActions 
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center'
+                }}>
+                <Button 
+                sx={{
+                    color: '#687382',
+                    border: '1px solid #0088d7',
+                    width: 120,
+                    borderRadius: 999,
+                    '&:hover': {
+                        backgroundColor: '#c8e4f45a',
+                    }
+                }}
+                onClick={() => setOpenResetDialog(false)}>Cancel</Button>
                 <Button
                 variant="contained"
+                sx={{
+                    backgroundColor: '#0088d7',
+                    py: 1,
+                    width: 120,
+                    borderRadius: 999,
+                    color: '#fff',
+                    '&:hover': {
+                    backgroundColor: '#0072b1',
+                    }
+                }}
                 onClick={() => {
                     onReset(dialogSessionId);
                     setOpenResetDialog(false);
@@ -196,20 +335,73 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
             onClose={() => setOpenDeleteDialog(false)}
             container={() => document.body}
             BackdropProps={{ sx: { backdropFilter: 'grayscale(0.5) brightness(0.5)' } }}
+            PaperProps={{
+                sx: {
+                borderRadius: 2,
+                width: 500,
+                px: 2,
+                pt: 1,
+                pb: 2,
+                bgcolor: '#F5F7FA',        // or whatever light grey
+                boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                }
+            }}  
             >
             <DialogTitle
-            sx= {{
-                color: '',
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                pb: 1,
+                mb: 1,
+                color: '#687382',
             }}>
-                Delete Session</DialogTitle>
-            <DialogContent>
+                <Delete/> Delete Session?</DialogTitle>
+            <DialogContent
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center',
+                color: '#687382',
+                }}>
                 <Typography>Are you sure you want to delete this session?</Typography>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+            <DialogActions
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center'
+                }}>
+                <Button 
+                    sx={{
+                    color: '#687382',
+                    border: '1px solid #0088d7',
+                    width: 120,
+                    borderRadius: 999,
+                    '&:hover': {
+                        backgroundColor: '#c8e4f45a',
+                    }
+                    }}
+                    onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
                 <Button
                 variant="contained"
-                color="error"
+                sx={{
+                    backgroundColor: '#0088d7',
+                    py: 1,
+                    width: 120,
+                    borderRadius: 999,
+                    color: '#fff',
+                    '&:hover': {
+                        backgroundColor: '#0072b1',
+                    }
+                }}
                 onClick={() => {
                     onDelete(dialogSessionId);
                     setOpenDeleteDialog(false);
@@ -226,8 +418,32 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
             onClose={() => setOpenRenameDialog(false)}
             container={() => document.body}
             BackdropProps={{ sx: { backdropFilter: 'grayscale(0.5) brightness(0.5)' } }}
+            PaperProps={{
+                sx: {
+                borderRadius: 2,
+                width: 500,
+                px: 2,
+                pt: 1,
+                pb: 2,
+                bgcolor: '#F5F7FA',        // or whatever light grey
+                boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                }
+            }}  
             >
-            <DialogTitle>Rename Session</DialogTitle>
+            <DialogTitle
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                pb: 1,
+                mb: 1,
+                color: '#687382',
+                }}>
+                <Edit/>Rename Session?
+            </DialogTitle>
             <DialogContent>
                 <TextField
                 autoFocus
@@ -236,12 +452,49 @@ const SessionList = ({ embedded = false, open, onToggle, sessions, activeSession
                 fullWidth
                 value={renameValue}
                 onChange={e => setRenameValue(e.target.value)}
+                InputLabelProps={{
+                    sx: {
+                    color: '#0088d7',        // your desired color
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    '&.Mui-focused': {
+                        color: '#0072b1',     // color when label is focused
+                    }
+                    }
+                }}
                 />
             </DialogContent>
-            <DialogActions>
-                <Button onClick={() => setOpenRenameDialog(false)}>Cancel</Button>
+            <DialogActions
+            sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                textAlign: 'center',
+                justifyContent: 'center'
+                }}>
+                <Button 
+                sx={{
+                    color: '#687382',
+                    border: '1px solid #0088d7',
+                    width: 120,
+                    borderRadius: 999,
+                    '&:hover': {
+                        backgroundColor: '#c8e4f45a',
+                    }
+                }}
+                onClick={() => setOpenRenameDialog(false)}>Cancel</Button>
                 <Button
                 variant="contained"
+                sx={{
+                    backgroundColor: '#0088d7',
+                    color: '#fff',
+                    py: 1,
+                    width: 120,
+                    borderRadius: 999,
+                    '&:hover': {
+                    backgroundColor: '#0072b1',
+                    }
+                }}
                 onClick={() => {
                     onRename(dialogSessionId, renameValue);
                     setOpenRenameDialog(false);

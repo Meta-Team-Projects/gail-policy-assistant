@@ -41,7 +41,9 @@ const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
     //{ text: 'Policy Documents', icon: <FilePresentIcon />, type: MenuType.POLICY_DOC},
+    { text: 'New Session', icon: <DifferenceIcon />, type: 'NEW_SESSION' },
     { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: 'true'},
+    { text: 'Data Manager', icon: <FilePresentIcon />, type: MenuType.DOCUMENT_INGESTION, disabled: '' },
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: '' },
     { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: 'true' },
 ]
@@ -214,6 +216,34 @@ const Sidebar = ({
                     </>
                 )}
             </Box>
+
+            <Box sx={{ px: 2, pb: 2, mx: -2 }}>
+                {open ? (<RecentSessions
+                    embedded
+                    open={open}
+                    onToggle={handleDrawerToggle}
+                    sessions={sessions}
+                    activeSessionID={activeSessionID}
+                    onSessionSelect={onSessionSelect}
+                    onRename={onRename}
+                    onDelete={onDelete}
+                    onReset={onReset}
+                />
+                ) : (
+                    <Box sx={{display: 'flex', justifyContent: 'center', py: 1}}>
+                        <Tooltip 
+                        PopperProps={{modifiers: [{
+                            name: 'offset',
+                            options: { offset: [0, 14]}
+                        }]}}
+                        title="Recent Sessions" placement="right" arrow>
+                        < AccessTimeIcon sx={{color: '#999'}}/>
+                        </Tooltip>
+                    </Box>
+                )}
+            </Box>
+
+            <Divider sx={{ mx: 2, my: 1, borderColor: '#e0e0e0' }} />
 
             <List>
                 <ListItem disablePadding>{renderMenuItem(menuItems[0])}</ListItem>

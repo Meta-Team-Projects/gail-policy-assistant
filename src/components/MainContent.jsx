@@ -444,20 +444,36 @@ const MainContent = ({
 
                {/* Right icons + category dropdown */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <FormControl
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                            minWidth: '14.583vw',
-                            maxWidth: '14.583vw',
-                            '& .MuiInputLabel-root': {
+                <FormControl
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                        minWidth: '14.583vw',
+                        maxWidth: '14.583vw',
+                        '& .MuiInputLabel-root': {
                             color: '#081A33',
                             fontWeight: 500,
                             '&.Mui-focused': {
-                                    color: '#081A33',
-                                },
+                                color: '#081A33',
                             },
-                            '& .MuiOutlinedInput-root': {
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            // Force the entire root container to handle the sizing structure cleanly
+                            height: '40px', 
+                            '@media (max-width: 1366px)': {
+                                height: '32px',
+                            },
+
+                            '& .MuiSelect-select': {
+                                fontSize: '0.875rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                height: '100%',
+                                // Clear out native vertical paddings completely so text is perfectly centered 
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                boxSizing: 'border-box',
+                            },
                             '& fieldset': {
                                 borderColor: '#081A33',
                             },
@@ -469,35 +485,40 @@ const MainContent = ({
                             },
                             '& .MuiSelect-icon': {
                                 color: '#081A33',
+                                top: '50%',
+                                transform: 'translateY(-45%)',
                             },
-                            },
-                            '& .MuiSelect-root': {
+                        },
+                        '& .MuiSelect-root': {
                             color: '#081A33',
                             fontWeight: 600,
-                            },
-                        }}
-                        >
-                        <InputLabel>Category</InputLabel>
-                        <Select
-                            value={categoryFilter}
-                            onChange={handleCategoryChange}
-                            label="Category"
-                            IconComponent={ExpandMoreIcon} 
-                            MenuProps={{
-                                PaperProps: {
-                                    sx: {
-                                        bgcolor: '#FFFFFF', // Solid white background
-                                        boxShadow: 3,       // Add a slight shadow for better visibility
-                                    }
+                        },
+                    }}
+                >
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                        value={categoryFilter}
+                        onChange={handleCategoryChange}
+                        label="Category"
+                        IconComponent={ExpandMoreIcon} 
+                        MenuProps={{
+                            PaperProps: {
+                                sx: {
+                                    bgcolor: '#FFFFFF',
+                                    boxShadow: 3,
                                 }
-                            }}                >
-                            {categoryOptions.map((name) => (
+                            }
+                        }}
+                    >
+                        {categoryOptions.map((name) => (
                             <MenuItem key={name} value={name}>
-                                {name}
+                                <Typography variant="body2" sx={{ textAlign: 'left', fontSize: '0.7292vw' }}>
+                                    {name}
+                                </Typography>
                             </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                        ))}
+                    </Select>
+                </FormControl>
 
                     <IconButton
                     sx={{
@@ -1032,7 +1053,7 @@ ${![
                         my: 'auto',
                         width: '100%',
                         px: { xs: 2, sm: 2, md: 2, lg: 2 },
-                        py: 1.5,
+                        py: 1.75,
                         bgcolor: '#1846870D',
                     border: '1px solid #081A33',
                     borderRadius: '15px',
@@ -1060,8 +1081,8 @@ ${![
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
-                                    width: '1.875vw',
-                                    height: '1.875vw',
+                                    width: '2.0833vw',
+                                    height: '2.0833vw',
                                     borderRadius: '8px',
                                     color: '#515151',
                                     boxShadow: '2px 2px 8px #9A9A9A40',
@@ -1072,8 +1093,8 @@ ${![
                                 onClick={toggleMic} 
                             >
                                 {isRecording
-                                ? <StopCircleOutlined  sx={{ fontSize: '0.9375vw' }} />
-                                : <Mic   sx={{ fontSize: '0.9375vw' }}/>}
+                                ? <StopCircleOutlined  sx={{ fontSize: '1.0417vw' }} />
+                                : <Mic   sx={{ fontSize: '1.0417vw' }}/>}
                             </IconButton>
                             </Tooltip>
 
@@ -1095,10 +1116,12 @@ ${![
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
                                             borderRadius: '8px',
-                                            color:'#878787',
+                                            color:'#484848',
                                             backgroundColor: '#FFD95C1A',
-                                            padding: 0,
-                                        
+                                            padding: '0 0.7292vw',
+                                            minHeight: '40px',
+                                            display: 'grid',
+                                            alignItems: 'center',
                                         '& fieldset': {
                                             borderColor: '#51515133',
                                         },
@@ -1110,24 +1133,22 @@ ${![
                                         },
                                         '& textarea': {
                                             overflowY: 'auto',
-
-                                            // '&::-webkit-scrollbar': {
-                                            //     width: '4px',
-                                            // },
-                                            // '&::-webkit-scrollbar-track': {
-                                            //     background: 'transparent',
-                                            // },
-                                            // '&::-webkit-scrollbar-thumb': {
-                                            //     backgroundColor: '#0088d7',
-                                            //     borderRadius: '3px',
-                                            // },
+                                            '&::-webkit-scrollbar': {
+                                                width: '4px',
+                                            },
+                                            '&::-webkit-scrollbar-track': {
+                                                background: 'transparent',
+                                            },
+                                            '&::-webkit-scrollbar-thumb': {
+                                                backgroundColor: '#0088d7',
+                                                borderRadius: '3px',
+                                            },
                                             scrollbarWidth: '0.3125vw',
                                             scrollbarColor: '#0088d7 transparent',
                                         }
                                     },
                                     '& .MuiOutlinedInput-input': {
-                                        padding: '0.4167vw 0.7292vw',
-                                        fontSize: '0.7292vw',
+                                        fontSize: '0.9375vw',
                                     },
                                 }}
                             />
@@ -1135,8 +1156,8 @@ ${![
                             <IconButton
                                 sx={{
                                     bgcolor: '#FFD95C',
-                                    width: '1.875vw',
-                                    height: '1.875vw',
+                                    width: '2.0833vw',
+                                    height: '2.0833vw',
                                     borderRadius: '8px',
                                     color: '#515151',
                                     boxShadow: '2px 2px 8px #9A9A9A40',
@@ -1146,7 +1167,7 @@ ${![
                                 }}
                                 onClick={handleSend}
                             >
-                                <Send sx={{ fontSize: '0.9375vw' }} />
+                                <Send sx={{ fontSize: '1.0417vw' }} />
                             </IconButton>
                             </Tooltip>
                         </Box>
