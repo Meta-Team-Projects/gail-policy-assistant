@@ -816,7 +816,7 @@ ${![
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     {/* Left: Flag & Volume */}
                                     <Box sx={{ display: 'flex', gap: 1 }}>
-                                        <Tooltip title="Source" arrow>
+                                        {/* <Tooltip title="Source" arrow>
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <Source sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
@@ -834,10 +834,19 @@ ${![
                                         <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
                                             <IosShare sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
-                                        </Tooltip>
+                                        </Tooltip> */}
                                     </Box>
                                     {/* Right: Source, Copy, Share, Download */}
                                     <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Tooltip title="Copy" arrow>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => handleCopy(answerText, referencePage)}
+                                            sx={{ p: '2px', color: '#003366' }}
+                                        >
+                                            <ContentCopy sx={{ fontSize: '0.833vw'}} />
+                                        </IconButton>
+                                        </Tooltip>
                                         <Tooltip title="Download PDF" arrow>
                                         <IconButton
                                             size="small"
