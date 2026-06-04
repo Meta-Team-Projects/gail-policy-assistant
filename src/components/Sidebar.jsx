@@ -14,7 +14,10 @@ import {
     Divider,
     Tooltip,
     Menu,
-    MenuItem
+    MenuItem,
+    Avatar,
+    TextField,
+    Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material'
 import {
     Home,
@@ -26,7 +29,8 @@ import {
     History,
     AccountCircle,
     Help,
-    ChevronLeft
+    ChevronLeft,
+    Close as CloseIcon,
 } from '@mui/icons-material'
 
 import DifferenceIcon from '@mui/icons-material/Difference'
@@ -36,6 +40,7 @@ import RecentSessions from './RecentSessions'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 
 const drawerWidth = '12.5vw'
 const collapsedWidth = '2.91vw'
@@ -47,7 +52,7 @@ const menuItems = [
     { text: 'New Session', icon: <DifferenceIcon />, type: 'NEW_SESSION' },
     { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: ''},
     { text: 'Data Manager', icon: <FilePresentIcon />, type: MenuType.DOCUMENT_INGESTION, disabled: '' },
-    { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: '' },
+    { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: 'true' },
     { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: '' },
 ]
 
@@ -74,6 +79,7 @@ const Sidebar = ({
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
+    const [openProfileDialog, setOpenProfileDialog] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
 
@@ -392,6 +398,13 @@ const Sidebar = ({
                   }}
                 >
                     <MenuItem
+                      onClick={() => setOpenProfileDialog(true)}
+                      sx={menuItemSx}
+                    >
+                        <PersonIcon />
+                        Go To Profile
+                    </MenuItem>
+                    <MenuItem
                       onClick={handleLogoutClick}
                       sx={menuItemSx}
                     >
@@ -403,7 +416,143 @@ const Sidebar = ({
         </>
     )
 
+    const dialogs = (
+        <>
+            <Dialog
+                open={openProfileDialog}
+                onClose={() => setOpenProfileDialog(false)}
+                container={() => document.body}
+                BackdropProps={{ sx: { backdropFilter: 'grayscale(0.5) brightness(0.5)' } }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        width: 500,
+                        px: 3,
+                        pt: 4, 
+                        pb: 4,
+                        bgcolor: '#F5F7FA',
+                        boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                        position: 'relative' 
+                    }
+                }}  
+            >
+                {/* Absolute Positioned Close Button */}
+                <IconButton
+                    aria-label="close"
+                    onClick={() => setOpenProfileDialog(false)}
+                    sx={{
+                        position: 'absolute',
+                        right: 12,
+                        top: 12,
+                        color: '#687382',
+                        '&:hover': {
+                            backgroundColor: '#c8e4f45a',
+                        }
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+
+                <DialogContent 
+                    sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center',
+                        gap: 2.5,
+                        p: 0 
+                    }}
+                >
+                    {/* Top Center Profile Circle */}
+                    <Avatar 
+                        sx={{ 
+                            width: 80, 
+                            height: 80, 
+                            bgcolor: '#0088d7',
+                            mb: 1
+                        }}
+                    />
+
+                    {/* 3 Static Display Fields */}
+                    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        
+                        {/* Field: Name */}
+                        <Box>
+                            <Typography 
+                                sx={{ 
+                                    color: '#0088d7', 
+                                    fontWeight: 500, 
+                                    fontSize: '0.95rem',
+                                    mb: 0.5 
+                                }}
+                            >
+                                Name
+                            </Typography>
+                            <Box 
+                                sx={{ 
+                                    width: '100%', 
+                                    height: '40px', // Matches standard MUI text field sizing
+                                    border: '1px solid #687382', 
+                                    borderRadius: '4px',
+                                    bgcolor: 'transparent'
+                                }} 
+                            />
+                        </Box>
+
+                        {/* Field: Email */}
+                        <Box>
+                            <Typography 
+                                sx={{ 
+                                    color: '#0088d7', 
+                                    fontWeight: 500, 
+                                    fontSize: '0.95rem',
+                                    mb: 0.5 
+                                }}
+                            >
+                                Email
+                            </Typography>
+                            <Box 
+                                sx={{ 
+                                    width: '100%', 
+                                    height: '40px', 
+                                    border: '1px solid #687382', 
+                                    borderRadius: '4px',
+                                    bgcolor: 'transparent'
+                                }} 
+                            />
+                        </Box>
+
+                        {/* Field: Title */}
+                        <Box>
+                            <Typography 
+                                sx={{ 
+                                    color: '#0088d7', 
+                                    fontWeight: 500, 
+                                    fontSize: '0.95rem',
+                                    mb: 0.5 
+                                }}
+                            >
+                                Title
+                            </Typography>
+                            <Box 
+                                sx={{ 
+                                    width: '100%', 
+                                    height: '40px', 
+                                    border: '1px solid #687382', 
+                                    borderRadius: '4px',
+                                    bgcolor: 'transparent'
+                                }} 
+                            />
+                        </Box>
+
+                    </Box>
+                </DialogContent>
+            </Dialog>
+        </>
+    )
+
     return (
+        <>
+        {dialogs}
         <Box
             component="nav"
             sx={{
@@ -447,6 +596,7 @@ const Sidebar = ({
                 {drawer}
             </Drawer>
         </Box>
+        </>
     )
 }
 export { drawerWidth, collapsedWidth }
