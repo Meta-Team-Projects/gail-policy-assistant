@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Drawer,
     List,
@@ -12,7 +12,9 @@ import {
     useTheme,
     useMediaQuery,
     Divider,
-    Tooltip
+    Tooltip,
+    Menu,
+    MenuItem
 } from '@mui/material'
 import {
     Home,
@@ -33,6 +35,7 @@ import { MenuType } from '../constants/menuTypes'
 import RecentSessions from './RecentSessions'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = '12.5vw'
 const collapsedWidth = '2.91vw'
@@ -66,9 +69,26 @@ const Sidebar = ({
     onRename,
     onDelete,
     onReset,
+    onLogout
 }) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+    const [anchorEl, setAnchorEl] = useState(null);
+    const isMenuOpen = Boolean(anchorEl);
+
+    const handleProfileClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleLogoutClick = () => {
+        handleMenuClose();
+        if (typeof onLogout === 'function') onLogout();
+    }
 
     const handleMenuItemClick = (menuType) => {
         if (menuType === 'TOGGLE_NOTEPAD') {
@@ -82,6 +102,50 @@ const Sidebar = ({
         if (menuType !== MenuType.NONE && typeof onMenuClick === 'function') {
             onMenuClick(menuType)
         }
+    }
+
+        const menuPaperSx = {
+        mt: '0vh',
+        py: '0.45vh',
+        minWidth: '10vw',
+        borderRadius: '0.8vw',
+        //border: '0.05vw solid rgba(255, 255, 255, 0.14)',
+        background: 'linear-gradient(180deg, #0b396a 0%, #135aa1 100%)',
+        boxShadow: '0 1vh 2.4vh rgba(18, 18, 18, 0.28)',
+        overflow: 'hidden',
+        '& .MuiList-root': {
+            py: '0.35vh',
+        },
+    }
+
+    const menuItemSx = {
+        minHeight: '3.8vh',
+        px: '0.9vw',
+        py: '0.7vh',
+        gap: '0.65vw',
+        color: '#FFFFFF',
+        fontSize: '0.73vw',
+        fontWeight: 500,
+        lineHeight: 1.2,
+        justifyContent: 'flex-start',
+        '& .MuiSvgIcon-root': {
+            fontSize: '0.95vw',
+            color: '#FFFFFF',
+            flexShrink: 0,
+        },
+        '&:hover': {
+            bgcolor: 'rgba(243, 242, 239, 0.1)',
+        },
+        '&.Mui-focusVisible': {
+            bgcolor: 'rgba(255, 217, 92, 0.18)',
+        },
+        '&.Mui-disabled': {
+            color: 'rgba(255, 255, 255, 0.42)',
+            opacity: 1,
+            '& .MuiSvgIcon-root': {
+                color: 'rgba(255, 255, 255, 0.42)',
+            },
+        },
     }
 
     const renderMenuItem = (item) => (
@@ -262,15 +326,18 @@ const Sidebar = ({
 
             <Box sx={{ mt: 'auto', }}>
                 <List>
-                    {bottomMenuItems.map((item) => (
+                    {bottomMenuItems.map((item) => {
+                        const isProfile = item.text === 'Profile';
+                        return (
                         <ListItem key={item.text} disablePadding>
                             <Tooltip title={!open ? item.text : ''} placement="right" arrow>
                                 <ListItemButton
-                                onClick={() => handleMenuItemClick(item.type)}
+                                onClick={isProfile ? handleProfileClick : handleMenuItemClick(item.type)}
                                 selected={activeMenu === item.type}
                                 sx={{
                                     pl: 2,
                                     justifyContent: open ? 'initial' : 'center',
+                                    color: '#fff',
                                     bgcolor: 'transparent',
                                     '&:hover': {
                                     bgcolor: 'transparent',
@@ -291,10 +358,7 @@ const Sidebar = ({
                                     '& svg': {
                                         fontSize: '1vw',
                                     },
-                                    //Darker_theme
-                                    color: activeMenu === item.type ? '#678092' : '#678092',
-                                    //Lighter_theme
-                                    //color: activeMenu === item.type ? '#081a33': '#7090ac',
+                                    color: isProfile ? '#fff' : '#678092',
                                     }}
                                 >
                                     {item.icon}
@@ -305,7 +369,7 @@ const Sidebar = ({
                                     primaryTypographyProps={{
                                     sx: {
                                         fontSize: '0.8333vw',
-                                        color: activeMenu === item.type ? '#678092' : '#678092',
+                                        color: isProfile ? '#fff' : '#678092',
                                     }
                                     }}
                                     />
@@ -313,9 +377,28 @@ const Sidebar = ({
                                 </ListItemButton>
                             </Tooltip>
                         </ListItem>
-                    ))}
+                        )
+                    })}
                 </List>
 
+                <Menu
+                  anchorEl={anchorEl}
+                  open={isMenuOpen}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  PaperProps={{
+                    sx: menuPaperSx
+                  }}
+                >
+                    <MenuItem
+                      onClick={handleLogoutClick}
+                      sx={menuItemSx}
+                    >
+                        <LogoutIcon />
+                        Logout
+                    </MenuItem>
+                </Menu>
             </Box>
         </>
     )

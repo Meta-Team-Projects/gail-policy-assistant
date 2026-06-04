@@ -284,6 +284,10 @@ function App() {
     }, 1500);
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  }
+
   if (appLoading) {
     return <LoadingScreen />;
   }
@@ -326,6 +330,7 @@ function App() {
           onDelete={handleDeleteSession}
           onReset={handleResetSession}
           layoutMode={layoutMode}
+          onLogout={handleLogout}
         />
         <Box
           component="main"
