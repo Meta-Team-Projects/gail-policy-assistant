@@ -58,8 +58,7 @@ import Linkify from 'react-linkify'
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-
-
+import { downloadAnswerAsPdf } from './downloadResponse'
 
 const MainContent = ({ 
     sessions, 
@@ -259,76 +258,7 @@ const MainContent = ({
         )
     }
 
-    const handleDownload = async (msgIndex) => {
-        const element = messageRefs.current[msgIndex]
-        if (!element) return
 
-    // 1) Convert the DOM node to canvas (white background)
-    const clone = element.cloneNode(true)
-    const wrapper = document.createElement('div')
-    wrapper.style.padding = '20px'
-    wrapper.style.backgroundColor = '#ffffff'
-    wrapper.appendChild(clone)
-
-    document.body.appendChild(wrapper)
-    const canvas = await html2canvas(wrapper, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-    })
-    document.body.removeChild(wrapper)
-
-    // 2) Generate a PDF blob
-    const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF()
-    const imgProps = pdf.getImageProperties(imgData)
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-    const pdfBlob = pdf.output('blob')
-
-    // 3) If File System Access API is available, show a native “Save As…” dialog
-    if (window.showSaveFilePicker) {
-        try {
-        // Let user pick a location + filename (MIME is application/pdf)
-        const handle = await window.showSaveFilePicker({
-            suggestedName: 'response.pdf',
-            types: [
-                {
-                description: 'PDF Document',
-                accept: { 'application/pdf': ['.pdf'] },
-                },
-            ],
-        })
-
-        // Create a writable stream, write the blob, and close
-        const writable = await handle.createWritable()
-        await writable.write(pdfBlob)
-        await writable.close()
-        } catch (fsError) {
-        // If user cancels or an error occurs, silently fall back to the <a> fallback
-        console.warn('File System Access API save canceled or failed:', fsError)
-        const blobUrl = URL.createObjectURL(pdfBlob)
-        const a = document.createElement('a')
-        a.href = blobUrl
-        a.download = 'response.pdf'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(blobUrl)
-    }
-    } else {
-      // 4) Fallback for browsers that do not support showSaveFilePicker:
-        const blobUrl = URL.createObjectURL(pdfBlob)
-        const a = document.createElement('a')
-        a.href = blobUrl
-        a.download = 'response.pdf'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(blobUrl)
-    }
-    }
 
     const handleCopy = (answerText, referencePage) => {
     let textToCopy = `ANSWER: ${answerText}`;
@@ -901,9 +831,19 @@ ${![
                                     </Box>
                                     {/* Right: Source, Copy, Share, Download */}
                                     <Box sx={{ display: 'flex', gap: 1 }}>
-                                        <Tooltip title="Bookmark" arrow>
+                                        <Tooltip title="Download PDF" arrow>
                                         <IconButton
                                             size="small"
+                                            onClick={() => {
+                                                const prev = messages[index - 2] || messages [index - 1]
+                                                const title = prev?.content || 'GAIL Response'
+                                                downloadAnswerAsPdf({
+                                                    response: answerText,
+                                                    formatResponse,
+                                                    title,
+                                                    filename: `${title || 'gail-answer'}.pdf`,
+                                                })
+                                            }}
                                             sx={{ p: '2px', color: '#003366' }}
                                         >
                                             <BookmarkBorderIcon sx={{ fontSize: '0.833vw' }} />

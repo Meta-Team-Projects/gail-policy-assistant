@@ -42,10 +42,10 @@ const menuItems = [
     { text: 'Home', icon: <Home />, type: MenuType.NONE },
     //{ text: 'Policy Documents', icon: <FilePresentIcon />, type: MenuType.POLICY_DOC},
     { text: 'New Session', icon: <DifferenceIcon />, type: 'NEW_SESSION' },
-    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: 'true'},
+    { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: ''},
     { text: 'Data Manager', icon: <FilePresentIcon />, type: MenuType.DOCUMENT_INGESTION, disabled: '' },
     { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: '' },
-    { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: 'true' },
+    { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: '' },
 ]
 
 const bottomMenuItems = [
