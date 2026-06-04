@@ -33,6 +33,7 @@ import {
     Add,
     Flag,
     VolumeUp,
+    VolumeOff,
     Source,
     IosShare,
     Person,
@@ -52,6 +53,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 
 import useSpeechToText from 'react-hook-speech-to-text'
+import { useTextToSpeech } from './useTextToSpeech'
 
 import Linkify from 'react-linkify'
 
@@ -235,6 +237,8 @@ const MainContent = ({
 
         return markdown
     }
+
+    const { speakingMessageKey, handleSpeak } = useTextToSpeech({ formatResponse })
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({
@@ -513,6 +517,9 @@ const MainContent = ({
                     const isPagedAI = msg.type === 'ai' && Array.isArray(msg.pages) && !msg.isError
                     // extract the static answer text
                     const answerText = msg.answer ?? msg.content
+
+                    const speechMessageKey = `${index}-${msg.currentPage ?? 0}`
+                    const isSpeakingThisMessage = speakingMessageKey === speechMessageKey
                     // extract the current reference (only if pages exists)
                     const referencePage = isPagedAI
                     ? msg.pages[msg.currentPage]
@@ -887,9 +894,16 @@ ${![
                                             <Download sx={{ fontSize: '0.833vw' }} />
                                         </IconButton>
                                         </Tooltip>
-                                        <Tooltip title="Speaker" arrow>
-                                        <IconButton size="small" sx={{ p: '2px', color: '#003366' }}>
-                                            <VolumeUp sx={{ fontSize: '0.833vw' }} />
+                                        <Tooltip title={isSpeakingThisMessage ? 'Stop speaker' : 'Speaker'} arrow>
+                                        <IconButton 
+                                            size="small" 
+                                            onClick={() => handleSpeak(speechMessageKey, answerText)}
+                                            sx={{ p: '2px', color: '#003366' }}
+                                        >
+                                            {isSpeakingThisMessage
+                                                ? <VolumeOff sx={{ fontSize: '0.833vw' }} />
+                                                : <VolumeUp sx={{ fontSize: '0.833vw' }} />
+                                            }
                                         </IconButton>
                                         </Tooltip>
                                     </Box>
