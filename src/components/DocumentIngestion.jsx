@@ -56,11 +56,14 @@ const DocumentIngestion = ({ open, onToggle }) => {
     const [isWide, setIsWide] = useState(false);
     const [searchTerm, setSearchTerm] = useState('')
     const [documentList, setDocumentList] = useState({})
-    const categoryOptions = ['All', 'C&P Procedure', 'Delegation of Power', 'Operation and Maintenance']
+    // const categoryOptions = ['All', 'C&P Procedure', 'Delegation of Power', 'Operation and Maintenance']
+    const [categoryOptions, setCategoryOptions] = useState(['All', 'C&P Procedure', 'Delegation of Power', 'Operation and Maintenance'])
     const [selectedCategory, setSelectedCategory] = useState('All')
     const [uploadSource,   setUploadSource]   = useState('lok_sabha')
     const [selectedFiles, setSelectedFiles] = useState([])
     const fileInputRef = useRef(null)
+    const [openInputDialog, setOpenInputDialog] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
     const [openDeleteDialog, setOpenDeleteDialog]     = useState(false);
     const [dialogDocName,    setDialogDocName]        = useState(null);
 
@@ -73,6 +76,33 @@ const DocumentIngestion = ({ open, onToggle }) => {
 
     const sentenceCase = str =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+    const handleDropdownChange = (e) => {
+        const value = e.target.value;
+        if (value === 'add_new_category_trigger') {
+            setOpenInputDialog(true);
+        } else {
+            setUploadSource(value);
+        }
+    }
+
+    const handleSaveCategory = () => {
+        const trimmedName = newCategoryName.trim();
+        if (trimmedName && !categoryOptions.includes(trimmedName)) {
+            setCategoryOptions([...categoryOptions, trimmedName]);
+            const uniqueValue = trimmedName.toLowerCase().replace(/ /g,'_');
+
+            setUploadSource(uniqueValue);
+            setSelectedCategory(trimmedName);
+        }
+        setNewCategoryName('');
+        setOpenInputDialog(false);
+    }
+
+    const handleCancelCategory = () => {
+        setNewCategoryName('');
+        setOpenInputDialog(false);
+    };
 
     const handleDeleteDoc = async (docName) => {
     try {
@@ -417,7 +447,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         select
                         label="Select the Category"
                         value={uploadSource}
-                        onChange={e => setUploadSource(e.target.value)}
+                        onChange={handleDropdownChange}
                         //size="medium"
                         sx={{
                             mt: '0.4167vw',
@@ -482,17 +512,31 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         >
                             {categoryOptions.slice(1).map(cat => (
                                 <MenuItem
-                                key={cat}
-                                value={cat.toLowerCase().replace(/ /g,'_')}
-                                sx={{
-                                    display: 'block',           // Force block layout
-                                    textAlign: 'left',  }}
+                                    key={cat}
+                                    value={cat.toLowerCase().replace(/ /g,'_')}
+                                    sx={{
+                                        display: 'block',
+                                        textAlign: 'left',  }}
                                 >
-                                <Typography variant="body2" sx={{ textAlign: 'left', fontSize: '0.7292vw' }}>
-                                    {cat}
-                                </Typography>
+                                    <Typography variant="body2" sx={{ textAlign: 'left', fontSize: '0.7292vw' }}>
+                                        {cat}
+                                    </Typography>
                                 </MenuItem>
                             ))}
+                            <hr style={{ border: '0.5px solid #FFD95C', margin: '4px 0'}} />
+                            <MenuItem
+                                value="add_new_category_trigger"
+                                sx={{
+                                    display: 'block',
+                                    textAlign: 'left',
+                                    color: '#008cff',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                <Typography variant="body2" sx={{ textAlign: 'left', fontSize: '0.7292vw', fontWeight: 600 }}>
+                                    + Add New Category
+                                </Typography>
+                            </MenuItem>
                         </TextField>
 
                         {/* hidden file input + upload handler */}
@@ -619,6 +663,97 @@ const DocumentIngestion = ({ open, onToggle }) => {
                             </Box>
                         )}
                     </Box>
+                    {/* POPUP MODAL DIALOG */}
+                    <Dialog 
+                        open={openInputDialog} 
+                        onClose={handleCancelCategory} 
+                        fullWidth 
+                        maxWidth="xs"
+                        PaperProps={{
+                            sx: {
+                                bgcolor: '#FFFFFF', // Clean, solid bright white background
+                                borderRadius: 3, // Softer, modern rounded corners
+                                boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.2)', // Pronounced shadow to stand out over overlay
+                                border: '1px solid #FFD95C', // Subtle border matching your layout accent color
+                                p: 1,
+                            }
+                        }}
+                    >
+                        <DialogTitle 
+                            sx={{ 
+                                color: '#081A33', // Deep blue text
+                                fontWeight: 700, 
+                                fontSize: '1.25rem',
+                                pb: 1 
+                            }}
+                        >
+                            Add New Category
+                        </DialogTitle>
+                        
+                        <DialogContent sx={{ pb: 1 }}>
+                            <Typography variant="body2" sx={{ color: '#5A6E85', mb: 1.5, fontSize: '0.875rem' }}>
+                                Enter a unique name below to create a new category option.
+                            </Typography>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                label="Category Name"
+                                type="text"
+                                fullWidth
+                                variant="outlined"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                sx={{ 
+                                    mt: 0.5,
+                                    '& label': {
+                                        color: '#081A33',
+                                        fontWeight: 500,
+                                    },
+                                    '& label.Mui-focused': { color: '#081A33' },
+                                    '& .MuiOutlinedInput-root': {
+                                        bgcolor: '#FFFBEF', // Soft bright off-white background inside input field
+                                        borderRadius: 2,
+                                        '& fieldset': { borderColor: '#FFD95C' },
+                                        '&:hover fieldset': { borderColor: '#FEC636' },
+                                        '&.Mui-focused fieldset': { borderColor: '#EDCC09' },
+                                    }
+                                }}
+                            />
+                        </DialogContent>
+                        
+                        <DialogActions sx={{ pb: 2, px: 3, gap: 1 }}>
+                            <Button 
+                                onClick={handleCancelCategory} 
+                                variant="text" 
+                                sx={{ 
+                                    color: '#081A33', 
+                                    fontWeight: 600,
+                                    textTransform: 'none',
+                                    px: 2,
+                                    '&:hover': { bgcolor: 'rgba(8, 26, 51, 0.05)' }
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                onClick={handleSaveCategory} 
+                                variant="contained" 
+                                disableElevation
+                                sx={{ 
+                                    bgcolor: '#EDCC09', // High-visibility bright accent color
+                                    color: '#081A33', // Clean dark text contrast
+                                    fontWeight: 600,
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    px: 3,
+                                    py: 1,
+                                    '&:hover': { bgcolor: '#FEC636' } 
+                                }}
+                            >
+                                Save Category
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Box> 
                 {stats && (
                 <Box
