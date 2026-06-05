@@ -72,6 +72,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
     const [uploadProgressKey, setUploadProgressKey] = useState(0)
     const [stats, setStats] = useState(null);
     const [uploadDuration, setUploadDuration] = useState(5);
+    const [sharepointUrl, setSharepointUrl] = useState('');
 
 
     const sentenceCase = str =>
@@ -176,14 +177,23 @@ const DocumentIngestion = ({ open, onToggle }) => {
     }
 
     const handleUploadFiles = async (filesToUpload) => {
+        if (!uploadSource) {
+            alert('Please select a Category');
+            return;
+        }
+        if (!sharepointUrl.trim()) {
+            alert('Please provide a SharePoint URL.');
+            return;
+        }
         if (!filesToUpload.length) {
             alert('Please select at least one file to upload.')
             return
         }
 
-        const formData = new FormData()
-        filesToUpload.forEach(f => formData.append('files', f))
-        formData.append('source', uploadSource)
+        const formData = new FormData();
+        filesToUpload.forEach(f => formData.append('files', f));
+        formData.append('source', uploadSource);
+        formData.append('sharepoint_url', sharepointUrl.trim());
 
         const startMs = Date.now();
         try {
@@ -201,6 +211,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
 
             await fetchDocuments()
             setSelectedFiles([])
+            setSharepointUrl('')
             setUploadStatus('success')
             setTimeout(() => setUploadSnackOpen(false), 4000)
         } catch (err) {
@@ -214,6 +225,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
                     type: file.type,
                 })),
                 source: uploadSource,
+                sharepoint_url: sharepointUrl,
             })
             setUploadStatus('error')
             setTimeout(() => setUploadSnackOpen(false), 4000)
@@ -340,91 +352,91 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         top: '0%',
                         }} 
                     >
-                    <SnackbarContent
-                        sx={{
-                            position: 'relative',
-                            overflow: 'hidden',
-                            mr: 1,
-                            mt: 1,
-                        backgroundColor:
-                            uploadStatus === 'success'
-                            ? '#e6f4ea'
-                            : uploadStatus === 'error'
-                            ? '#fce8e6'
-                            : '#f0f0f0',
-                        color: '#081A33',
-                        border: `1px solid ${
-                            uploadStatus === 'success'
-                            ? '#137333'
-                            : uploadStatus === 'error'
-                            ? '#d93025'
-                            : '#999'
-                        }`,
-                        borderRadius: 2,
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                        width: 360,
-                        px: 2,
-                        pt: 1,
-                        pb: 0.5,
-                        fontFamily: 'Inter, sans-serif',
-                        }}
-                        message={
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            {uploadStatus === 'success' && (
-                                <CheckCircleIcon sx={{ color: '#137333', fontSize: 20 }} />
-                            )}
-                            {uploadStatus === 'error' && (
-                                <ErrorIcon sx={{ color: '#d93025', fontSize: 20 }} />
-                            )}
-                            <Typography fontWeight={600} fontSize={14} sx={{ color: '#081A33' }}>
-                                {uploadStatus === 'success' && 'Upload successful'}
-                                {uploadStatus === 'error' && 'Upload failed'}
-                                {uploadStatus === 'loading' && 'Uploading document...'}
-                            </Typography>
-                            </Box>
-
-                            {uploadStatus === 'loading' && (
-                                <Box
-                                    sx={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: 4,
-                                    bgcolor: '#f0f0f0',
-                                    overflow: 'hidden',
-                                    }}
-                                >
-                                    <Box
-                                    sx={{
-                                        height: '100%',
-                                        bgcolor: '#0088D6',
-                                        animation: `toastProgress ${uploadDuration}s linear forwards`,
-                                    }}
-                                    />
+                        <SnackbarContent
+                            sx={{
+                                position: 'relative',
+                                overflow: 'hidden',
+                                mr: 1,
+                                mt: 1,
+                            backgroundColor:
+                                uploadStatus === 'success'
+                                ? '#e6f4ea'
+                                : uploadStatus === 'error'
+                                ? '#fce8e6'
+                                : '#f0f0f0',
+                            color: '#081A33',
+                            border: `1px solid ${
+                                uploadStatus === 'success'
+                                ? '#137333'
+                                : uploadStatus === 'error'
+                                ? '#d93025'
+                                : '#999'
+                            }`,
+                            borderRadius: 2,
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                            width: 360,
+                            px: 2,
+                            pt: 1,
+                            pb: 0.5,
+                            fontFamily: 'Inter, sans-serif',
+                            }}
+                            message={
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {uploadStatus === 'success' && (
+                                    <CheckCircleIcon sx={{ color: '#137333', fontSize: 20 }} />
+                                )}
+                                {uploadStatus === 'error' && (
+                                    <ErrorIcon sx={{ color: '#d93025', fontSize: 20 }} />
+                                )}
+                                <Typography fontWeight={600} fontSize={14} sx={{ color: '#081A33' }}>
+                                    {uploadStatus === 'success' && 'Upload successful'}
+                                    {uploadStatus === 'error' && 'Upload failed'}
+                                    {uploadStatus === 'loading' && 'Uploading document...'}
+                                </Typography>
                                 </Box>
-                            )}
-                            {uploadStatus !== 'loading' && (
-                            <Typography variant="caption" sx={{ color: '#081A33' }}>
-                                This message will close in 4 seconds.
-                            </Typography>
-                            )}
-                        </Box>
-                        }
-                        action={
-                            <>
-                                <NotificationsIcon sx={{ color: '#081A33', mr: 1, fontSize: 20 }} />
-                                <IconButton
-                                    size="small"
-                                    onClick={() => setUploadSnackOpen(false)}
-                                    sx={{ color: '#081A33' }}
-                                >
-                                    <CloseIcon sx={{ fontSize: 16 }} />
-                                </IconButton>
-                            </>
-                        }
-                    />
+
+                                {uploadStatus === 'loading' && (
+                                    <Box
+                                        sx={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: 4,
+                                        bgcolor: '#f0f0f0',
+                                        overflow: 'hidden',
+                                        }}
+                                    >
+                                        <Box
+                                        sx={{
+                                            height: '100%',
+                                            bgcolor: '#0088D6',
+                                            animation: `toastProgress ${uploadDuration}s linear forwards`,
+                                        }}
+                                        />
+                                    </Box>
+                                )}
+                                {uploadStatus !== 'loading' && (
+                                <Typography variant="caption" sx={{ color: '#081A33' }}>
+                                    This message will close in 4 seconds.
+                                </Typography>
+                                )}
+                            </Box>
+                            }
+                            action={
+                                <>
+                                    <NotificationsIcon sx={{ color: '#081A33', mr: 1, fontSize: 20 }} />
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setUploadSnackOpen(false)}
+                                        sx={{ color: '#081A33' }}
+                                    >
+                                        <CloseIcon sx={{ fontSize: 16 }} />
+                                    </IconButton>
+                                </>
+                            }
+                        />
                     </Snackbar>
                     <Box
                         sx={{
@@ -445,13 +457,12 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         {/* --- CATEGORY DROPDOWN FOR UPLOAD --- */}
                         <TextField
                         select
+                        required
                         label="Select the Category"
                         value={uploadSource}
                         onChange={handleDropdownChange}
-                        //size="medium"
                         sx={{
                             mt: '0.4167vw',
-                            //mb: '0.4167vw',
                             width: '90%',
                             '& label': {
                                 color: '#081A33', // Label color
@@ -538,6 +549,44 @@ const DocumentIngestion = ({ open, onToggle }) => {
                                 </Typography>
                             </MenuItem>
                         </TextField>
+
+                        <TextField
+                            required
+                            label="SharePoint URL"
+                            placeholder="https://abc.sharepoint.com/..."
+                            value={sharepointUrl}
+                            onChange={(e) => setSharepointUrl(e.target.value)}
+                            InputLabelProps={{ shrink: true }}
+                            sx={{
+                                width: '90%',
+                                mt: 1,
+                                '& label': {
+                                    color: '#081A33',
+                                    fontWeight: 500,
+                                    fontSize: '0.875rem',
+                                },
+                                '& label.Mui-focused': {
+                                    color: '#081A33',
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    bgcolor: '#fff',
+                                    borderRadius: 2,
+                                    '& input': {
+                                        fontSize: '0.75rem',
+                                        paddingTop: '12px',
+                                        paddingBottom: '12px',
+                                        textAlign: 'left',
+                                        '@media (max-width: 1366px)': {
+                                            paddingTop: '8px',
+                                            paddingBottom: '8px',
+                                        },
+                                    },
+                                    '& fieldset': { borderColor: '#FFD95C' },
+                                    '&:hover fieldset': { borderColor: '#FEC636' },
+                                    '&.Mui-focused fieldset': { borderColor: '#EDCC09' },
+                                },
+                            }}
+                        />
 
                         {/* hidden file input + upload handler */}
                         <input
