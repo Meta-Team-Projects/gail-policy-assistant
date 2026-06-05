@@ -378,32 +378,46 @@ const MainContent = ({
 
                {/* Right icons + category dropdown */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <FormControl
-                    size="small"
-                    variant="outlined"
+                <TextField
+                    select
+                    label="Category"
+                    value={categoryFilter}
+                    onChange={handleCategoryChange}
+                    InputLabelProps={{ shrink: true }}
+                    SelectProps={{
+                        IconComponent: ExpandMoreIcon,
+                        MenuProps: {
+                            PaperProps: {
+                                sx: {
+                                    bgcolor: '#FFFFFF',
+                                    boxShadow: 3,
+                                }
+                            }
+                        }
+                    }}
                     sx={{
                         minWidth: '14.583vw',
                         maxWidth: '14.583vw',
                         '& .MuiInputLabel-root': {
                             color: '#081A33',
                             fontWeight: 500,
+                            fontSize: '0.875rem',
                             '&.Mui-focused': {
                                 color: '#081A33',
                             },
                         },
                         '& .MuiOutlinedInput-root': {
-                            // Force the entire root container to handle the sizing structure cleanly
                             height: '40px', 
                             '@media (max-width: 1366px)': {
                                 height: '32px',
                             },
-
                             '& .MuiSelect-select': {
                                 fontSize: '0.875rem',
                                 display: 'flex',
                                 alignItems: 'center',
                                 height: '100%',
-                                // Clear out native vertical paddings completely so text is perfectly centered 
+                                color: '#081A33',
+                                fontWeight: 600,
                                 paddingTop: 0,
                                 paddingBottom: 0,
                                 boxSizing: 'border-box',
@@ -422,37 +436,17 @@ const MainContent = ({
                                 top: '50%',
                                 transform: 'translateY(-45%)',
                             },
-                        },
-                        '& .MuiSelect-root': {
-                            color: '#081A33',
-                            fontWeight: 600,
-                        },
+                        }
                     }}
                 >
-                    <InputLabel>Category</InputLabel>
-                    <Select
-                        value={categoryFilter}
-                        onChange={handleCategoryChange}
-                        label="Category"
-                        IconComponent={ExpandMoreIcon} 
-                        MenuProps={{
-                            PaperProps: {
-                                sx: {
-                                    bgcolor: '#FFFFFF',
-                                    boxShadow: 3,
-                                }
-                            }
-                        }}
-                    >
-                        {categoryOptions.map((name) => (
-                            <MenuItem key={name} value={name}>
-                                <Typography variant="body2" sx={{ textAlign: 'left', fontSize: '0.7292vw' }}>
-                                    {name}
-                                </Typography>
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                    {categoryOptions.map((name) => (
+                        <MenuItem key={name} value={name}>
+                            <Typography variant="body2" sx={{ textAlign: 'left', fontSize: '0.7292vw' }}>
+                                {name}
+                            </Typography>
+                        </MenuItem>
+                    ))}
+                </TextField>
 
                     <IconButton
                     sx={{
