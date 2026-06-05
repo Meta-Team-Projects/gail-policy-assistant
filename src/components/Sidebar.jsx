@@ -80,12 +80,9 @@ const Sidebar = ({
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
     const [openProfileDialog, setOpenProfileDialog] = useState(false);
+    const [openSupportDialog, setOpenSupportDialog] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
-
-    const handleProfileClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
 
     const handleMenuClose = () => {
         setAnchorEl(null);
@@ -96,19 +93,35 @@ const Sidebar = ({
         if (typeof onLogout === 'function') onLogout();
     }
 
-    const handleMenuItemClick = (menuType) => {
+    const handleMenuItemClick = (itemOrType, event) => {
+        const isObject = typeof itemOrType === 'object' && itemOrType !== null;
+        const itemText = isObject ? itemOrType.text : '';
+        const menuType = isObject ? itemOrType.type : itemOrType;
+
+        if (itemText === 'Profile') {
+            setAnchorEl(event.currentTarget);
+            return;
+        }
+        
+        if (itemText === 'Support') {
+            setOpenSupportDialog(true);
+            return;
+        }
+
         if (menuType === 'TOGGLE_NOTEPAD') {
-            if (typeof onNotepadToggle === 'function') onNotepadToggle()
-            return
+            if (typeof onNotepadToggle === 'function') onNotepadToggle();
+            return;
         }
+        
         if (menuType === 'NEW_SESSION') {
-            if (typeof onMenuClick === 'function') onMenuClick('NEW_SESSION')
-            return
+            if (typeof onMenuClick === 'function') onMenuClick('NEW_SESSION');
+            return;
         }
+        
         if (menuType !== MenuType.NONE && typeof onMenuClick === 'function') {
-            onMenuClick(menuType)
+            onMenuClick(menuType);
         }
-    }
+    };
 
         const menuPaperSx = {
         mt: '0vh',
@@ -333,12 +346,11 @@ const Sidebar = ({
             <Box sx={{ mt: 'auto', }}>
                 <List>
                     {bottomMenuItems.map((item) => {
-                        const isProfile = item.text === 'Profile';
                         return (
                         <ListItem key={item.text} disablePadding>
                             <Tooltip title={!open ? item.text : ''} placement="right" arrow>
                                 <ListItemButton
-                                onClick={isProfile ? handleProfileClick : handleMenuItemClick(item.type)}
+                                onClick={(e) => handleMenuItemClick(item, e)}
                                 selected={activeMenu === item.type}
                                 sx={{
                                     pl: 2,
@@ -364,7 +376,7 @@ const Sidebar = ({
                                     '& svg': {
                                         fontSize: '1vw',
                                     },
-                                    color: isProfile ? '#fff' : '#678092',
+                                    color: '#fff',
                                     }}
                                 >
                                     {item.icon}
@@ -375,7 +387,7 @@ const Sidebar = ({
                                     primaryTypographyProps={{
                                     sx: {
                                         fontSize: '0.8333vw',
-                                        color: isProfile ? '#fff' : '#678092',
+                                        color: '#fff', //#678092
                                     }
                                     }}
                                     />
@@ -398,7 +410,10 @@ const Sidebar = ({
                   }}
                 >
                     <MenuItem
-                      onClick={() => setOpenProfileDialog(true)}
+                      onClick={() => {
+                        setOpenProfileDialog(true);
+                        handleMenuClose();
+                      }}
                       sx={menuItemSx}
                     >
                         <PersonIcon />
@@ -418,6 +433,7 @@ const Sidebar = ({
 
     const dialogs = (
         <>
+            {/* Profile Dialog */}
             <Dialog
                 open={openProfileDialog}
                 onClose={() => setOpenProfileDialog(false)}
@@ -428,8 +444,7 @@ const Sidebar = ({
                         borderRadius: 2,
                         width: 500,
                         px: 3,
-                        pt: 4, 
-                        pb: 4,
+                        py: 4,
                         bgcolor: '#F5F7FA',
                         boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
                         position: 'relative' 
@@ -442,8 +457,8 @@ const Sidebar = ({
                     onClick={() => setOpenProfileDialog(false)}
                     sx={{
                         position: 'absolute',
-                        right: 12,
-                        top: 12,
+                        right: 10,
+                        top: 10,
                         color: '#687382',
                         '&:hover': {
                             backgroundColor: '#c8e4f45a',
@@ -490,7 +505,7 @@ const Sidebar = ({
                             <Box 
                                 sx={{ 
                                     width: '100%', 
-                                    height: '40px', // Matches standard MUI text field sizing
+                                    height: '40px', 
                                     border: '1px solid #687382', 
                                     borderRadius: '4px',
                                     bgcolor: 'transparent'
@@ -547,8 +562,75 @@ const Sidebar = ({
                     </Box>
                 </DialogContent>
             </Dialog>
+
+            {/* Support Dialog */}
+            <Dialog
+                open={openSupportDialog}
+                onClose={() => setOpenSupportDialog(false)}
+                container={() => document.body}
+                BackdropProps={{ sx: { backdropFilter: 'grayscale(0.5) brightness(0.5)' } }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        width: 500,
+                        px: 3,
+                        pt: 5, // Extra top padding to ensure typography avoids the close button
+                        pb: 4,
+                        bgcolor: '#F5F7FA',
+                        boxShadow: '0px 4px 8px rgba(18,18,18,0.25)',
+                        position: 'relative' 
+                    }
+                }}  
+            >
+                {/* Absolute Positioned Close Button */}
+                <IconButton
+                    aria-label="close"
+                    onClick={() => setOpenSupportDialog(false)}
+                    sx={{
+                        position: 'absolute',
+                        right: 10,
+                        top: 10,
+                        color: '#687382',
+                        '&:hover': {
+                            backgroundColor: '#c8e4f45a',
+                        }
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+
+                <DialogContent sx={{ p: 0 }}>
+                    <Typography 
+                        sx={{ 
+                            color: '#687382', // Matching your secondary text color accent
+                            fontSize: '1rem', 
+                            lineHeight: 1.6,
+                            textAlign: 'center'
+                        }}
+                    >
+                        In case of any issue related to chatbot performance please reach out to{' '}
+                        <Box component="span" sx={{ color: '#0088d7', fontWeight: 600 }}>
+                            Soujanya Mondal
+                        </Box>
+                        , Senior Manager CSPA at{' '}
+                        <Box 
+                            component="a" 
+                            href="mailto:smondal@gail.co.in" 
+                            sx={{ 
+                                color: '#0088d7', 
+                                textDecoration: 'none', 
+                                fontWeight: 500,
+                                '&:hover': { textDecoration: 'underline' } 
+                            }}
+                        >
+                            smondal@gail.co.in
+                        </Box>
+                        .
+                    </Typography>
+                </DialogContent>
+            </Dialog>
         </>
-    )
+    );
 
     return (
         <>
