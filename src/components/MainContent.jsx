@@ -106,16 +106,33 @@ const MainContent = ({
 
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [categoryLocked, setCategoryLocked] = useState(false);
+    const [categorySelectOpen, setCategorySelectOpen] = useState(false);
     const handleCategoryChange = (e) => {
+        if (categoryLocked) return;
         setCategoryFilter(e.target.value);
     };
+
+    useEffect(() => {
+        const sessionCategory = messages.find(msg => msg.category)?.category;
+        if (sessionCategory) {
+            setCategoryFilter(sessionCategory);
+        }
+        setCategoryLocked(messages.length > 0);
+        if (messages.length > 0) {
+            setCategorySelectOpen(false);
+        }
+    }, [messages]);
 
     useEffect(() => {
         axios.get(`${BASE_URL}/categories`)
         .then(({ data }) => {
             const categories = Array.isArray(data.categories) ? data.categories : []; 
             setCategoryOptions(categories);
-            if (!categoryFilter && categories.includes("All Documents")) {
+            const sessionCategory = messages.find(msg => msg.category)?.category;
+            if (sessionCategory) {
+                setCategoryFilter(sessionCategory);
+            } else if (!categoryFilter && categories.includes("All Documents")) {
                 setCategoryFilter("All Documents");
             }
         })
@@ -126,6 +143,7 @@ const MainContent = ({
 
     const handleSend = async () => {
     const query = message.trim()
+    const selectedCategory = categoryFilter
     setMessage('')
     if (!query) return
 
@@ -133,16 +151,19 @@ const MainContent = ({
     const userMessage = {
         type: 'user',
         content: query,
+        category: selectedCategory,
         timestamp: new Date().toISOString(),
     }
     setMessages(prev => [...prev, userMessage])
+    setCategoryLocked(true)
+    setCategorySelectOpen(false)
     setLoading(true)
 
     try {
         const resp = await axios.post(`${BASE_URL}/query_chat`, {
             session_id: sessionID,
             message:    query,
-            category:   categoryFilter,
+            category:   selectedCategory,
         });
         
         const answerText = resp.data?.answer     || ''
@@ -153,7 +174,7 @@ const MainContent = ({
             answer: answerText,
             pages: sources,       // array of reference‐objects
             currentPage: 0,
-            category: categoryFilter,
+            category: selectedCategory,
             timestamp: new Date().toISOString(),
         }
         setMessages(prev => [...prev, aiMessage])
@@ -181,6 +202,7 @@ const MainContent = ({
         answer: `**ERROR:** ${errorMessage}`,
         pages: [],                // no pages in an error
         currentPage: 0,
+        category: selectedCategory,
         timestamp: new Date().toISOString(),
         isError: true,
         };
@@ -385,6 +407,13 @@ const MainContent = ({
                     onChange={handleCategoryChange}
                     InputLabelProps={{ shrink: true }}
                     SelectProps={{
+                        open: categoryLocked ? false : categorySelectOpen,
+                        onOpen: () => {
+                            if (!categoryLocked) {
+                                setCategorySelectOpen(true);
+                            }
+                        },
+                        onClose: () => setCategorySelectOpen(false),
                         IconComponent: ExpandMoreIcon,
                         MenuProps: {
                             PaperProps: {

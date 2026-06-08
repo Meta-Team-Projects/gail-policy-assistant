@@ -51,6 +51,58 @@ const globalStyles = {
     },
 };
 
+const allCategoryLabel = 'All';
+const categoryValue = category => category.toLowerCase().replace(/ /g, '_');
+const isAllCategory = category => ['all', 'all documents'].includes(category.toLowerCase());
+
+const normalizeCategoryOptions = categories => {
+    const apiCategories = Array.isArray(categories) ? categories : [];
+    const cleanCategories = apiCategories.filter(Boolean);
+    const withoutAll = cleanCategories.filter(category => !isAllCategory(category));
+    return [allCategoryLabel, ...withoutAll];
+};
+
+const getDocumentName = doc => {
+    if (typeof doc === 'string') return doc;
+    return doc?.source_file || '';
+};
+
+const getDocumentCategory = doc => (
+    doc?.category || doc?.document_type || doc?.source || doc?.type || allCategoryLabel
+);
+
+const getCategoryLabelFromKey = (categoryKey, categoryOptions) => (
+    categoryOptions.find(category => categoryValue(category) === categoryKey) || categoryKey
+);
+
+const normalizeDocuments = data => {
+    const documents = data?.documents || data?.document_list || data || {};
+
+    if (Array.isArray(documents)) {
+        return documents.reduce((acc, doc) => {
+            const name = getDocumentName(doc);
+            if (!name) return acc;
+            const category = getDocumentCategory(doc);
+            const key = categoryValue(category);
+            acc[key] = [...(acc[key] || []), name];
+            return acc;
+        }, {});
+    }
+
+    if (documents && typeof documents === 'object') {
+        return Object.entries(documents).reduce((acc, [category, docs]) => {
+            const key = categoryValue(category);
+            const docNames = Array.isArray(docs)
+                ? docs.map(getDocumentName).filter(Boolean)
+                : [];
+            acc[key] = docNames;
+            return acc;
+        }, {});
+    }
+
+    return {};
+};
+
 const DocumentIngestion = ({ open, onToggle }) => {
     
     const [isWide, setIsWide] = useState(false);
@@ -59,13 +111,14 @@ const DocumentIngestion = ({ open, onToggle }) => {
     // const categoryOptions = ['All', 'C&P Procedure', 'Delegation of Power', 'Operation and Maintenance']
     const [categoryOptions, setCategoryOptions] = useState(['All', 'C&P Procedure', 'Delegation of Power', 'Operation and Maintenance'])
     const [selectedCategory, setSelectedCategory] = useState('All')
-    const [uploadSource,   setUploadSource]   = useState('lok_sabha')
+    const [uploadSource,   setUploadSource]   = useState('')
     const [selectedFiles, setSelectedFiles] = useState([])
     const fileInputRef = useRef(null)
     const [openInputDialog, setOpenInputDialog] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [openDeleteDialog, setOpenDeleteDialog]     = useState(false);
     const [dialogDocName,    setDialogDocName]        = useState(null);
+    const [dialogDocCategory, setDialogDocCategory]   = useState(null);
 
     const [uploadSnackOpen,  setUploadSnackOpen]      = useState(false);
     const [uploadStatus, setUploadStatus] = useState('idle')
@@ -73,6 +126,9 @@ const DocumentIngestion = ({ open, onToggle }) => {
     const [stats, setStats] = useState(null);
     const [uploadDuration, setUploadDuration] = useState(5);
     const [sharepointUrl, setSharepointUrl] = useState('');
+    const [sharepointUrlError, setSharepointUrlError] = useState(false);
+    const jobStatusPollRef = useRef(null);
+    const uploadSnackCloseRef = useRef(null);
 
 
     const sentenceCase = str =>
@@ -91,9 +147,8 @@ const DocumentIngestion = ({ open, onToggle }) => {
         const trimmedName = newCategoryName.trim();
         if (trimmedName && !categoryOptions.includes(trimmedName)) {
             setCategoryOptions([...categoryOptions, trimmedName]);
-            const uniqueValue = trimmedName.toLowerCase().replace(/ /g,'_');
 
-            setUploadSource(uniqueValue);
+            setUploadSource(trimmedName);
             setSelectedCategory(trimmedName);
         }
         setNewCategoryName('');
@@ -105,53 +160,125 @@ const DocumentIngestion = ({ open, onToggle }) => {
         setOpenInputDialog(false);
     };
 
-    const handleDeleteDoc = async (docName) => {
+    const handleDeleteDoc = async (docName, category) => {
     try {
-            await axios.post(
-                `${import.meta.env.VITE_CHAT_API_URL}/deactivate-documents`,
-                { document_names: [docName] }
+            await axios.delete(
+                `${import.meta.env.VITE_CHAT_API_URL}/delete-document`,
+                {
+                    params: {
+                        category,
+                        source_file: docName,
+                    },
+                }
             );
         } catch (error) {
-            console.error('Error deactivating document', error);
+            console.error('Error deleting document', error);
         } finally {
             setOpenDeleteDialog(false);
             setDialogDocName(null);
-            await fetchDocuments();
+            setDialogDocCategory(null);
+            fetchDocuments();
     }
 };
 
     const confirmDeleteDoc = () => {
-    if (dialogDocName) {
-        handleDeleteDoc(dialogDocName);
+    if (dialogDocName && dialogDocCategory) {
+        handleDeleteDoc(dialogDocName, dialogDocCategory);
         }
     };
 
     const fetchDocuments = async () => {
         try {
             const { data } = await axios.get(
-                `${import.meta.env.VITE_CHAT_API_URL}/list-documents`
+                `${import.meta.env.VITE_CHAT_API_URL}/documents`
             )
-            setDocumentList(data.document_list || {})
+            setDocumentList(normalizeDocuments(data))
         } catch (err) {
             console.error('Error loading documents', err)
         }
     }
 
-    const collectStats = async () => {
-    try {
-        const { data } = await axios.get(
-        `${import.meta.env.VITE_CHAT_API_URL}/collection_stats`
-        );
-        setStats(data);
-    } catch (error) {
-        console.error('Error fetching stats', error);
+    const fetchCategories = async () => {
+        try {
+            const { data } = await axios.get(
+                `${import.meta.env.VITE_CHAT_API_URL}/categories`
+            )
+            const nextCategories = normalizeCategoryOptions(data.categories || data)
+            setCategoryOptions(nextCategories)
+            setSelectedCategory(prev => nextCategories.includes(prev) ? prev : allCategoryLabel)
+            setUploadSource(prev => {
+                const uploadCategories = nextCategories.filter(category => !isAllCategory(category))
+                return uploadCategories.includes(prev) ? prev : uploadCategories[0] || ''
+            })
+        } catch (err) {
+            console.error('Error loading categories', err)
+        }
     }
-    };
 
     useEffect(() => {
+        fetchCategories();
         fetchDocuments();
-        collectStats();
+
+        return () => {
+            if (jobStatusPollRef.current) {
+                clearInterval(jobStatusPollRef.current);
+            }
+            if (uploadSnackCloseRef.current) {
+                clearTimeout(uploadSnackCloseRef.current);
+            }
+        }
     }, [])
+
+    const showUploadNotification = (status, duration = 5) => {
+        if (uploadSnackCloseRef.current) {
+            clearTimeout(uploadSnackCloseRef.current);
+            uploadSnackCloseRef.current = null;
+        }
+        setUploadDuration(duration);
+        setUploadStatus(status);
+        setUploadSnackOpen(true);
+        setUploadProgressKey(prev => prev + 1);
+    }
+
+    const scheduleUploadNotificationClose = () => {
+        if (uploadSnackCloseRef.current) {
+            clearTimeout(uploadSnackCloseRef.current);
+        }
+        uploadSnackCloseRef.current = setTimeout(() => {
+            setUploadSnackOpen(false);
+            uploadSnackCloseRef.current = null;
+        }, 4000);
+    }
+
+    const pollUploadJobStatus = (jobId) => {
+        if (jobStatusPollRef.current) {
+            clearInterval(jobStatusPollRef.current);
+        }
+
+        jobStatusPollRef.current = setInterval(async () => {
+            try {
+                const { data } = await axios.get(
+                    `${import.meta.env.VITE_CHAT_API_URL}/job-status/${jobId}`
+                )
+
+                if (data?.status === 'completed') {
+                    clearInterval(jobStatusPollRef.current);
+                    jobStatusPollRef.current = null;
+                    await fetchDocuments();
+                    showUploadNotification('success');
+                    scheduleUploadNotificationClose();
+                } else if (['failed', 'error'].includes(data?.status)) {
+                    clearInterval(jobStatusPollRef.current);
+                    jobStatusPollRef.current = null;
+                    setUploadStatus('error');
+                    setUploadSnackOpen(true);
+                    scheduleUploadNotificationClose();
+                }
+            } catch (err) {
+                console.error('Error checking upload job status', err);
+            }
+        }, 3000);
+    }
 
     const handleSelectFiles = (e) => {
         const files = Array.from(e.target.files || [])
@@ -182,7 +309,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
             return;
         }
         if (!sharepointUrl.trim()) {
-            alert('Please provide a SharePoint URL.');
+            setSharepointUrlError(true);
             return;
         }
         if (!filesToUpload.length) {
@@ -191,29 +318,30 @@ const DocumentIngestion = ({ open, onToggle }) => {
         }
 
         const formData = new FormData();
-        filesToUpload.forEach(f => formData.append('files', f));
-        formData.append('source', uploadSource);
+        filesToUpload.forEach(f => formData.append('file', f));
+        formData.append('category', uploadSource);
         formData.append('sharepoint_url', sharepointUrl.trim());
 
         const startMs = Date.now();
         try {
-            setUploadStatus('loading')
-            setUploadSnackOpen(true)
-            setUploadProgressKey(prev => prev + 1) // reset progress bar animation
+            showUploadNotification('loading');
 
-            await axios.post(
-                `${import.meta.env.VITE_CHAT_API_URL}/upload-docs`,
+            const { data } = await axios.post(
+                `${import.meta.env.VITE_CHAT_API_URL}/upload`,
                 formData
             )
 
             const elapsed = Math.max(1, (Date.now() - startMs) / 1000);
-            setUploadDuration(elapsed);
+            showUploadNotification('initiated', elapsed);
 
-            await fetchDocuments()
             setSelectedFiles([])
             setSharepointUrl('')
-            setUploadStatus('success')
-            setTimeout(() => setUploadSnackOpen(false), 4000)
+            setSharepointUrlError(false);
+            scheduleUploadNotificationClose();
+
+            if (data?.job_id) {
+                pollUploadJobStatus(data.job_id);
+            }
         } catch (err) {
             console.error('Error uploading files', {
                 message: err.message,
@@ -228,7 +356,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
                 sharepoint_url: sharepointUrl,
             })
             setUploadStatus('error')
-            setTimeout(() => setUploadSnackOpen(false), 4000)
+            scheduleUploadNotificationClose();
         }
     }
 
@@ -359,14 +487,14 @@ const DocumentIngestion = ({ open, onToggle }) => {
                                 mr: 1,
                                 mt: 1,
                             backgroundColor:
-                                uploadStatus === 'success'
+                                ['initiated', 'success'].includes(uploadStatus)
                                 ? '#e6f4ea'
                                 : uploadStatus === 'error'
                                 ? '#fce8e6'
                                 : '#f0f0f0',
                             color: '#081A33',
                             border: `1px solid ${
-                                uploadStatus === 'success'
+                                ['initiated', 'success'].includes(uploadStatus)
                                 ? '#137333'
                                 : uploadStatus === 'error'
                                 ? '#d93025'
@@ -383,14 +511,15 @@ const DocumentIngestion = ({ open, onToggle }) => {
                             message={
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                {uploadStatus === 'success' && (
+                                {['initiated', 'success'].includes(uploadStatus) && (
                                     <CheckCircleIcon sx={{ color: '#137333', fontSize: 20 }} />
                                 )}
                                 {uploadStatus === 'error' && (
                                     <ErrorIcon sx={{ color: '#d93025', fontSize: 20 }} />
                                 )}
                                 <Typography fontWeight={600} fontSize={14} sx={{ color: '#081A33' }}>
-                                    {uploadStatus === 'success' && 'Upload successful'}
+                                    {uploadStatus === 'initiated' && 'Upload Initiated'}
+                                    {uploadStatus === 'success' && 'Upload Successful'}
                                     {uploadStatus === 'error' && 'Upload failed'}
                                     {uploadStatus === 'loading' && 'Uploading document...'}
                                 </Typography>
@@ -521,10 +650,10 @@ const DocumentIngestion = ({ open, onToggle }) => {
                             }
                         }}
                         >
-                            {categoryOptions.slice(1).map(cat => (
+                            {categoryOptions.filter(category => !isAllCategory(category)).map(cat => (
                                 <MenuItem
                                     key={cat}
-                                    value={cat.toLowerCase().replace(/ /g,'_')}
+                                    value={cat}
                                     sx={{
                                         display: 'block',
                                         textAlign: 'left',  }}
@@ -552,21 +681,31 @@ const DocumentIngestion = ({ open, onToggle }) => {
 
                         <TextField
                             required
+                            error={sharepointUrlError}
                             label="SharePoint URL"
                             placeholder="https://abc.sharepoint.com/..."
                             value={sharepointUrl}
-                            onChange={(e) => setSharepointUrl(e.target.value)}
+                            onChange={(e) => {
+                                const nextValue = e.target.value;
+                                setSharepointUrl(nextValue);
+                                if (nextValue.trim()) {
+                                    setSharepointUrlError(false);
+                                }
+                            }}
                             InputLabelProps={{ shrink: true }}
                             sx={{
                                 width: '90%',
                                 mt: 1,
                                 '& label': {
-                                    color: '#081A33',
+                                    color: sharepointUrlError ? '#d93025' : '#081A33',
                                     fontWeight: 500,
                                     fontSize: '0.875rem',
                                 },
                                 '& label.Mui-focused': {
-                                    color: '#081A33',
+                                    color: sharepointUrlError ? '#d93025' : '#081A33',
+                                },
+                                '& .MuiFormLabel-asterisk': {
+                                    color: sharepointUrlError ? '#d93025' : 'inherit',
                                 },
                                 '& .MuiOutlinedInput-root': {
                                     bgcolor: '#fff',
@@ -581,9 +720,9 @@ const DocumentIngestion = ({ open, onToggle }) => {
                                             paddingBottom: '8px',
                                         },
                                     },
-                                    '& fieldset': { borderColor: '#FFD95C' },
-                                    '&:hover fieldset': { borderColor: '#FEC636' },
-                                    '&.Mui-focused fieldset': { borderColor: '#EDCC09' },
+                                    '& fieldset': { borderColor: sharepointUrlError ? '#d93025' : '#FFD95C' },
+                                    '&:hover fieldset': { borderColor: sharepointUrlError ? '#d93025' : '#FEC636' },
+                                    '&.Mui-focused fieldset': { borderColor: sharepointUrlError ? '#d93025' : '#EDCC09' },
                                 },
                             }}
                         />
@@ -973,23 +1112,31 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         // flatten all docs if 'All', else pick selected category
                         const key = selectedCategory === 'All'
                         ? null
-                        : selectedCategory.toLowerCase()
+                        : categoryValue(selectedCategory)
                         let docs = []
                         if (key) {
-                        docs = documentList[key] || []
+                        docs = (documentList[key] || []).map(name => ({
+                            name,
+                            category: getCategoryLabelFromKey(key, categoryOptions),
+                        }))
                         } else {
-                        docs = Object.values(documentList).flat()
+                        docs = Object.entries(documentList).flatMap(([categoryKey, names]) => (
+                            names.map(name => ({
+                                name,
+                                category: getCategoryLabelFromKey(categoryKey, categoryOptions),
+                            }))
+                        ))
                         }
                         // filter by search
                         return (
                         <List sx={{ px: 0, mb: 1 }}>
                             {docs
-                            .filter(name =>
+                            .filter(({ name }) =>
                                 name.toLowerCase().includes(searchTerm.toLowerCase())
                             )
-                            .map(name => (
+                            .map(({ name, category }) => (
                                 <ListItem
-                                key={name}
+                                key={`${category}-${name}`}
                                 disableGutters
                                 sx={{
                                     bgcolor: '#A9C7FF0D',
@@ -1108,6 +1255,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
                                     onClick={e => {
                                             e.stopPropagation();
                                             setDialogDocName(name);
+                                            setDialogDocCategory(category);
                                             setOpenDeleteDialog(true);
                                     }}>
                                         <Tooltip title='Delete' placement='bottom' arrow>
