@@ -105,11 +105,15 @@ const MainContent = ({
     }
 
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [categoryFilter, setCategoryFilter] = useState('');
+    const handleCategoryChange = (e) => {
+        setCategoryFilter(e.target.value);
+    };
 
     useEffect(() => {
-        axios.get(`${BASE_URL}/documents`)
+        axios.get(`${BASE_URL}/categories`)
         .then(({ data }) => {
-            const categories = Array.isArray(data.documents) ? data.documents : [];
+            const categories = Array.isArray(data.categories) ? data.categories : []; 
             setCategoryOptions(categories);
             if (!categoryFilter && categories.includes("All Documents")) {
                 setCategoryFilter("All Documents");
@@ -119,10 +123,6 @@ const MainContent = ({
     }, [BASE_URL]);
 
 
-    const [categoryFilter, setCategoryFilter] = useState('');
-    const handleCategoryChange = (e) => {
-        setCategoryFilter(e.target.value);
-    };
 
     const handleSend = async () => {
     const query = message.trim()
@@ -142,7 +142,7 @@ const MainContent = ({
         const resp = await axios.post(`${BASE_URL}/query_chat`, {
             session_id: sessionID,
             message:    query,
-            filename:   categoryFilter,
+            category:   categoryFilter,
         });
         
         const answerText = resp.data?.answer     || ''
