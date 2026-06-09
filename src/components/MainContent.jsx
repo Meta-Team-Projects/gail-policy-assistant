@@ -303,6 +303,16 @@ const MainContent = ({
     });
     };
 
+    const getQuestionTitleForMessage = (messageIndex, fallback = 'GAIL Response') => {
+        for (let i = messageIndex - 1; i >= 0; i -= 1) {
+            if (messages[i]?.type === 'user' && messages[i]?.content) {
+                return messages[i].content;
+            }
+        }
+
+        return fallback;
+    };
+
     useEffect(() => {
         let widest = 0
         Object.values(messageRefs.current).forEach(el => {
@@ -874,8 +884,7 @@ ${![
                                         <IconButton
                                             size="small"
                                             onClick={() => {
-                                                const prev = messages[index - 2] || messages [index - 1]
-                                                const title = prev?.content || 'GAIL Response'
+                                                const title = getQuestionTitleForMessage(index)
                                                 downloadAnswerAsPdf({
                                                     response: answerText,
                                                     formatResponse,
@@ -892,9 +901,7 @@ ${![
                                         <IconButton
                                             size="small"
                                             onClick={() => {
-                                                    // 1) Grab the question that preceded this AI message:
-                                                const userMsg    = messages[index - 1] || {};
-                                                const title      = userMsg.content || 'Saved Query';
+                                                const title = getQuestionTitleForMessage(index, 'Saved Query');
 
                                                 // 2) Pull in both the static answer text and the current reference page:
                                                 const answer     = answerText;   // already in scope
