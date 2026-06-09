@@ -17,6 +17,7 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
+    Menu,
     MenuItem,
     Tooltip,
     Dialog, DialogTitle, DialogContent, DialogActions,
@@ -43,6 +44,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import FolderCopyIcon from '@mui/icons-material/FolderCopy';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import NotificationsIcon from '@mui/icons-material/Notifications'
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
+import ClearIcon from '@mui/icons-material/Clear';
 
 const globalStyles = {
     '@keyframes toastProgress': {
@@ -119,6 +122,9 @@ const DocumentIngestion = ({ open, onToggle }) => {
     const [openDeleteDialog, setOpenDeleteDialog]     = useState(false);
     const [dialogDocName,    setDialogDocName]        = useState(null);
     const [dialogDocCategory, setDialogDocCategory]   = useState(null);
+    const [rawDocuments, setRawDocuments] = useState([]);
+    const [isDocsLoading, setIsDocsLoading] = useState(false);
+    const docsLoadingTimeoutRef = useRef(null);
 
     const [uploadSnackOpen,  setUploadSnackOpen]      = useState(false);
     const [uploadStatus, setUploadStatus] = useState('idle')
@@ -130,6 +136,33 @@ const DocumentIngestion = ({ open, onToggle }) => {
     const jobStatusPollRef = useRef(null);
     const uploadSnackCloseRef = useRef(null);
 
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [tempStartDate, setTempStartDate] = useState('');
+    const [tempEndDate, setTempEndDate] = useState('');
+    const [calendarAnchor, setCalendarAnchor] = useState(null);
+
+    const handleOpenCalendar = (event) => {
+        setTempStartDate(startDate);
+        setTempEndDate(endDate);
+        setCalendarAnchor(event.currentTarget);
+    };
+
+    const handleCloseCalendar = () => setCalendarAnchor(null);
+
+    const handleApplyDate = () => {
+        setStartDate(tempStartDate);
+        setEndDate(tempEndDate);
+        handleCloseCalendar();
+    };
+
+    const handleClearDate = () => {
+        setStartDate('');
+        setEndDate('');
+        setTempStartDate('');
+        setTempEndDate('');
+        handleCloseCalendar();
+    };
 
     const sentenceCase = str =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -189,13 +222,38 @@ const DocumentIngestion = ({ open, onToggle }) => {
 
     const fetchDocuments = async () => {
         try {
+            setIsDocsLoading(true);
+            if (docsLoadingTimeoutRef.current) {
+                clearTimeout(docsLoadingTimeoutRef.current);
+                docsLoadingTimeoutRef.current = null;
+            }
+            docsLoadingTimeoutRef.current = setTimeout(() => {
+                setIsDocsLoading(false);
+                docsLoadingTimeoutRef.current = null;
+            }, 30000);
+
             const { data } = await axios.get(
                 `${import.meta.env.VITE_CHAT_API_URL}/documents`
             )
             setDocumentList(normalizeDocuments(data))
+            const flatDocs = data.documents ? Object.values(data.documents).flat() : [];
+            setRawDocuments(flatDocs);
         } catch (err) {
             console.error('Error loading documents', err)
+        } finally {
+            if (docsLoadingTimeoutRef.current) {
+                clearTimeout(docsLoadingTimeoutRef.current);
+                docsLoadingTimeoutRef.current = null;
+            }
+            setIsDocsLoading(false);
         }
+    }
+
+    const getDocDate = (docName) => {
+        const docMeta = rawDocuments.find(d => d.source_file === docName);
+        if (!docMeta || !docMeta.uploaded_at) return '';
+
+        return docMeta.uploaded_at.split('T')[0];
     }
 
     const fetchCategories = async () => {
@@ -281,23 +339,17 @@ const DocumentIngestion = ({ open, onToggle }) => {
     }
 
     const handleSelectFiles = (e) => {
-        const files = Array.from(e.target.files || [])
-        const tooBig = files.filter(f => f.size > 10 * 1024 * 1024)
-        if (tooBig.length) {
-            alert(`These file(s) exceed 10 MB and won't be added:\n${tooBig.map(f=>f.name).join('\n')}`)
-        }
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-        const validFiles = files.filter(f => f.size <= 10 * 1024 * 1024)
-        if (validFiles.length) {
-            setSelectedFiles(prev => {
-                const existing = new Set(prev.map(file => `${file.name}-${file.size}-${file.lastModified}`))
-                const nextFiles = validFiles.filter(file => !existing.has(`${file.name}-${file.size}-${file.lastModified}`))
-                return [...prev, ...nextFiles]
-            })
+        if (file.size > 10 * 1024 *1024) {
+            alert(`This file exceeds 10 MB and won't be added:\n${file.name}`);
+            e.target.value = null;
+            return;
         }
-
-        e.target.value = null
-    }
+        setSelectedFiles([file]);
+        e.target.value = null;
+    };
 
     const handleRemoveFile = (indexToRemove) => {
         setSelectedFiles(prev => prev.filter((_, index) => index !== indexToRemove))
@@ -730,7 +782,6 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         {/* hidden file input + upload handler */}
                         <input
                         type="file"
-                        multiple
                         hidden
                         ref={fileInputRef}
                         onChange={handleSelectFiles}
@@ -1042,52 +1093,178 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         </Typography>
                         <FolderCopyIcon sx={{ color: '#081A33', fontWeight: 600, fontSize: '0.833vw' }} />
                     </Box>
-                    <TextField
-                        fullWidth
-                        variant="outlined"
-                        placeholder="Search here..."
-                        size="small"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        sx={{
-                                mb: 0.5,
-                            '& .MuiOutlinedInput-root': {
-                                bgcolor: '#0088D614',
-                                boxShadow: '0px 2px 8px #76767640',
-                                borderRadius: 2,
-                                color: '#BABABA',
-                                fontSize: '0.8333vw',
-                                fontWeight: 300,
-                                '& fieldset': {
-                                    borderColor: 'rgba(255, 255, 255, 0.2)', // Default border
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Search here..."
+                            size="small"
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            sx={{
+                                    mb: 0.5,
+                                '& .MuiOutlinedInput-root': {
+                                    bgcolor: '#0088D614',
+                                    boxShadow: '0px 2px 8px #76767640',
+                                    borderRadius: 2,
+                                    color: '#BABABA',
+                                    fontSize: '0.8333vw',
+                                    fontWeight: 300,
+                                    '& fieldset': {
+                                        borderColor: 'rgba(255, 255, 255, 0.2)', // Default border
+                                        },
+                                    '&:hover fieldset': {
+                                        borderColor: 'rgba(255, 255, 255, 0.2)', //no border color change on hover
                                     },
-                                '&:hover fieldset': {
-                                    borderColor: 'rgba(255, 255, 255, 0.2)', //no border color change on hover
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: '#515151', // When focused or selecred border change
-                                },
-                                '& .MuiOutlinedInput-input': {
-                                    py: 0.5,   // reduce vertical padding
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: '#515151', // When focused or selecred border change
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        py: 0.5,   // reduce vertical padding
+                                    }
                                 }
-                            }
-                        }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon sx={{ color: '#67676799', fontSize: '0.833vw' }} />
-                                </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <InputAdornment position="end" sx={{display: 'none'}}>
-                                    <IconButton size="small">
-                                        <FilterIcon sx={{ color: '#676767' }}/>
-                                    </IconButton>
-                                </InputAdornment>
-                            )
-                        }}
-                    />
-                    
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon sx={{ color: '#67676799', fontSize: '0.833vw' }} />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                    <InputAdornment position="end" sx={{display: 'none'}}>
+                                        <IconButton size="small">
+                                            <FilterIcon sx={{ color: '#676767' }}/>
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+
+                        {/* Calendar Action Button */}
+                        <IconButton
+                            size="small"
+                            onClick={handleOpenCalendar}
+                            sx={{
+                                bgcolor: (startDate || endDate) ? '#0088d7' : '#0088D614',
+                                color: (startDate || endDate) ? '#fff' : '#676767',
+                                borderRadius: 2,
+                                p: '6px',
+                                boxShadow: '0px 2px 8px #76767640',
+                                border: (startDate || endDate) ? '1px solid #008cff' : '1px solid rgba(255, 255, 255, 0.2)',
+                                '&:hover': {
+                                    bgcolor: (startDate || endDate) ? '#0072b1' : 'rgba(0, 136, 214, 0.15)',
+                                }
+                            }}
+                        >
+                            <CalendarMonthIcon sx={{ fontSize: '1vw' }} />
+                        </IconButton>
+
+                        {/* Dedicated Popover Dropdown for Date Selection */}
+                        <Menu
+                            anchorEl={calendarAnchor}
+                            open={Boolean(calendarAnchor)}
+                            onClose={handleCloseCalendar}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                                sx: {
+                                    p: 1,
+                                    mt: 0.5,
+                                    boxShadow: '0px 4px 20px rgba(0,0,0,0.15)',
+                                    borderRadius: 2,
+                                    bgcolor: '#fff',
+                                    display: 'flex',
+                                    gap: 1.5
+                                }
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                <Typography variant="caption" sx={{ color: '#515151', fontWeight: 600 }}>Start Date</Typography>
+                                <input
+                                    type="date"
+                                    value={tempStartDate}
+                                    onChange={(e) => setTempStartDate(e.target.value)}
+                                    style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #008cff',
+                                        fontFamily: 'inherit',
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        color: '#515151'
+                                    }}
+                                />
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', mt: 0.5 }}>
+                                <Typography variant="caption" sx={{ color: '#515151', fontWeight: 600 }}>End Date</Typography>
+                                <input
+                                    type="date"
+                                    value={tempEndDate}
+                                    onChange={(e) => setTempEndDate(e.target.value)}
+                                    style={{
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #008cff',
+                                        fontFamily: 'inherit',
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        color: '#515151'
+                                    }}
+                                />
+                            </Box>
+                            <Button 
+                                variant="contained" 
+                                disabled={!tempStartDate || !tempEndDate}
+                                onClick={handleApplyDate}
+                                sx={{ 
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    px: 2,
+                                    py: 0.5,
+                                    mt: 0.5,
+                                    
+                                    fontWeight: 500,
+                                    fontSize: '0.75rem', 
+                                    bgcolor: '#0088d7',
+                                    color: 'white',
+                                    textTransform: 'none',
+                                    '&:hover': { bgcolor: '#0072b1' }
+                                }}
+                            >
+                                Apply
+                            </Button>
+                        </Menu>
+                    </Box>
+                    {(startDate || endDate) && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1, width: '100%' }}>
+                            <Box 
+                                sx={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 0.5, 
+                                    bgcolor: '#0088d7', 
+                                    color: '#fff', 
+                                    px: 1, 
+                                    py: 0.5, 
+                                    borderRadius: 2,
+                                    boxShadow: '0px 2px 6px rgba(0, 136, 214, 0.3)',
+                                }}
+                            >
+                                <Typography sx={{ fontSize: '0.75vw', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                                    Range: {startDate ? startDate.split('-').reverse().join('-') : '...'} to {endDate ? endDate.split('-').reverse().join('-') : '...'}
+                                </Typography>
+                                <IconButton 
+                                    size="small" 
+                                    onClick={() => { setStartDate(''); setEndDate(''); }}
+                                    sx={{ p: 0, color: '#fff', '&:hover': { color: '#f08a8a' } }}
+                                >
+                                    <ClearIcon sx={{ fontSize: '0.9vw' }} />
+                                </IconButton>
+                            </Box>
+                        </Box>
+                    )}
+
                     <Box
                     sx={{
                         flexGrow: 1,
@@ -1115,25 +1292,54 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         : categoryValue(selectedCategory)
                         let docs = []
                         if (key) {
-                        docs = (documentList[key] || []).map(name => ({
-                            name,
-                            category: getCategoryLabelFromKey(key, categoryOptions),
-                        }))
-                        } else {
-                        docs = Object.entries(documentList).flatMap(([categoryKey, names]) => (
-                            names.map(name => ({
+                            docs = (documentList[key] || []).map(name => ({
                                 name,
-                                category: getCategoryLabelFromKey(categoryKey, categoryOptions),
+                                category: getCategoryLabelFromKey(key, categoryOptions),
                             }))
-                        ))
+                        } else {
+                            docs = Object.entries(documentList).flatMap(([categoryKey, names]) => (
+                                names.map(name => ({
+                                    name,
+                                    category: getCategoryLabelFromKey(categoryKey, categoryOptions),
+                                }))
+                            ))
                         }
-                        // filter by search
+
+                        const parseDocDate = (name) => {
+                            const docDateStr = getDocDate(name);
+                            if (!docDateStr) return new Date(0);
+
+                            if (docDateStr.includes('-') && docDateStr.split('-')[0].length === 2) {
+                                const [d, m, y] = docDateStr.split('-');
+                                return new Date(`${y}-${m}-${d}`);
+                            }
+                            return new Date(docDateStr);
+                        };
+
                         return (
                         <List sx={{ px: 0, mb: 1 }}>
                             {docs
                             .filter(({ name }) =>
                                 name.toLowerCase().includes(searchTerm.toLowerCase())
                             )
+                            .filter(({name}) => {
+                                if (!startDate && !endDate) return true;
+
+                                const targetDocDate = parseDocDate(name);
+                                targetDocDate.setHours(0,0,0,0);
+
+                                if (startDate) {
+                                    const startCompare = new Date(startDate);
+                                    startCompare.setHours(0,0,0,0);
+                                    if (targetDocDate < startCompare) return false;
+                                }
+
+                                if (endDate) {
+                                    const endCompare = new Date(endDate);
+                                    endCompare.setHours(0,0,0,0);
+                                    if (targetDocDate > endCompare) return false;
+                                } return true;
+                            })
                             .map(({ name, category }) => (
                                 <ListItem
                                 key={`${category}-${name}`}
@@ -1150,28 +1356,42 @@ const DocumentIngestion = ({ open, onToggle }) => {
                                     border: '0.5px solid #00000033',
                                 }}
                                 >
-                                    <Typography
-                                        sx={{
-                                        fontWeight: 600,
-                                        color: '#515151',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        fontSize: '0.8333vw'
-                                        }}
-                                    >
-                                        {isWide
-                                        ? name
-                                        : (() => {
-                                            const dotIdx = name.lastIndexOf('.');
-                                            const ext    = dotIdx >= 0 ? name.slice(dotIdx) : '';
-                                            const base   = dotIdx >= 0 ? name.slice(0, dotIdx) : name;
-                                            return base.length > 20
-                                            ? `${base.slice(0,20)}...${ext}`
-                                            : name;
-                                        })()
-                                    }
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, flexGrow: 1 }}>
+                                        <Typography
+                                            sx={{
+                                            fontWeight: 600,
+                                            color: '#515151',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            fontSize: '0.8333vw'
+                                            }}
+                                        >
+                                            {isWide
+                                                ? name
+                                                : (() => {
+                                                    const dotIdx = name.lastIndexOf('.');
+                                                    const ext    = dotIdx >= 0 ? name.slice(dotIdx) : '';
+                                                    const base   = dotIdx >= 0 ? name.slice(0, dotIdx) : name;
+                                                    return base.length > 20
+                                                    ? `${base.slice(0,20)}...${ext}`
+                                                    : name;
+                                                })()
+                                            }
+                                        </Typography>
+                                        {getDocDate(name) && (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    color: '#8A99AD',
+                                                    fontSize: '0.625vw',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Uploaded on: {getDocDate(name)}
+                                            </Typography>
+                                        )}
+                                    </Box>
                                     {/* --- Delete Confirmation Dialog --- */}
                                     <Dialog
                                         open={openDeleteDialog}
