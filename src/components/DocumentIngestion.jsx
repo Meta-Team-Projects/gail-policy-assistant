@@ -744,7 +744,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         </Typography>
                         <Typography variant="caption" display="block" color="#515151"
                         sx={{ fontWeight: 500, fontSize: '0.625vw', mt: -1}}>
-                            DOCX format, up to 10MB
+                            PDF format, up to 10MB
                         </Typography>
                         {stats?.last_upload_date && (
                             <Typography
