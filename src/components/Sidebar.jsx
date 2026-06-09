@@ -47,12 +47,12 @@ const collapsedWidth = '2.91vw'
 
 const menuItems = [
     { text: 'Notepad', icon: <EditNoteIcon />, type: 'TOGGLE_NOTEPAD' },
-    { text: 'Home', icon: <Home />, type: MenuType.NONE },
+    // { text: 'Home', icon: <Home />, type: MenuType.NONE },
     //{ text: 'Policy Documents', icon: <FilePresentIcon />, type: MenuType.POLICY_DOC},
     { text: 'New Session', icon: <DifferenceIcon />, type: 'NEW_SESSION' },
     { text: 'Saved Notes', icon: <Note />, type: MenuType.SAVED_NOTES, disabled: ''},
     { text: 'Data Manager', icon: <FilePresentIcon />, type: MenuType.DOCUMENT_INGESTION, disabled: '' },
-    { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: 'true' },
+    // { text: 'FAQs', icon: <QuestionAnswer />, type: MenuType.FAQS, disabled: 'true' },
     { text: 'Saved Queries', icon: <GetApp />, type: MenuType.SAVED_QUERIES, disabled: '' },
 ]
 
