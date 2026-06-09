@@ -4,13 +4,15 @@ const cleanInlineText = (text) => String(text || '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]*>/g, ' ')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/SOURCE_FILE/gi, 'SOURCE FILE')
+    .replace(/DOCUMENT_LINK/gi, 'DOCUMENT LINK')
     .replace(/&emsp;|&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[\u201c\u201d]/g, '"')
-    .replace(/[*_`>#~]/g, '')
+    .replace(/[*`>#~]/g, '')
     .replace(/[ \t]+/g, ' ')
     .trim()
 
@@ -18,6 +20,8 @@ const cleanMarkdownText = (text) => String(text || '')
     .replace(/\r\n/g, '\n')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]*>/g, ' ')
+    .replace(/SOURCE_FILE/gi, 'SOURCE FILE')
+    .replace(/DOCUMENT_LINK/gi, 'DOCUMENT LINK')
     .replace(/&emsp;|&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -30,8 +34,27 @@ const cleanMarkdownText = (text) => String(text || '')
 
 const extractAnswerOrFullText = (text) => {
     const value = String(text || '')
-    const answerMatch = value.match(/(?:\*\*)?\s*Answer\s*:\s*(?:\*\*)?\s*([\s\S]*?)(?=\n\s*(?:\*\*)?\s*(?:References|Sources)\s*:|$)/i)
+    const answerMatch = value.match(/(?:\*\*)?\s*Answer\s*:\s*(?:\*\*)?\s*([\s\S]*)/i)
     return answerMatch?.[1] || value
+}
+
+const formatSources = sources => {
+    if (!Array.isArray(sources) || !sources.length) return ''
+
+    const sourceLines = sources
+        .map(source => {
+            const fileName = source?.source_file || source?.file || source?.filename || source?.document_name
+            if (!fileName) return ''
+
+            return source?.page
+                ? `- File: ${fileName} (Page: ${source.page})`
+                : `- File: ${fileName}`
+        })
+        .filter(Boolean)
+
+    return sourceLines.length
+        ? `\n\nSources:\n\n${sourceLines.join('\n')}`
+        : ''
 }
 
 const getDownloadText = (response, formatResponse) => {
@@ -56,10 +79,11 @@ const sanitizeFilename = (value) => String(value || 'gail-answer')
 export const downloadAnswerAsPdf = ({
     response,
     formatResponse,
+    sources = [],
     title = 'GAIL Response',
     filename = 'gail-answer.pdf',
 }) => {
-    const answerText = getDownloadText(response, formatResponse)
+    const answerText = `${getDownloadText(response, formatResponse)}${formatSources(sources)}`
 
     if (!answerText) {
         alert('No answer text found to download.')
@@ -122,6 +146,10 @@ export const downloadAnswerAsPdf = ({
 
         if (!line) {
             y += 4
+            return
+        }
+
+        if (/^\*{0,2}\s*(document|document link)\s*:/i.test(line)) {
             return
         }
 

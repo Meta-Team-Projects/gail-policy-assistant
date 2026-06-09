@@ -888,6 +888,7 @@ ${![
                                                 downloadAnswerAsPdf({
                                                     response: answerText,
                                                     formatResponse,
+                                                    sources: msg.pages,
                                                     title,
                                                     filename: `${title || 'gail-answer'}.pdf`,
                                                 })

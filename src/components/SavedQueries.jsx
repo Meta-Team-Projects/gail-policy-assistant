@@ -36,7 +36,7 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw';
-import jsPDF from 'jspdf'
+import { downloadAnswerAsPdf } from './downloadResponse'
 
 const SavedQueries = ({ open, onToggle }) => {
     const categories = ['All', 'HR', 'Finance', 'Procurement']
@@ -84,13 +84,8 @@ const SavedQueries = ({ open, onToggle }) => {
         setDialogNoteKey(null);
     };
 
-    const handleCopy = (answerText, referencePage) => {
+    const handleCopy = (answerText) => {
     let textToCopy = `ANSWER: ${answerText}`;
-
-    if (referencePage) {
-    const sourceMarkdown = formatResponse(referencePage);
-    textToCopy += `\n\nSOURCE:\n${sourceMarkdown.replace(/\*\*/g, '')}`;
-    }
 
     navigator.clipboard
     .writeText(textToCopy)
@@ -100,36 +95,12 @@ const SavedQueries = ({ open, onToggle }) => {
         console.error('Failed to copy: ', err);
     });
     };
-    const handleDownload = async (note) => {
-        const pdf = new jsPDF();
-        const lines = pdf.splitTextToSize(note.content, 180);
-        pdf.text(lines, 10, 10);
-        const pdfBlob = pdf.output('blob');
-        if (window.showSaveFilePicker) {
-            try {
-                const handle = await window.showSaveFilePicker({
-                    suggestedName: `${note.title}.pdf`,
-                    types: [{
-                        description: 'PDF Document',
-                        accept: { 'application/pdf': ['.pdf'] },
-                    }],
-                });
-                const writable = await handle.createWritable();
-                await writable.write(pdfBlob);
-                await writable.close();
-                return;
-            } catch (fsError) {
-                console.warn('Save canceled or failed:', fsError);
-            }
-        }
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = `${note.title}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
+    const handleDownload = (note) => {
+        downloadAnswerAsPdf({
+            response: note.content,
+            title: note.title || 'GAIL Response',
+            filename: `${note.title || 'gail-answer'}.pdf`,
+        });
     };
     const handlePin = (key) => {
         const note = JSON.parse(localStorage.getItem(key));
