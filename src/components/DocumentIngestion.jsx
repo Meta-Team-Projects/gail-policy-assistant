@@ -341,9 +341,10 @@ const DocumentIngestion = ({ open, onToggle }) => {
     const handleSelectFiles = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        const MAX_SIZE = 512 * 1024 * 1024;
 
-        if (file.size > 10 * 1024 *1024) {
-            alert(`This file exceeds 10 MB and won't be added:\n${file.name}`);
+        if (file.size > MAX_SIZE) {
+            alert(`This file exceeds 512 MB and won't be added:\n${file.name}`);
             e.target.value = null;
             return;
         }
@@ -796,7 +797,7 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         </Typography>
                         <Typography variant="caption" display="block" color="#515151"
                         sx={{ fontWeight: 500, fontSize: '0.625vw', mt: -1}}>
-                            PDF format, up to 10MB
+                            PDF format, up to 512MB
                         </Typography>
                         {stats?.last_upload_date && (
                             <Typography
@@ -1284,132 +1285,132 @@ const DocumentIngestion = ({ open, onToggle }) => {
                         scrollbarWidth: 'thin',
                         scrollbarColor: '#0088d7 transparent'
                     }}>
-                    
-                    {/* determine which docs to show */}
-                    {(() => {
-                        // flatten all docs if 'All', else pick selected category
-                        const key = selectedCategory === 'All'
-                        ? null
-                        : categoryValue(selectedCategory)
-                        let docs = []
-                        if (key) {
-                            docs = (documentList[key] || []).map(name => ({
-                                name,
-                                category: getCategoryLabelFromKey(key, categoryOptions),
-                            }))
-                        } else {
-                            docs = Object.entries(documentList).flatMap(([categoryKey, names]) => (
-                                names.map(name => ({
+                        {/* determine which docs to show */}
+                        {(() => {
+                            // flatten all docs if 'All', else pick selected category
+                            const key = selectedCategory === 'All'
+                            ? null
+                            : categoryValue(selectedCategory)
+                            let docs = []
+                            if (key) {
+                                docs = (documentList[key] || []).map(name => ({
                                     name,
-                                    category: getCategoryLabelFromKey(categoryKey, categoryOptions),
+                                    category: getCategoryLabelFromKey(key, categoryOptions),
                                 }))
-                            ))
-                        }
-
-                        const parseDocDate = (name) => {
-                            const docDateStr = getDocDate(name);
-                            if (!docDateStr) return new Date(0);
-
-                            if (docDateStr.includes('-') && docDateStr.split('-')[0].length === 2) {
-                                const [d, m, y] = docDateStr.split('-');
-                                return new Date(`${y}-${m}-${d}`);
+                            } else {
+                                docs = Object.entries(documentList).flatMap(([categoryKey, names]) => (
+                                    names.map(name => ({
+                                        name,
+                                        category: getCategoryLabelFromKey(categoryKey, categoryOptions),
+                                    }))
+                                ))
                             }
-                            return new Date(docDateStr);
-                        };
 
-                        return (
-                        <List sx={{ px: 0, mb: 1 }}>
-                            {docs
-                            .filter(({ name }) =>
-                                name.toLowerCase().includes(searchTerm.toLowerCase())
-                            )
-                            .filter(({name}) => {
-                                if (!startDate && !endDate) return true;
+                            const parseDocDate = (name) => {
+                                const docDateStr = getDocDate(name);
+                                if (!docDateStr) return new Date(0);
 
-                                const targetDocDate = parseDocDate(name);
-                                targetDocDate.setHours(0,0,0,0);
-
-                                if (startDate) {
-                                    const startCompare = new Date(startDate);
-                                    startCompare.setHours(0,0,0,0);
-                                    if (targetDocDate < startCompare) return false;
+                                if (docDateStr.includes('-') && docDateStr.split('-')[0].length === 2) {
+                                    const [d, m, y] = docDateStr.split('-');
+                                    return new Date(`${y}-${m}-${d}`);
                                 }
+                                return new Date(docDateStr);
+                            };
+                            docs.sort((a, b) => parseDocDate(b.name) - parseDocDate(a.name));
 
-                                if (endDate) {
-                                    const endCompare = new Date(endDate);
-                                    endCompare.setHours(0,0,0,0);
-                                    if (targetDocDate > endCompare) return false;
-                                } return true;
-                            })
-                            .map(({ name, category }) => (
-                                <ListItem
-                                key={`${category}-${name}`}
-                                disableGutters
-                                sx={{
-                                    bgcolor: '#A9C7FF0D',
-                                    borderRadius: 2,
-                                    mb: '0.2083vw',
-                                    px: 2,
-                                    py: 0.5,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    border: '0.5px solid #00000033',
-                                }}
-                                >
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, flexGrow: 1 }}>
-                                        <Typography
-                                            sx={{
-                                            fontWeight: 600,
-                                            color: '#515151',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            fontSize: '0.8333vw'
-                                            }}
-                                        >
-                                            {isWide
-                                                ? name
-                                                : (() => {
-                                                    const dotIdx = name.lastIndexOf('.');
-                                                    const ext    = dotIdx >= 0 ? name.slice(dotIdx) : '';
-                                                    const base   = dotIdx >= 0 ? name.slice(0, dotIdx) : name;
-                                                    return base.length > 20
-                                                    ? `${base.slice(0,20)}...${ext}`
-                                                    : name;
-                                                })()
-                                            }
-                                        </Typography>
-                                        {getDocDate(name) && (
+                            return (
+                            <List sx={{ px: 0, mb: 1 }}>
+                                {docs
+                                .filter(({ name }) =>
+                                    name.toLowerCase().includes(searchTerm.toLowerCase())
+                                )
+                                .filter(({name}) => {
+                                    if (!startDate && !endDate) return true;
+
+                                    const targetDocDate = parseDocDate(name);
+                                    targetDocDate.setHours(0,0,0,0);
+
+                                    if (startDate) {
+                                        const startCompare = new Date(startDate);
+                                        startCompare.setHours(0,0,0,0);
+                                        if (targetDocDate < startCompare) return false;
+                                    }
+
+                                    if (endDate) {
+                                        const endCompare = new Date(endDate);
+                                        endCompare.setHours(0,0,0,0);
+                                        if (targetDocDate > endCompare) return false;
+                                    } return true;
+                                })
+                                .map(({ name, category }) => (
+                                    <ListItem
+                                    key={`${category}-${name}`}
+                                    disableGutters
+                                    sx={{
+                                        bgcolor: '#A9C7FF0D',
+                                        borderRadius: 2,
+                                        mb: '0.2083vw',
+                                        px: 2,
+                                        py: 0.5,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        border: '0.5px solid #00000033',
+                                    }}
+                                    >
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, flexGrow: 1 }}>
                                             <Typography
-                                                variant="caption"
                                                 sx={{
-                                                    color: '#8A99AD',
-                                                    fontSize: '0.625vw',
-                                                    fontWeight: 500,
+                                                fontWeight: 600,
+                                                color: '#515151',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                fontSize: '0.8333vw'
                                                 }}
                                             >
-                                                Uploaded on: {getDocDate(name)}
+                                                {isWide
+                                                    ? name
+                                                    : (() => {
+                                                        const dotIdx = name.lastIndexOf('.');
+                                                        const ext    = dotIdx >= 0 ? name.slice(dotIdx) : '';
+                                                        const base   = dotIdx >= 0 ? name.slice(0, dotIdx) : name;
+                                                        return base.length > 20
+                                                        ? `${base.slice(0,20)}...${ext}`
+                                                        : name;
+                                                    })()
+                                                }
                                             </Typography>
-                                        )}
-                                    </Box>
-                                    <IconButton 
-                                    size="small"
-                                    onClick={e => {
-                                            e.stopPropagation();
-                                            setDialogDocName(name);
-                                            setDialogDocCategory(category);
-                                            setOpenDeleteDialog(true);
-                                    }}>
-                                        <Tooltip title='Delete' placement='bottom' arrow>
-                                            <Delete sx={{ fontSize: '0.8333vw', color: '#f08a8a' }} />
-                                        </Tooltip>
-                                    </IconButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                    )
-                    })()}
+                                            {getDocDate(name) && (
+                                                <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                        color: '#8A99AD',
+                                                        fontSize: '0.625vw',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
+                                                    Uploaded on: {getDocDate(name)}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                        <IconButton 
+                                        size="small"
+                                        onClick={e => {
+                                                e.stopPropagation();
+                                                setDialogDocName(name);
+                                                setDialogDocCategory(category);
+                                                setOpenDeleteDialog(true);
+                                        }}>
+                                            <Tooltip title='Delete' placement='bottom' arrow>
+                                                <Delete sx={{ fontSize: '0.8333vw', color: '#f08a8a' }} />
+                                            </Tooltip>
+                                        </IconButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )
+                        })()}
                     </Box>
                 </Box>
                 <Dialog
